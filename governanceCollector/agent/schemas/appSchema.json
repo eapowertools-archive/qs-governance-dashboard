@@ -1,0 +1,54 @@
+{
+    "entity": "App",
+    "columns": [{
+            "name": "id",
+            "columnType": "Property",
+            "definition": "id"
+        },
+        {
+            "name": "modifiedByUserName",
+            "columnType": "Property",
+            "definition": "modifiedByUserName"
+        },
+        {
+            "name": "name",
+            "columnType": "Property",
+            "definition": "name"
+        },
+        {
+            "name": "publishTime",
+            "columnType": "Property",
+            "definition": "publishTime"
+        },
+        {
+            "name": "description",
+            "columnType": "Property",
+            "definition": "description"
+        },
+        {
+            "name": "fileSize",
+            "columnType": "Property",
+            "definition": "fileSize"
+        },
+        {
+            "name": "lastReloadTime",
+            "columnType": "Property",
+            "definition": "lastReloadTime"
+        },
+        {
+            "name": "savedInProductVersion",
+            "columnType": "Property",
+            "definition": "savedInProductVersion"
+        },
+        {
+            "name": "stream",
+            "columnType": "Property",
+            "definition": "stream"
+        },
+        {
+            "name": "owner",
+            "columnType": "Property",
+            "definition": "owner"
+        }
+    ]
+}

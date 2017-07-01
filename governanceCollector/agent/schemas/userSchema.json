@@ -1,0 +1,64 @@
+{
+    "entity": "User",
+    "columns": [{
+            "name": "id",
+            "columnType": "Property",
+            "definition": "id"
+        },
+        {
+            "name": "userId",
+            "columnType": "Property",
+            "definition": "userId"
+        },
+        {
+            "name": "userDirectory",
+            "columnType": "Property",
+            "definition": "userDirectory"
+        },
+        {
+            "name": "name",
+            "columnType": "Property",
+            "definition": "name"
+        },
+        {
+            "name": "inactive",
+            "columnType": "Property",
+            "definition": "inactive"
+        },
+        {
+            "name": "removedExternally",
+            "columnType": "Property",
+            "definition": "removedExternally"
+        },
+        {
+            "name": "blacklisted",
+            "columnType": "Property",
+            "definition": "blacklisted"
+        },
+        {
+            "name": "deleteProhibited",
+            "columnType": "Property",
+            "definition": "deleteProhibited"
+        },
+        {
+            "name": "privileges",
+            "columnType": "Property",
+            "definition": "privileges"
+        },
+        {
+            "name": "impactSecurityAccess",
+            "columnType": "Property",
+            "definition": "impactSecurityAccess"
+        },
+        {
+            "name": "schemaPath",
+            "columnType": "Property",
+            "definition": "schemaPath"
+        },
+        {
+            "name": "roles",
+            "columnType": "Property",
+            "definition": "roles"
+        }
+    ]
+}

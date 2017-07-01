@@ -1,0 +1,26 @@
+{
+  "name": "qlik-script-log-parser",
+  "version": "1.0.8",
+  "description": "nodejs parser module for qlik sense script log files",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pouc/qlik-script-log-parser.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pouc/qlik-script-log-parser/issues"
+  },
+  "homepage": "https://github.com/pouc/qlik-script-log-parser#readme",
+  "dependencies": {
+    "path": "^0.12.7",
+    "pegjs": "git+https://github.com/pouc/pegjs.git",
+    "perfy": "^1.1.2",
+    "q": "^1.4.1",
+    "util": "^0.10.3"
+  }
+}

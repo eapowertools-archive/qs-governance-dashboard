@@ -1,0 +1,34 @@
+[
+    {
+        "hostname": "hello.world",
+        "port": "8591",
+        "certificates": {
+            "client": "c:\\foo",
+            "key": "c:\\foofoo"
+        }
+    },
+    {
+        "hostname": "foo.example.com",
+        "port": "8591",
+        "certificates": {
+            "client": "c:\\foo",
+            "key": "c:\\foofoo"
+        }
+    },
+    {
+        "hostname": "another.entry",
+        "port": "8592",
+        "certificates": {
+            "client": "d:\\policy",
+            "key": "d:\\policyKey"
+        }
+    },
+    {
+        "hostname": "sense32.112adams.local",
+        "port": "8592",
+        "certificates": {
+            "client": "",
+            "key": ""
+        }
+    }
+]

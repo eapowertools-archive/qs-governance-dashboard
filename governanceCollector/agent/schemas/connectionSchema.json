@@ -1,0 +1,34 @@
+{
+    "entity": "DataConnection",
+    "columns": [{
+            "name": "id",
+            "columnType": "Property",
+            "definition": "id"
+        },
+        {
+            "name": "name",
+            "columnType": "Property",
+            "definition": "name"
+        },
+        {
+            "name": "connectionstring",
+            "columnType": "Property",
+            "definition": "connectionstring"
+        },
+        {
+            "name": "type",
+            "columnType": "Property",
+            "definition": "type"
+        },
+        {
+            "name": "modifiedDate",
+            "columnType": "Property",
+            "definition": "modifiedDate"
+        },
+        {
+            "name": "owner",
+            "columnType": "Property",
+            "definition": "owner"
+        }
+    ]
+}

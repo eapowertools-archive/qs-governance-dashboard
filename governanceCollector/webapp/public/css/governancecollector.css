@@ -1,0 +1,355 @@
+/*.governanceCollector .navbar-fixed-top {
+    margin-left: 250px;
+}*/
+
+@font-face {
+    font-family: "LUI icons";
+    src: url(../../node_modules/leonardo-ui/dist/lui-icons.woff) format('woff'), url(../../node_modules/leonardo-ui/dist/lui-icons.ttf) format('truetype');
+}
+
+.governanceCollector #page-content-header {
+    background: #404040;
+    top: 0;
+    height: 60px;
+    width: 100%;
+}
+
+.governanceCollector #page-content-body {
+    margin-top: 70px;
+    margin-bottom: 50px;
+}
+
+.governanceCollector #page-content-footer {
+    position: fixed;
+    bottom: 0px;
+    height: 50px;
+    width: 100%;
+    background: #8C8C8C;
+}
+
+.governanceCollector #button-bar {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+}
+
+.governanceCollector .title {
+    color: rgba(255, 255, 255, 0.8);
+    float: left;
+    font-size: 36px;
+    margin-top: 10px;
+    padding-left: 15px;
+}
+
+.governanceCollector #left {
+    display: flex;
+    flex-direction: column;
+    width: 48%;
+    height: 200px;
+    margin: 0 1% 0 1%;
+    align-items: center;
+}
+
+.governanceCollector #right {
+    display: flex;
+    flex-direction: column;
+    width: 48%;
+    align-items: center;
+    margin: 0 1% 0 1%;
+    justify-content: center;
+}
+
+.governanceCollector .panel-heading {
+    background-color: #595959;
+    border-color: #595959;
+}
+
+.governanceCollector .panel {
+    border-color: #595959;
+}
+
+.governanceCollector .govButtons {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: inherit;
+    width: 50%;
+    min-width: 200px;
+}
+
+.governanceCollector #selectArea {
+    display: inline-flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.governanceCollector #main {
+    display: flex;
+}
+
+.governanceCollector #output {
+    margin-top: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 300px;
+}
+
+.governanceCollector #outputPanel #output-area {
+    height: 300px;
+}
+
+.governanceCollector #goButton {
+    min-width: 300px;
+    height: 56px;
+    font-size: 36px;
+}
+
+.governanceCollector #flexHeading {
+    display: flex;
+    justify-content: space-between;
+}
+
+.governanceCollector .leftButtons {
+    width: 100%;
+}
+
+.governanceCollector .toolies {
+    min-height: 28px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 16px;
+    transition: opacity 50ms ease-out;
+    opacity: 1.0;
+    z-index: 5000;
+    overflow-x: visible;
+    width: 300px;
+    background-color: #E6E6E6;
+    color: #595959;
+}
+
+.governanceCollector .navbar-fixed-top {
+    z-index: -1;
+}
+
+.governanceCollector tooltip._right:not(._top):not(._bottom) tip tip-arrow {
+    border-right: 6px solid #E6E6E6;
+}
+
+.governance-settings .governance-settings-modal {
+    position: relative;
+    border: none;
+    background: transparent;
+    overflow: hidden;
+    border-radius: 3px;
+    outline: none;
+    padding: 0px;
+    width: 720px;
+    margin-top: 16.6667vh;
+    height: 54.1667vh;
+    margin-left: 20%;
+}
+
+.governanceCollector .settings-modal .modal-content {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.governanceCollector .settings-modal .settings-tabs {
+    margin-top: 20px;
+    border-bottom: 1px solid #464646;
+}
+
+.governanceCollector .settings-modal .settings-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: hidden;
+}
+
+.governanceCollector .settings-modal .is-hidden {
+    display: none;
+}
+
+.governanceCollector .settings-modal .settings-tab-contents {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.governanceCollector .settings-modal .settings-tab-content {
+    margin: 20px;
+}
+
+.governanceCollector .certificate-list-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.governanceCollector .certificate-list-wrapper .certificate-list-wrapper__heading {
+    flex: 0 0 auto;
+}
+
+.governanceCollector .certificate-list-wrapper .certificate-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 10px;
+}
+
+.governanceCollector .certificate-list-wrapper__heading {
+    display: flex;
+    align-items: center;
+}
+
+.governanceCollector .certificate-list-wrapper__heading .certificate-list-wrapper__heading__title {
+    flex: 1;
+    font-weight: 600;
+}
+
+.governanceCollector .certificate-list-wrapper__heading .certificate-list-wrapper__heading__add {
+    flex: 0 0 auto;
+    cursor: pointer;
+    color: #F47023;
+}
+
+.governanceCollector .certificate-list-item {
+    border-bottom: 1px solid #464646;
+    padding: 5px 0;
+}
+
+.governanceCollector .certificate-list-item__row {
+    display: flex;
+}
+
+.governanceCollector .certificate-list-item__row .certificate-list-item__key {
+    flex: 0 0 80px;
+}
+
+.governanceCollector .certificate-list-item__row .certificate-list-item__value {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.governanceCollector .certificate-list-item__row .certificate-list-item__controls {
+    flex: 0 0 auto;
+    cursor: pointer;
+    color: #b94a48;
+}
+
+.governanceCollector .add-certificate__heading {
+    font-weight: 600;
+}
+
+.governanceCollector .add-certificate__fields {
+    margin-top: 15px;
+}
+
+.governanceCollector .add-certificate__field {
+    display: flex;
+    margin: 5px 0;
+}
+
+.governanceCollector .add-certificate__field .add-certificate__field__label {
+    flex: 0 0 80px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.governanceCollector .add-certificate__field .add-certificate__field__value {
+    flex: 1;
+    display: flex;
+}
+
+.governanceCollector .add-certificate__field .add-certificate__field__value .add-certificate__field__input {
+    flex: 1;
+}
+
+.governanceCollector .add-certificate__field .add-certificate__field__value .add-certificate__field__input.add-certificate__field__input--port {
+    flex: 0 0 80px;
+}
+
+.governanceCollector .add-certificate__field .add-certificate__field__value .add-certificate__field__file-chooser {
+    flex: 0 0 auto;
+    margin-left: 5px;
+}
+
+.governanceCollector .add-certificate__field__tag {
+    margin: 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.governanceCollector .add-certificate__field__divider {
+    margin: 0 3px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.governanceCollector .add-certificate__controls {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+}
+
+.ngdialog.ngdialog-theme-default .ngdialog-content {
+    background: transparent;
+}
+
+input[type=text]:focus {
+    box-shadow: 0 0 5px #595959;
+    padding: 3px 0px 3px 3px;
+    margin: 0;
+    border: 1px solid #595959;
+}
+
+.governance-settings #serverSelect {
+    width: 300px;
+}
+
+.governance-settings #selectServer {
+    width: 100%;
+    padding-bottom: 50px;
+    display: flex;
+    flex-direction: row;
+}
+
+.governance-settings .settings-path {
+    width: 60%;
+}
+
+.governance-settings .lui-label {
+    font-size: 12px;
+}
+
+.governance-settings .info-entry {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-bottom: 10px;
+}
+
+.governance-settings .info-label {
+    padding-right: 10px;
+}
+
+.governance-settings #hostname {
+    width: 70%;
+}
+
+.governance-settings .settings-text-and-button {
+    width: 70%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.governance-settings .btn-browse {
+    line-height: 26px;
+    margin: 0;
+}

@@ -1,0 +1,33 @@
+﻿# OS X
+.DS_Store*
+Icon?
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+*~
+
+# webstorm
+.idea
+
+# npm
+node_modules
+*.log
+*.gz
+*.pfx
+
+
+# Coveralls
+coverage
+
+# Benchmarking
+benchmarks/graphs
+
+# log files
+test/log files/*.log
+output/*
