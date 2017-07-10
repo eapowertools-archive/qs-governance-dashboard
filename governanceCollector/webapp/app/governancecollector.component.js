@@ -1,6 +1,6 @@
 (function() {
     "use strict";
-    var module = angular.module("QlikSenseGovernance", ["btford.socket-io", "720kb.tooltips", "ngDialog"])
+    var module = angular.module("QlikSenseGovernance", ["btford.socket-io", "720kb.tooltips", "ngDialog", "ngFileUpload"])
         .factory('mySocket', function(socketFactory) {
             return socketFactory();
         });
@@ -16,6 +16,30 @@
                 return { msg: "ERROR", error: error };
             })
 
+    }
+
+    function uploadApps($http, body) {
+        var url = "http://" + body.hostname + ":" + body.port + "/governance/uploadApps";
+        return $http.get(url)
+            .then(function(result) {
+                return result.data;
+            })
+    }
+
+    function importExtensions($http, body) {
+        var url = "http://" + body.hostname + ":" + body.port + "/governance/importExtensions";
+        return $http.get(url)
+            .then(function(result) {
+                return result.data;
+            })
+    }
+
+    function createDataConnections($http, body) {
+        var url = "http://" + body.hostname + ":" + body.port + "/governance/createDataConnections";
+        return $http.get(url)
+            .then(function(result) {
+                return result.data;
+            })
     }
 
     function loadSettings($http) {
@@ -39,7 +63,14 @@
             });
     }
 
-    function governanceCollectorBodyController($scope, $http, mySocket, ngDialog) {
+    function showAlert() {
+        $("#settings-save-alert").hide();
+        $("#settings-save-alert").fadeTo(2000, 500).fadeOut(500, function() {
+            $("#settings-save-alert").fadeOut(500);
+        });
+    }
+
+    function governanceCollectorBodyController($scope, $http, mySocket, ngDialog, Upload) {
         var model = this;
 
         model.boolGenMetadata = false;
@@ -49,11 +80,11 @@
         model.boolGeneral = false;
         model.boolCerts = false;
         model.boolImportHelp = false;
+        model.serverList = [];
+        model.settingsList = [];
         model.existingSettings = [];
         model.existingServers = [];
         model.buttonsEnabled = false;
-
-
 
         model.textGenMetaData = "Activating this button will enable the Governance Collector to ";
         model.textGenMetaData += "collect Qlik Sense application metadata and store it into xml files";
@@ -128,6 +159,8 @@
 
 
         model.openConfig = function() {
+            $("#settings-save-alert").hide();
+
             model.popSettings();
             ngDialog.open({
                 template: "app/governance-settings-body.html",
@@ -140,68 +173,62 @@
 
         };
 
+
         model.selectSetting = function() {
-            if (model.currentSetting.hostname == model.existingSettings[0].hostname) {
+            if (model.currentSetting.hostname == model.settingsList[0].hostname) {
                 model.hostname = "";
                 model.port = "";
-                model.clientCertificate = "";
-                model.clientKey = "";
+                model.uploadApps = false;
+                model.importExtensions = false;
+                model.createDataConnections = false;
             } else {
                 model.hostname = model.currentSetting.hostname;
                 model.port = model.currentSetting.port;
-                model.clientCertificate = model.currentSetting.certificates.client;
-                model.clientKey = model.currentSetting.certificates.key;
+                model.uploadApps = model.currentSetting.uploadApps;
+                model.importExtensions = model.currentSetting.importExtensions;
+                model.createDataConnections = model.currentSetting.createDataConnections;
             }
         }
 
         model.selectServer = function() {
             console.log(model.currentServer);
-            if (model.currentServer.hostname == model.existingServers[0].hostname) {
-                model.runningHostname = "";
-                model.runningPort = "";
-                model.runningClientCertificate = "";
-                model.runningClientKey = "";
+            if (model.currentServer.hostname == model.serverList[0].hostname) {
                 model.buttonsEnabled = false;
             } else {
                 model.buttonsEnabled = true;
                 model.hostname = model.currentServer.hostname;
-                model.runningHostname = model.currentServer.hostname;
                 model.port = model.currentServer.port;
-                model.runningPort = model.currentServer.port;
-                model.runningClientCertificate = model.currentServer.certificates.client;
-                model.runningClientKey = model.currentServer.certificates.key;
-
             }
         }
 
         model.popSettings = function() {
             model.saveMessage = "";
             model.hostname = "";
-            model.port = "";
-            model.clientCertificate = "";
-            model.clientKey = "";
-            model.existingSettings = [];
+            model.port = "8592";
+            model.uploadApps = false;
+            model.importExtensions = false;
+            model.createDataConnections = false;
+            model.settingsList = [];
             loadSettings($http)
                 .then(function(result) {
                     result.unshift({ "hostname": "Please select a server or add one below." });
-                    model.existingSettings = result;
+                    model.settingsList = result;
                     //console.log(model.existingSettings);
-                    model.currentSetting = model.existingSettings[0];
+                    model.currentSetting = model.settingsList[0];
                 })
         }
 
         model.popServers = function() {
             model.hostname = "";
             model.port = "";
-            model.clientCertificate = "";
-            model.clientKey = "";
-            model.existingServers = [];
+
+            model.serverList = [];
             loadSettings($http)
                 .then(function(result) {
                     result.unshift({ "hostname": "Please select a server or click Add" });
-                    model.existingServers = result;
+                    model.serverList = result;
                     //console.log(model.existingServers);
-                    model.currentServer = model.existingServers[0];
+                    model.currentServer = model.serverList[0];
                 })
         }
 
@@ -209,10 +236,9 @@
             var body = {
                 "hostname": model.hostname,
                 "port": model.port,
-                "certificates": {
-                    "client": model.clientCertificate,
-                    "key": model.clientKey,
-                }
+                "uploadApps": model.uploadApps,
+                "importExtensions": model.importExtensions,
+                "createDataConnections": model.createDataConnections
             };
 
             //console.log(body);
@@ -221,15 +247,9 @@
                 .then(function(result) {
                     model.saveMessage = result.message;
                     model.index = result.index;
-                    loadSettings($http)
-                        .then(function(result) {
-                            result.unshift({ "hostname": "Please select a server or add one below." });
-                            model.existingSettings = result;
-                            //console.log(model.existingSettings);
-                            model.currentSetting = model.existingSettings[model.index];
-                            model.popServers();
-                        })
-
+                    model.popSettings();
+                    model.popServers();
+                    showAlert();
                 })
         }
 
@@ -239,11 +259,41 @@
                     loadSettings($http)
                         .then(function(result) {
                             result.unshift({ "hostname": "Please select a server or add one below." });
-                            model.existingSettings = result;
-                            console.log(model.existingSettings);
-                            model.currentSetting = model.existingSettings[0];
+                            model.settingsList = result;
+                            console.log(model.settingsList);
+                            model.currentSetting = model.settingsList[0];
                         })
                 });
+        }
+
+        model.importStuff = function() {
+            var body = {
+                hostname: model.hostname,
+                port: model.port
+            }
+            uploadApps($http, body)
+                .then(function(result) {
+                    console.log(result)
+                    $("#uploadApps").prop('checked', true);
+                    model.uploadApps = true;
+                    return importExtensions($http, body);
+                })
+                .then(function(result) {
+                    $("#importExtensions").prop("checked", true);
+                    model.importExtensions = true;
+                    return createDataConnections($http, body);
+                })
+                .then(function(result) {
+                    $("#createDataConnections").prop("checked", true);
+                    model.createDataConnections = true;
+                    return;
+                })
+                .then(function() {
+                    model.saveSettings();
+                })
+
+
+
         }
 
         model.closeSettings = function() {
@@ -256,9 +306,6 @@
         }
     }
 
-
-
-
     module.component("governanceCollectorBody", {
         transclude: true,
         templateUrl: "app/governance-collector-body.html",
@@ -266,7 +313,7 @@
             servers: "<"
         },
         controllerAs: "model",
-        controller: ["$scope", "$http", "mySocket", "ngDialog", governanceCollectorBodyController]
+        controller: ["$scope", "$http", "mySocket", "ngDialog", "Upload", governanceCollectorBodyController]
     });
 
 }());

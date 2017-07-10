@@ -10,10 +10,9 @@ var _ = require("lodash");
 var doGovernance = require("./lib/createGovernanceOutput");
 var socketHelper = require("./lib/socketHelper");
 var logger = require("./lib/logger");
-// var socket = require('socket.io-client')('https://localhost:9945', {
-//     secure: true,
-//     reconnect: true
-// });
+var uploadApps = require("./lib/uploadApps");
+var importExtensions = require("./lib/importExtensions");
+var createDataConnections = require("./lib/createDataConnections");
 
 var loggerObject = {
     jsFile: "routes.js"
@@ -61,5 +60,33 @@ router.route("/dogovernance")
         response.send("Governance collection will run on the server and request will not await a response");
     })
 
+router.route("/getconfig")
+    .get(function(request, response) {
+        response.json(config.agent);
+    });
+
+router.route("/uploadApps")
+    .get(function(request, response) {
+        uploadApps()
+            .then(function(result) {
+                response.send(result);
+            });
+    });
+
+router.route("/importExtensions")
+    .get(function(request, response) {
+        importExtensions()
+            .then(function(result) {
+                response.send(result);
+            })
+    })
+
+router.route("/createDataConnections")
+    .get(function(request, response) {
+        createDataConnections()
+            .then(function(result) {
+                response.send(result);
+            })
+    })
 
 module.exports = router;

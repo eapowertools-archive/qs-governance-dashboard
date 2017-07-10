@@ -6,7 +6,6 @@ var Promise = require("bluebird");
 var logger = require("./logger");
 var writeToXML = require("./writeToXML");
 var newestFileList = require("./newestFileList");
-var whileLoop = require("promise-while-loop");
 
 var readdir = Promise.promisify(fs.readdir);
 var readFile = Promise.promisify(fs.readFile);

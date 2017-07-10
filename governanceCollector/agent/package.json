@@ -37,26 +37,5 @@
         "winston": "^2.3.1",
         "winston-daily-rotate-file": "^1.4.6",
         "ws": "^3.0.0"
-    },
-    "bundledDependencies": [
-        "bluebird",
-        "body-parser",
-        "enigma.js",
-        "express",
-        "extend",
-        "http",
-        "js2xmlparser",
-        "lodash",
-        "path",
-        "promise",
-        "q",
-        "qrs-interact",
-        "serializeapp",
-        "socket.io",
-        "socket.io-client",
-        "util",
-        "winston",
-        "winston-daily-rotate-file",
-        "ws"
-    ]
+    }
 }

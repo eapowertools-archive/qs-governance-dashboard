@@ -113,6 +113,9 @@ function getObjectLayouts(sheet, start_time, parse) {
                         return Promise.all(childInfos.map(function(child) {
                                 return sheet.getChild(child.qId)
                                     .then(function(object) {
+                                        if (object.qGenericType.toLowerCase() == "filterpane") {
+                                            return getObjectLayouts(object, start_time, parse);
+                                        }
                                         return object.getFullPropertyTree()
                                             .then(function(objectProps) {
                                                 end_time = Date.now();

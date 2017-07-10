@@ -13,7 +13,7 @@ var socketio = require('socket.io');
 launchServer();
 
 function launchServer() {
-    app.disable('trust proxy');
+    // /app.disable('trust proxy');
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());
     app.use('/governance/public', express.static(config.webApp.publicPath));

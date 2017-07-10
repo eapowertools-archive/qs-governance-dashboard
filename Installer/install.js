@@ -9,6 +9,7 @@ var tarball = require("tarball-extract");
 var confOps = require("./lib/services.conf");
 
 var pathPattern = /^[a-zA-Z]:((\\|\/)[a-zA-Z0-9\s_@\-^!#$%&+={}\[\]]+)+$/;
+var ui = new inquirer.ui.BottomBar();
 
 installText();
 
@@ -102,19 +103,19 @@ var agentQuestions = [{
             }
             return colors.red("Please enter a valid path");
         }
-    },
-    {
-        type: 'input',
-        name: 'qvdTaskName',
-        message: colors.green("Enter the name of the qvd generator task:"),
-        default: "Reload qvd Generator"
-    },
-    {
-        type: 'input',
-        name: 'gDashTaskName',
-        message: colors.green("Enter the name of the qvd generator task:"),
-        default: "Reload Governance Dashboard"
-    },
+    }
+    // {
+    //     type: 'input',
+    //     name: 'qvdTaskName',
+    //     message: colors.green("Enter the name of the qvd generator task:"),
+    //     default: "qsgc-Generate-Governance-QVDs"
+    // },
+    // {
+    //     type: 'input',
+    //     name: 'gDashTaskName',
+    //     message: colors.green("Enter the name of the qvd generator task:"),
+    //     default: "qsgc-Refresh-Governance-Dashboard"
+    // },
 ]
 
 var confirmInstall = [{
@@ -165,17 +166,20 @@ inquirer.prompt(firstQuestion)
                             //return false;
                         })
                 })
+                .then(function(install) {
+                    if (install) {
+                        console.log(colors.green("Install complete!"));
+                    } else {
+                        console.log(colors.red("Install failed or cancelled"));
+                    }
+                    return;
+                })
         }
+        console.log(colors.red("Install failed or cancelled"));
+        return;
         //return false;
     })
-    .then(function(install) {
-        if (install) {
-            console.log(colors.green("Install complete!"));
-        } else {
-            console.log(colors.red("Install failed or cancelled"));
-        }
-        return;
-    })
+
 
 function installText() {
     var file = fs.readFileSync(path.join(__dirname, "install.md"), "utf-8");
@@ -184,29 +188,30 @@ function installText() {
 
 function installWebApp(options) {
     return new Promise(function(resolve) {
-        console.log(colors.yellow("Unpacking web app files"));
+        ui.updateBottomBar(colors.yellow("Unpacking web app files"));
         return tarball.extractTarball(path.join(__dirname, 'src/webapp.tar.gz'), path.join(__dirname, "../"), function(err) {
 
             if (err) {
-                console.log(colors.red("Error Occurred in installWebApp: " + err));
+                ui.updateBottomBar(colors.red("Error Occurred in installWebApp: " + err));
                 resolve(false);
             }
 
-            console.log(colors.green("web app files unpacked and installed."));
-            console.log(colors.yellow("creating configuration file"));
+            ui.updateBottomBar(colors.green("web app files unpacked and installed."));
+            setTimeout(function() { return; }, 3000);
+            ui.updateBottomBar(colors.yellow("creating configuration file"));
             var installConfig = {
                 "webApp": {
                     "port": options.webPort
                 }
             };
             fs.writeFileSync(path.join(__dirname, "../webapp/config/installConfig.json"), JSON.stringify(installConfig, null, 4));
-            console.log(colors.green("configuration file created"));
+            ui.updateBottomBar(colors.green("configuration file created"));
 
             if (fs.existsSync(path.join(__dirname, "../../powertoolsservicedispatcher/services.conf"))) {
-                console.log("Updating Powertools Service Dispatcher services.conf file")
+                ui.updateBottomBar("Updating Powertools Service Dispatcher services.conf file")
                 confOps(path.join(__dirname, "../../powertoolsservicedispatcher/services.conf"), "qs-governance-collector-webapp", path.join(__dirname, "../webapp/config/services.conf"));
             } else {
-                console.log(colors.red("Powertools services.conf changes failed.  Install will end, but services.conf file will have to be manually configured for services to work."));
+                ui.updateBottomBar(colors.red("Powertools services.conf changes failed.  Install will end, but services.conf file will have to be manually configured for services to work."));
             }
             resolve(true);
         })
@@ -215,7 +220,7 @@ function installWebApp(options) {
 
 function installAgent(options) {
     return new Promise(function(resolve) {
-        console.log(colors.yellow("Unpacking agent files"));
+        ui.updateBottomBar(colors.yellow("Unpacking agent files"));
         return tarball.extractTarball(path.join(__dirname, 'src/agent.tar.gz'), path.join(__dirname, "../"), function(err) {
 
             if (err) {
@@ -223,8 +228,9 @@ function installAgent(options) {
                 resolve(false);
             }
 
-            console.log(colors.green("agent files unpacked and installed."));
-            console.log(colors.yellow("creating configuration file"));
+            ui.updateBottomBar(colors.green("agent files unpacked and installed."));
+            setTimeout(function() { return; }, 3000);
+            ui.updateBottomBar(colors.yellow("creating configuration file"));
             var installConfig = {
                 "webApp": {
                     "port": options.webPort
@@ -240,14 +246,28 @@ function installAgent(options) {
                     },
                 }
             };
+
+            ui.updateBottomBar(colors.yellow("Checking and creating output directories."));
+            if (!fs.existsSync(options.metadataPath)) {
+                fs.mkdirSync(options.metadataPath);
+            }
+
+            if (!fs.existsSync(options.qvdOutputPath)) {
+                fs.mkdirSync(options.qvdOutputPath);
+            }
+
+            if (!fs.existsSync(options.parsedScriptLogPath)) {
+                fs.mkdirSync(options.parsedScriptLogPath);
+            }
+
             fs.writeFileSync(path.join(__dirname, "../agent/config/installConfig.json"), JSON.stringify(installConfig, null, 4));
-            console.log(colors.green("configuration file created"));
+            ui.updateBottomBar(colors.green("configuration file created"));
 
             if (fs.existsSync(path.join(__dirname, "../../powertoolsservicedispatcher/services.conf"))) {
-                console.log("Updating Powertools Service Dispatcher services.conf file")
+                ui.updateBottomBar("Updating Powertools Service Dispatcher services.conf file")
                 confOps(path.join(__dirname, "../../powertoolsservicedispatcher/services.conf"), "qs-governance-collector-agent", path.join(__dirname, "../agent/config/services.conf"));
             } else {
-                console.log(colors.red("Powertools services.conf changes failed.  Install will end, but services.conf file will have to be manually configured for services to work."));
+                ui.updateBottomBar(colors.red("Powertools services.conf changes failed.  Install will end, but services.conf file will have to be manually configured for services to work."));
             }
             resolve(true);
         })
@@ -257,7 +277,7 @@ function installAgent(options) {
 
 function installAll(x) {
     var boolResult = false;
-    installWebApp(x.agentAnswers)
+    return installWebApp(x.webAppAnswers)
         .then(function(result) {
             boolResult = result;
             return installAgent(x.agentAnswers);

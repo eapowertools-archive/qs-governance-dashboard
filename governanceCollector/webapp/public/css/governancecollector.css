@@ -344,7 +344,7 @@ input[type=text]:focus {
 }
 
 .governance-settings .settings-text-and-button {
-    width: 70%;
+    /*width: 70%;*/
     display: flex;
     justify-content: space-between;
 }
@@ -352,4 +352,16 @@ input[type=text]:focus {
 .governance-settings .btn-browse {
     line-height: 26px;
     margin: 0;
+}
+
+.governance-settings .lui-checkbox .lui-checkbox__input:disabled+.lui-checkbox__check-wrap .lui-checkbox__check {
+    background: rgba(0, 0, 0, 0.1);
+    border-color: transparent;
+    color: #FFFFFF;
+}
+
+.governance-settings .lui-checkbox .lui-checkbox__input:checked+.lui-checkbox__check-wrap .lui-checkbox__check,
+.lui-checkbox .lui-checkbox__input:indeterminate+.lui-checkbox__check-wrap .lui-checkbox__check {
+    background: #61a729;
+    border-color: transparent;
 }
