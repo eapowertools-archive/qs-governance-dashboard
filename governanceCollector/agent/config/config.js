@@ -59,8 +59,6 @@ var config = {
         nodeModPath: path.join(__dirname, "/../node_modules"),
         metadataPath: "c:/metadata",
         qvdOutputPath: "c:/qvds",
-        qvdTaskname: "processQVDs",
-        gDashTaskname: "reloadGDash",
         loadScriptParsing: {
             parseLoadScriptLogs: false,
             loadScriptLogPath: [loadScriptLogPath],

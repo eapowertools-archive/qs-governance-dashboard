@@ -2,50 +2,89 @@
     <form name="form.governanceSettingsForm" id="governanceSettingsForm" enctype="multipart/form-data" novalidate>
         <div class="lui-modal-background" style="background:transparent;"></div>
         <div class="governance-settings-modal">
-            <div class="lui-dialog" style="width:100%;height:100%">
+            <div class="lui-dialog" style="width:100%;">
                 <div class="lui-dialog__header">
                     <div class="lui-dialog__title">Settings</div>
                 </div>
                 <div class="lui-dialog__body">
                     <div id="serverInfo" style="display:flex;flex-direction:column;width:100%;">
                         <div id="selectServer">
-                            <select name="servers" id="serverSelect" ng-change="model.selectSetting()" ng-model="model.currentSetting" ng-init="model.initExistingSettings()" class="lui-select" ng-options="setting.hostname for setting in model.existingSettings track by setting.hostname">
+                            <select name="servers" id="serverSelect" ng-change="model.selectSetting()" ng-model="model.currentSetting" ng-init="model.initExistingSettings()" class="lui-select" ng-options="setting.hostname for setting in model.settingsList track by setting.hostname">
                             </select>
                             <div style="width:10px"></div>
-                            <button id="removeEntry" class="lui-button lui-button--danger lui-disabled" ng-class="model.currentSetting.hostname != model.existingSettings[0].hostname ? 'lui-button lui-button--danger' : 'lui-button lui-button--danger lui-disabled'" ng-click="model.deleteSetting()">Remove Entry</button>
+                            <button id="removeEntry" class="lui-button lui-button--danger lui-disabled" ng-class="model.currentSetting.hostname != model.settingsList[0].hostname ? 'lui-button lui-button--danger' : 'lui-button lui-button--danger lui-disabled'" ng-click="model.deleteSetting()">Remove Entry</button>
 
                         </div>
                         <div id="serverInfo" style="display:flex;flex-direction:column;width:100%">
                             <div class="info-entry">
                                 <label class="lui-label info-label">Hostname:
                                 </label>
-                                <div class="settings-text-and-button">
-                                    <label class="lui-label">http://</label>
-                                    <input style="margin-left:5px;margin-right:5px;width:88%;" class="lui-input" type="text" placeholder="Enter hostname" id="hostname" name="hostname" ng-model="model.hostname">
-                                    <label class="lui-label">:</label>
-                                    <input style="width:20%;margin-left:6px;" class="lui-input" type="text" placeholder="8592" id="port" name="port" ng-model="model.port">
-                                </div>
+                                <label class="lui-label">http://</label>
+                                <input style="margin-left:5px;margin-right:5px;width:88%;" class="lui-input" type="text" placeholder="Enter hostname" id="hostname" name="hostname" ng-model="model.hostname">
+                                <label class="lui-label">:</label>
+                                <input style="width:20%;margin-left:6px;" class="lui-input" type="text" placeholder="8592" value="8592" id="port" name="port" ng-model="model.port">
+                                <button id="settings-save-button" class="lui-button lui-button--success" style="width:20%;margin-left:6px;" ng-click="model.saveSettings()">Save</button>
                             </div>
-                            <div class="info-entry">
+                            <div class="info-entry" style="justify-content:center;padding-bottom:20px;">
+                                <label id="settings-save-alert" class="alert alert-success" style="font-size:12px;display:none;">Hello World</label>
+                            </div>
+                            <!--<div class="info-entry">
                                 <label class="lui-label info-label">Client Certificate</label>
                                 <div class="settings-text-and-button">
                                     <input class="lui-input" type="text" placeholder="Certificate path" id="clientCertPath" name="clientCertPath" ng-model="model.clientCertificate" class="settings-path" style="width:80%">
-                                    <label class="lui-button btn-browse">Browse<input type="file" style="display:none;" webkitDirectory directory multiple>
+                                    <div class="ng-file-upload">
+                                        <label class="lui-button btn-browse">Browse<input type="file" style="display:none;" ngf-select="model.selectCert($file)" id="certPath">
                                     </label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="info-entry">
                                 <label class="lui-label info-label">Client Key</label>
                                 <div class="settings-text-and-button">
                                     <input class="lui-input" type="text" name="clientKeyPath" placeholder="Certificate key path" ng-model="model.clientKey" id="clientKeyPath" class="settings-path" style="width:80%">
-                                    <label class="lui-button btn-browse">Browse<input type="file" style="display:none;" webkitDirectory directory multiple>
+                                    <div class="ng-file-upload">
+                                        <label class="lui-button btn-browse">Browse<input type="file" style="display:none;" ngf-select="model.selectKey($file)" id="keyPath">
                                     </label>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="info-entry" style="justify-content:flex-end">
+                                <label class="lui-label info-label"></label>
+                                <div class="settings-text-and-button">
+                                    <div style="width:100%"></div>
+
+                                    
+
+                                </div>
+                            </div>-->
                         </div>
-                        <div id="saveButton" style="display:flex;justify-content:center;">
-                            <button class="lui-button lui-button--success" ng-click="model.saveSettings()">Save</button>
-                            <!--<label class="lui-text-success" style="font-size:12px;">{{model.saveMessage}}</label>-->
+
+                        <div id="importStuff" style="display:flex;justify-content:space-between">
+                            <label class="lui-checkbox">
+                                    <input class="lui-checkbox__input" type="checkbox" aria-label="Apps Imported" id="uploadApps" ng-model="model.uploadApps" disabled/>
+                                <div class="lui-checkbox__check-wrap">
+                                    <span class="lui-checkbox__check" ></span>
+                                    <span class="lui-checkbox__check-text">Apps Imported</span>
+                                </div>
+                                
+                            </label>
+                            <label class="lui-checkbox">
+                                    <input class="lui-checkbox__input" type="checkbox" aria-label="Extensions Imported" id="importExtensions" ng-model="model.importExtensions" disabled/>
+                                <div class="lui-checkbox__check-wrap">
+                                    <span class="lui-checkbox__check" ></span>
+                                    <span class="lui-checkbox__check-text">Extensions Imported</span>
+                                </div>
+                                
+                            </label>
+                            <label class="lui-checkbox">
+                                    <input class="lui-checkbox__input" type="checkbox" aria-label="Data Connections Created" id="createDataConnections" ng-model="model.createDataConnections" disabled/>
+                                <div class="lui-checkbox__check-wrap">
+                                    <span class="lui-checkbox__check" ></span>
+                                    <span class="lui-checkbox__check-text">Connections Created</span>
+                                </div>
+                                
+                            </label>
+                            <button class="lui-button lui-button--success" ng-click="model.importStuff()" ng-class="model.uploadApps && model.importExtensions && model.createDataConnections ? 'lui-button lui-button--success lui-disabled' : 'lui-button lui-button--success'">Import Resources</button>
                         </div>
                     </div>
                 </div>
