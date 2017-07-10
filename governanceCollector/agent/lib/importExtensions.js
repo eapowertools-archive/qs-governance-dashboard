@@ -13,13 +13,13 @@ var qrsInstance = {
 
 var qrs = new qrsInteract(qrsInstance);
 
-var extensionPath = path.join(__dirname, "../installer/extensions/")
+var extensionPath = path.join(__dirname, "../../install/extensions/")
 
 var files = fs.readdirSync(extensionPath);
 
 var uploadArray = [];
 var extensionArray = [];
-var extensionsFolder = path.join(__dirname, "../Installer/extensions");
+var extensionsFolder = path.join(__dirname, "../../install/extensions");
 var folder = fs.readdirSync(extensionsFolder);
 
 folder.forEach(function(file) {

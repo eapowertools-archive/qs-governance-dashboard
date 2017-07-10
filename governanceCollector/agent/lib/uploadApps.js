@@ -14,10 +14,10 @@ var qrs = new qrsInteract(qrsInstance);
 
 var uploadArray = [];
 var finalArray = [];
-var appsFolder = path.join(__dirname, "../Installer/apps");
+var appsFolder = path.join(__dirname, "../../install/apps");
 var folder = fs.readdirSync(appsFolder);
 
-var packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, "../installer/package.json")));
+var packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, "../../install/package.json")));
 var packageJsonApps = packageJson.installer.apps;
 
 
