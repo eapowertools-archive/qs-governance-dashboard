@@ -277,7 +277,7 @@ function installAgent(options) {
 
 function installAll(x) {
     var boolResult = false;
-    return installWebApp(x.webAppAnswers)
+    return installWebApp(x.agentAnswers)
         .then(function(result) {
             boolResult = result;
             return installAgent(x.agentAnswers);
