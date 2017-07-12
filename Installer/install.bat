@@ -11,7 +11,7 @@ sc stop QlikEAPowerToolsServiceDispatcher
 :INSTALL
 set inpath=%~dp0
 cd %inpath%
-node install.js
+..\..\powertoolsservicedispatcher\node\node install.js
 
 ECHO Checking for Powertools Service Dispatcher Existence
 sc query "QlikEAPowerToolsServiceDispatcher"

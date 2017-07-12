@@ -9,7 +9,6 @@ var tarball = require("tarball-extract");
 var confOps = require("./lib/services.conf");
 
 var pathPattern = /^[a-zA-Z]:((\\|\/)[a-zA-Z0-9\s_@\-^!#$%&+={}\[\]]+)+$/;
-var ui = new inquirer.ui.BottomBar();
 
 installText();
 
@@ -24,7 +23,7 @@ var installQuestion = [{
     type: 'list',
     name: 'installType',
     message: 'The QSGC has an web app component, and an agent component.  It is possible to install the components on the same system.  What component(s)would you like to install?',
-    choices: ['web app', 'agent', 'all']
+    choices: ['complete', 'web app', 'agent']
 }];
 
 var webAppQuestions = [{
@@ -32,7 +31,7 @@ var webAppQuestions = [{
     name: 'webPort',
     message: colors.green("The default port for the web app is 8591.  To change it, enter the port number:"),
     default: 8591,
-    validate: function(input) {
+    validate: function (input) {
         var pattern = /[1-9]/
         if (input.toString().match(pattern)) {
             return true;
@@ -47,7 +46,7 @@ var agentQuestions = [{
         name: 'webPort',
         message: colors.green("The web app web port is required for the agent to send messages back to the web app.  The default port for the web app is 8591.  To change it, enter the port number:"),
         default: 8591,
-        validate: function(input) {
+        validate: function (input) {
             var pattern = /[1-9]/
             if (input.toString().match(pattern)) {
                 return true;
@@ -60,7 +59,7 @@ var agentQuestions = [{
         name: 'agentPort',
         message: colors.green("The default port for the agent is 8592.  To change it, enter the port number:"),
         default: 8592,
-        validate: function(input) {
+        validate: function (input) {
             var pattern = /[1-9]/
             if (input.toString().match(pattern)) {
                 return true;
@@ -73,7 +72,7 @@ var agentQuestions = [{
         name: 'metadataPath',
         message: colors.green("Enter the path metadata will be output to.  Please use forward slash for path separation:"),
         default: "c:/metadata",
-        validate: function(input) {
+        validate: function (input) {
             if (input.match(pathPattern)) {
                 return true;
             }
@@ -85,7 +84,7 @@ var agentQuestions = [{
         name: 'qvdOutputPath',
         message: colors.green("Enter the path generate QVDs will be output to.  Please use forward slash for path separation:"),
         default: "c:/qvdOutput",
-        validate: function(input) {
+        validate: function (input) {
             if (input.match(pathPattern)) {
                 return true;
             }
@@ -97,7 +96,7 @@ var agentQuestions = [{
         name: 'parsedScriptLogPath',
         message: colors.green("Enter the path parsed script logs will be output to.  Please use forward slash for path separation:"),
         default: "c:/parsedScriptLogs",
-        validate: function(input) {
+        validate: function (input) {
             if (input.match(pathPattern)) {
                 return true;
             }
@@ -127,32 +126,32 @@ var confirmInstall = [{
 var x = {};
 
 inquirer.prompt(firstQuestion)
-    .then(function(answer) {
+    .then(function (answer) {
         if (answer.beginInstall) {
             return inquirer.prompt(installQuestion)
-                .then(function(installAnswer) {
+                .then(function (installAnswer) {
                     x.installAnswer = installAnswer
                     if (installAnswer.installType == "web app") {
                         return inquirer.prompt(webAppQuestions)
-                            .then(function(webAppAnswers) {
+                            .then(function (webAppAnswers) {
                                 x.webAppAnswers = webAppAnswers;
                                 return webAppAnswers;
                             })
                     } else {
                         return inquirer.prompt(agentQuestions)
-                            .then(function(agentAnswers) {
+                            .then(function (agentAnswers) {
                                 x.agentAnswers = agentAnswers;
                                 return agentAnswers;
                             })
                     }
                 })
-                .then(function(answers) {
+                .then(function (answers) {
                     return inquirer.prompt([{
                             type: 'confirm',
                             name: 'confirmInstall',
                             message: colors.yellow("You have chosen to install the " + x.installAnswer.installType + ".  Are you ready to install?")
                         }])
-                        .then(function(response) {
+                        .then(function (response) {
                             if (response.confirmInstall) {
                                 switch (x.installAnswer.installType) {
                                     case 'web app':
@@ -166,7 +165,7 @@ inquirer.prompt(firstQuestion)
                             //return false;
                         })
                 })
-                .then(function(install) {
+                .then(function (install) {
                     if (install) {
                         console.log(colors.green("Install complete!"));
                     } else {
@@ -183,54 +182,70 @@ inquirer.prompt(firstQuestion)
 
 function installText() {
     var file = fs.readFileSync(path.join(__dirname, "install.md"), "utf-8");
-    console.log(colors.green(file));
+    console.log(colors.bgGreen(colors.black(file)));
 }
 
 function installWebApp(options) {
-    return new Promise(function(resolve) {
-        ui.updateBottomBar(colors.yellow("Unpacking web app files"));
-        return tarball.extractTarball(path.join(__dirname, 'src/webapp.tar.gz'), path.join(__dirname, "../"), function(err) {
+    return new Promise(function (resolve) {
+        console.log(colors.yellow("Unpacking web app files"));
+        return tarball.extractTarball(path.join(__dirname, 'src/webapp.tar.gz'), path.join(__dirname, "../"), function (err) {
 
             if (err) {
-                ui.updateBottomBar(colors.red("Error Occurred in installWebApp: " + err));
+                console.log(colors.red("Error Occurred in installWebApp: " + err));
                 resolve(false);
             }
 
-            ui.updateBottomBar(colors.green("web app files unpacked and installed."));
-            setTimeout(function() { return; }, 3000);
-            ui.updateBottomBar(colors.yellow("creating configuration file"));
+            console.log(colors.green("web app files unpacked and installed."));
+            setTimeout(function () {
+                return;
+            }, 3000);
+
+            console.log(colors.yellow("creating log directory"));
+            if (!fs.existsSync(path.join(__dirname, "../webapp/log"))) {
+                fs.mkdirSync(path.join(__dirname, "../webapp/log"));
+            }
+
+            console.log(colors.yellow("creating configuration file"));
             var installConfig = {
                 "webApp": {
                     "port": options.webPort
                 }
             };
             fs.writeFileSync(path.join(__dirname, "../webapp/config/installConfig.json"), JSON.stringify(installConfig, null, 4));
-            ui.updateBottomBar(colors.green("configuration file created"));
+            console.log(colors.green("configuration file created"));
 
-            if (fs.existsSync(path.join(__dirname, "../../powertoolsservicedispatcher/services.conf"))) {
-                ui.updateBottomBar("Updating Powertools Service Dispatcher services.conf file")
-                confOps(path.join(__dirname, "../../powertoolsservicedispatcher/services.conf"), "qs-governance-collector-webapp", path.join(__dirname, "../webapp/config/services.conf"));
-            } else {
-                ui.updateBottomBar(colors.red("Powertools services.conf changes failed.  Install will end, but services.conf file will have to be manually configured for services to work."));
-            }
+            //            if (fs.existsSync(path.join(__dirname, "../../powertoolsservicedispatcher/services.conf"))) {
+            console.log("Updating Powertools Service Dispatcher services.conf file")
+            confOps(path.join(__dirname, "../../powertoolsservicedispatcher/services.conf"), "qs-governance-collector-webapp", path.join(__dirname, "../webapp/config/services.conf"));
+            //           } else {
+            //                console.log(colors.red("Powertools services.conf changes failed.  Install will end, but services.conf file will have to be manually configured for services to work."));
+            //            }
             resolve(true);
         })
     })
 }
 
 function installAgent(options) {
-    return new Promise(function(resolve) {
-        ui.updateBottomBar(colors.yellow("Unpacking agent files"));
-        return tarball.extractTarball(path.join(__dirname, 'src/agent.tar.gz'), path.join(__dirname, "../"), function(err) {
+    return new Promise(function (resolve) {
+        console.log(colors.yellow("Unpacking agent files"));
+        return tarball.extractTarball(path.join(__dirname, 'src/agent.tar.gz'), path.join(__dirname, "../"), function (err) {
 
             if (err) {
                 console.log(colors.red("Error Occurred in installAgent: " + err));
                 resolve(false);
             }
 
-            ui.updateBottomBar(colors.green("agent files unpacked and installed."));
-            setTimeout(function() { return; }, 3000);
-            ui.updateBottomBar(colors.yellow("creating configuration file"));
+            console.log(colors.green("agent files unpacked and installed."));
+            setTimeout(function () {
+                return;
+            }, 3000);
+
+            console.log(colors.yellow("creating log directory"));
+            if (!fs.existsSync(path.join(__dirname, "../agent/log"))) {
+                fs.mkdirSync(path.join(__dirname, "../agent/log"));
+            }
+
+            console.log(colors.yellow("creating configuration file"));
             var installConfig = {
                 "webApp": {
                     "port": options.webPort
@@ -247,7 +262,7 @@ function installAgent(options) {
                 }
             };
 
-            ui.updateBottomBar(colors.yellow("Checking and creating output directories."));
+            console.log(colors.yellow("Checking and creating output directories."));
             if (!fs.existsSync(options.metadataPath)) {
                 fs.mkdirSync(options.metadataPath);
             }
@@ -261,14 +276,14 @@ function installAgent(options) {
             }
 
             fs.writeFileSync(path.join(__dirname, "../agent/config/installConfig.json"), JSON.stringify(installConfig, null, 4));
-            ui.updateBottomBar(colors.green("configuration file created"));
+            console.log(colors.green("configuration file created"));
 
-            if (fs.existsSync(path.join(__dirname, "../../powertoolsservicedispatcher/services.conf"))) {
-                ui.updateBottomBar("Updating Powertools Service Dispatcher services.conf file")
-                confOps(path.join(__dirname, "../../powertoolsservicedispatcher/services.conf"), "qs-governance-collector-agent", path.join(__dirname, "../agent/config/services.conf"));
-            } else {
-                ui.updateBottomBar(colors.red("Powertools services.conf changes failed.  Install will end, but services.conf file will have to be manually configured for services to work."));
-            }
+            //            if (fs.existsSync(path.join(__dirname, "../../powertoolsservicedispatcher/services.conf"))) {
+            console.log("Updating Powertools Service Dispatcher services.conf file")
+            confOps(path.join(__dirname, "../../powertoolsservicedispatcher/services.conf"), "qs-governance-collector-agent", path.join(__dirname, "../agent/config/services.conf"));
+            //            } else {
+            //               console.log(colors.red("Powertools services.conf changes failed.  Install will end, but services.conf file will have to be manually configured for services to work."));
+            //            }
             resolve(true);
         })
     })
@@ -278,14 +293,14 @@ function installAgent(options) {
 function installAll(x) {
     var boolResult = false;
     return installWebApp(x.agentAnswers)
-        .then(function(result) {
+        .then(function (result) {
             boolResult = result;
             return installAgent(x.agentAnswers);
         })
-        .then(function(result) {
+        .then(function (result) {
             boolResult = result
         })
-        .then(function() {
+        .then(function () {
             return boolResult;
         });
 
