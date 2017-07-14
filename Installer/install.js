@@ -9,6 +9,7 @@ var tarball = require("tarball-extract");
 var confOps = require("./lib/services.conf");
 
 var pathPattern = /^[a-zA-Z]:((\\|\/)[a-zA-Z0-9\s_@\-^!#$%&+={}\[\]]+)+$/;
+var uncPattern = /^((\\\\|\\|\/)[a-zA-Z0-9\s_@\-^!#$%&+={}\[\]]+)+$/;
 
 installText();
 
@@ -70,10 +71,10 @@ var agentQuestions = [{
     {
         type: 'input',
         name: 'metadataPath',
-        message: colors.green("Enter the path metadata will be output to.  Please use forward slash for path separation:"),
-        default: "c:/metadata",
+        message: colors.green("Enter the path metadata will be output to:"),
+        default: "c:\\metadata",
         validate: function (input) {
-            if (input.match(pathPattern)) {
+            if (input.match(pathPattern) || input.match(uncPattern)) {
                 return true;
             }
             return colors.red("Please enter a valid path");
@@ -82,10 +83,10 @@ var agentQuestions = [{
     {
         type: 'input',
         name: 'qvdOutputPath',
-        message: colors.green("Enter the path generate QVDs will be output to.  Please use forward slash for path separation:"),
-        default: "c:/qvdOutput",
+        message: colors.green("Enter the path generate QVDs will be output to:"),
+        default: "c:\\qvdOutput",
         validate: function (input) {
-            if (input.match(pathPattern)) {
+            if (input.match(pathPattern) || input.match(uncPattern)) {
                 return true;
             }
             return colors.red("Please enter a valid path");
@@ -94,14 +95,21 @@ var agentQuestions = [{
     {
         type: 'input',
         name: 'parsedScriptLogPath',
-        message: colors.green("Enter the path parsed script logs will be output to.  Please use forward slash for path separation:"),
-        default: "c:/parsedScriptLogs",
+        message: colors.green("Enter the path parsed script logs will be output to:"),
+        default: "\\\\share\\parsedScriptLogs",
         validate: function (input) {
-            if (input.match(pathPattern)) {
+            if (input.match(pathPattern) || input.match(uncPattern)) {
                 return true;
             }
             return colors.red("Please enter a valid path");
         }
+    },
+    {
+        type: 'confirm',
+        name: 'createPaths',
+        message: colors.green("Do you want the installer to create these paths if they don't exist?  ") + colors.yellow("UNC paths will ") + colors.red("NOT") + colors.yellow(" be created.  Create them manually."),
+        default: true,
+
     }
     // {
     //     type: 'input',
@@ -254,26 +262,60 @@ function installAgent(options) {
                     "port": options.agentPort,
                     "metadataPath": options.metadataPath,
                     "qvdOutputPath": options.qvdOutputPath,
-                    "qvdTaskname": options.qvdTaskName,
-                    "gDashTaskname": options.gDashTaskName,
                     "loadScriptParsing": {
                         "parsedScriptLogPath": options.parsedScriptLogPath
                     },
                 }
             };
 
-            console.log(colors.yellow("Checking and creating output directories."));
-            if (!fs.existsSync(options.metadataPath)) {
-                fs.mkdirSync(options.metadataPath);
+            if (options.createPaths) {
+                console.log(colors.yellow("Checking and creating output directories."));
+                if (!options.metadataPath.includes("\\\\")) {
+                    if (!fs.existsSync(options.metadataPath)) {
+                        try {
+                            console.log(colors.green("Creating directory: " + options.metadataPath));
+                            fs.mkdirSync(options.metadataPath);
+                        } catch (e) {
+                            console.log(colors.red("Unable to create directory: " + options.metadataPath));
+                        }
+                    } else {
+                        console.log(colors.yellow(options.metadataPath + " exists.  It will not be created again."))
+                    }
+                } else {
+                    console.log(colors.yellow("metadata path is a unc path.  ") + colors.green(options.metadataPath) + colors.yellow(" will not be created.  Create it manually."));
+                }
+
+                if (!options.qvdOutputPath.includes("\\\\")) {
+                    if (!fs.existsSync(options.qvdOutputPath)) {
+                        try {
+                            console.log(colors.green("Creating directory: " + options.qvdOutputPath));
+                            fs.mkdirSync(options.qvdOutputPath);
+                        } catch (e) {
+                            console.log(colors.red("Unable to create directory: " + options.qvdOutputPath));
+                        }
+                    } else {
+                        console.log(colors.yellow(options.qvdOutputPath + " exists.  It will not be created again."))
+                    }
+                } else {
+                    console.log(colors.yellow("metadata path is a unc path.  ") + colors.green(options.qvdOutputPath) + colors.yellow(" will not be created.  Create it manually."));
+                }
+
+                if (!options.parsedScriptLogPath.includes("\\\\")) {
+                    if (!fs.existsSync(options.parsedScriptLogPath)) {
+                        try {
+                            console.log(colors.green("Creating directory: " + options.parsedScriptLogPath));
+                            fs.mkdirSync(options.parsedScriptLogPath);
+                        } catch (e) {
+                            console.log(colors.red("Unable to create directory: " + options.parsedScriptLogPath));
+                        }
+                    } else {
+                        console.log(colors.yellow(options.parsedScriptLogPath + " exists.  It will not be created again."))
+                    }
+                } else {
+                    console.log(colors.yellow("metadata path is a unc path.  ") + colors.green(options.parsedScriptLogPath) + colors.yellow(" will not be created.  Create it manually."));
+                }
             }
 
-            if (!fs.existsSync(options.qvdOutputPath)) {
-                fs.mkdirSync(options.qvdOutputPath);
-            }
-
-            if (!fs.existsSync(options.parsedScriptLogPath)) {
-                fs.mkdirSync(options.parsedScriptLogPath);
-            }
 
             fs.writeFileSync(path.join(__dirname, "../agent/config/installConfig.json"), JSON.stringify(installConfig, null, 4));
             console.log(colors.green("configuration file created"));
