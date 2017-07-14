@@ -2,7 +2,19 @@ var enigmaInstance = require("./enigmaInstance")
 var path = require("path");
 var enigma = require("enigma.js");
 var config = require("../config/config");
+var logger = require("./logger");
+var socketHelper = require("./socketHelper");
 
+var loggerObject = {
+    jsFile: "createDataConnections.js"
+}
+
+function logMessage(level, msg) {
+    if (level == "info" || level == "error") {
+        socketHelper.sendMessage("governanceCollector", msg);
+    }
+    logger.log(level, msg, loggerObject);
+}
 
 var connMetadata = {
     qName: "qsgc-metadata",
@@ -27,24 +39,24 @@ var conns = [connMetadata, connQVDs]
 var createArray = [];
 
 function createDataConnections() {
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
         enigma.getService('qix', enigmaInstance(config))
-            .then(function(qix) {
+            .then(function (qix) {
                 return qix.global.createApp("qsgc-tempApp")
-                    .then(function(app) {
+                    .then(function (app) {
                         return qix.global.openDoc(app.qAppId, '', '', '', false)
-                            .then(function(doc) {
+                            .then(function (doc) {
                                 return doc.getConnections()
-                                    .then(function(connList) {
-                                        conns.forEach(function(item, index) {
-                                            var foo = connList.filter(function(conn) {
+                                    .then(function (connList) {
+                                        conns.forEach(function (item, index) {
+                                            var foo = connList.filter(function (conn) {
                                                 return conn.qName == item.qName;
                                             })
                                             if (foo.length == 0) {
-                                                console.log(item.qName + " does not exist in the QMC. Let's create it!");
+                                                logMessage("info", item.qName + " does not exist in the QMC. Let's create it!");
                                                 createArray.push(doc.createConnection(item));
                                             } else {
-                                                console.log(item.qName + " exists in the QMC, therefore, it will not be created.");
+                                                logMessage("info", item.qName + " exists in the QMC, therefore, it will not be created.");
                                             }
                                         })
                                         if (createArray.length > 0) {
@@ -53,30 +65,31 @@ function createDataConnections() {
                                             return "Data connections exist."
                                         }
                                     })
-                                    .then(function(result) {
-                                        console.log(result)
+                                    .then(function (result) {
+                                        logMessage("info", result)
                                         return qix.global.deleteApp(app.qAppId);
                                     })
-                                    .then(function(result) {
-                                        console.log("app deleted");
+                                    .then(function (result) {
+                                        logMessage("info", "app deleted");
                                         return;
                                     })
-                                    .then(function() {
-                                        resolve("Data Connections created");
+                                    .then(function () {
+                                        logMessage("info", "Data connections created.");
+                                        resolve(true);
                                     })
                             })
                     })
             })
-            .catch(function(error) {
-                console.log(error)
-                resolve(error);
+            .catch(function (error) {
+                logMessage("error", JSON.stringify(error));
+                resolve(false);
             })
     })
 }
 
 function createNewConnections(createArray) {
-    return new Promise(function(resolve) {
-        resolve(Promise.all(createArray).then(function(result) {
+    return new Promise(function (resolve) {
+        resolve(Promise.all(createArray).then(function (result) {
             return result;
         }));
     });
