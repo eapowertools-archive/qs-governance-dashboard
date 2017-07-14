@@ -4,7 +4,19 @@ var extend = require("extend");
 var fs = require("fs");
 var _ = require("lodash");
 var config = require("../config/config");
+var logger = require("./logger");
+var socketHelper = require("./socketHelper");
 
+var loggerObject = {
+    jsFile: "importExtensions.js"
+}
+
+function logMessage(level, msg) {
+    if (level == "info" || level == "error") {
+        socketHelper.sendMessage("governanceCollector", msg);
+    }
+    logger.log(level, msg, loggerObject);
+}
 
 var qrsInstance = {
     hostname: config.qrs.hostname,
@@ -22,10 +34,13 @@ var extensionArray = [];
 var extensionsFolder = path.join(__dirname, "../../install/extensions");
 var folder = fs.readdirSync(extensionsFolder);
 
-folder.forEach(function(file) {
+folder.forEach(function (file) {
     var extensionStream = fs.createReadStream(path.join(extensionsFolder, file));
     var extensionName = file.split(".")[0];
-    extensionArray.push({ name: extensionName, fileStream: extensionStream })
+    extensionArray.push({
+        name: extensionName,
+        fileStream: extensionStream
+    })
 })
 
 // files.forEach(function(file) {
@@ -35,29 +50,37 @@ folder.forEach(function(file) {
 
 
 function importExtensions() {
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
         return qrs.Get("/extension/full")
-            .then(function(result) {
-                var extensionNames = result.body.map(function(item) {
+            .then(function (result) {
+                var extensionNames = result.body.map(function (item) {
                     return item.name
                 });
                 //console.log(extensionNames);
-                extensionArray.forEach(function(item, index) {
-                    var foo = extensionNames.filter(function(ext) {
+                extensionArray.forEach(function (item, index) {
+                    var foo = extensionNames.filter(function (ext) {
                         return item.name == ext;
                     })
                     if (foo.length == 0) {
-                        console.log(item.name + " does not exist in the QMC. Let's import it!");
+                        logMessage("info", item.name + " does not exist in the QMC. Let's import it!");
                         uploadArray.push(upload(item));
                     } else {
-                        console.log(item.name + " exists in the QMC, therefore, it will not be uploaded.");
+                        logMessage("info", item.name + " exists in the QMC, therefore, it will not be uploaded.");
                     }
                 });
                 if (uploadArray.length > 0) {
-                    resolve(uploadExtensions(uploadArray));
+                    return uploadExtensions(uploadArray);
                 } else {
-                    resolve("No extensions to import");
+                    logMessage("info", "No extensions to import")
+                    return "No extensions to import";
                 }
+            })
+            .then(function (uploaded) {
+                resolve(true);
+            })
+            .catch(function (error) {
+                logMessage("error", JSON.stringify(error));
+                resolve(false);
             })
     })
 
@@ -65,21 +88,24 @@ function importExtensions() {
 
 function upload(extension) {
     return qrs.Post("extension/upload", extension.fileStream, 'application/zip')
-        .then(function(result) {
+        .then(function (result) {
             console.log(result);
             //return result;
             return result.body[0].name + " created " + result.body[0].createdDate + " with id=" + result.body[0].id;
         })
-        .catch(function(error) {
-            return "error uploading " + extension.name + " with error: " + error.message;
+        .catch(function (error) {
+            return "error uploading " + extension.name + " with error: " + JSON.stringify(error);
         });
 }
 
 function uploadExtensions(uploadArray) {
-    return new Promise(function(resolve) {
-        resolve(Promise.all(uploadArray).then(function(result) {
-            return result;
-        }));
+    return new Promise(function (resolve) {
+        resolve(Promise.all(uploadArray).then(function (result) {
+                return result;
+            })
+            .catch(function (error) {
+                resolve(error);
+            }));
     });
 }
 

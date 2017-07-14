@@ -3,6 +3,19 @@ var path = require("path");
 var extend = require("extend");
 var fs = require("fs");
 var config = require("../config/config");
+var logger = require("./logger");
+var socketHelper = require("./socketHelper");
+
+var loggerObject = {
+    jsFile: "uploadApps.js"
+}
+
+function logMessage(level, msg) {
+    if (level == "info" || level == "error") {
+        socketHelper.sendMessage("governanceCollector", msg);
+    }
+    logger.log(level, msg, loggerObject);
+}
 
 var qrsInstance = {
     hostname: config.qrs.hostname,
@@ -21,10 +34,10 @@ var packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, "../../install
 var packageJsonApps = packageJson.installer.apps;
 
 
-folder.forEach(function(file) {
+folder.forEach(function (file) {
     var appStream = fs.createReadStream(path.join(appsFolder, file));
     var appName = file.split(".")[0];
-    var appInfo = packageJsonApps.filter(function(item) {
+    var appInfo = packageJsonApps.filter(function (item) {
         return item.appName.toLowerCase() == appName.toLowerCase();
     });
 
@@ -36,15 +49,15 @@ folder.forEach(function(file) {
 })
 
 function importApps() {
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
         return qrs.Get("/app/full")
-            .then(function(result) {
-                var appNames = result.body.map(function(item) {
+            .then(function (result) {
+                var appNames = result.body.map(function (item) {
                     return item.name;
                 });
 
-                uploadArray.forEach(function(item, index) {
-                    var foo = appNames.filter(function(app) {
+                uploadArray.forEach(function (item, index) {
+                    var foo = appNames.filter(function (app) {
                         return item.appName == app;
                     });
                     if (foo.length == 0) {
@@ -55,39 +68,54 @@ function importApps() {
                     }
                 });
                 if (finalArray.length > 0) {
-                    resolve(uploadApps(finalArray));
+                    return uploadApps(finalArray);
                 } else {
-                    resolve("No apps to upload");
+                    return "No apps to upload";
                 }
 
+            })
+            .then(function (uploaded) {
+                resolve(true);
+            })
+            .catch(function (error) {
+                logMessage("error", JSON.stringify(error));
+                resolve(false);
             })
     })
 }
 
 function upload(app) {
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
         return qrs.Post("app/upload?name=" + app.appName, app.fileStream, 'application/vnd.qlik.sense.app')
-            .then(function(result) {
-                console.log(result);
+            .then(function (result) {
+                logMessage("info", "Uploaded " + app.appName);
                 //create a task to go along with the app.
                 return qrs.Post("ReloadTask/create", taskTemplate(app.taskName, result.body.id, result.body.name), 'json')
-                    .then(function(taskCreateResult) {
+                    .then(function (taskCreateResult) {
+                        logMessage("info", "Task created: " + app.taskName + " " + JSON.stringify(taskCreateResult))
                         resolve(result.body.name + " created " + result.body.createdDate + " with id=" + result.body.id);
                     })
+                    .catch(function (error) {
+                        logMessage("error", "Failed to create task: " + app.taskName + " with error: " + JSON.stringify(error));
+                        resolve(false);
+                    })
             })
-            .catch(function(error) {
-                resolve(error);
-                //                return "error uploading " + appName + " with error: " + error;
+            .catch(function (error) {
+                logMessage("error", "Failed to create task: " + app.appName + " with error: " + JSON.stringify(error));
+                resolve(false);
             });
     })
 
 }
 
 function uploadApps(uploadArray) {
-    return new Promise(function(resolve) {
-        resolve(Promise.all(uploadArray).then(function(result) {
-            return result;
-        }));
+    return new Promise(function (resolve) {
+        resolve(Promise.all(uploadArray).then(function (result) {
+                return result;
+            })
+            .catch(function (error) {
+                return error;
+            }));
     });
 }
 

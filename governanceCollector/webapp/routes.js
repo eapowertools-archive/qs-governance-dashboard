@@ -19,37 +19,39 @@ var winston = require("winston");
 require("winston-daily-rotate-file");
 
 router.route("/version")
-    .get(function(request, response) {
+    .get(function (request, response) {
         response.send("Governance Collector version " + config.webApp.version);
     })
 
 router.route("/ui")
-    .get(function(request, response) {
+    .get(function (request, response) {
         var options = {
             root: config.webApp.appPath
         };
-        response.sendFile('index.html', options, function(err) {
+        response.sendFile('index.html', options, function (err) {
             if (err) {
-                logger.error("ERROR:" + err, { module: 'routes.js' });
+                logger.error("ERROR:" + err, {
+                    module: 'routes.js'
+                });
                 response.status(err.status).end();
             }
         });
     })
 
 router.route("/loadsettings")
-    .get(function(request, response) {
+    .get(function (request, response) {
         var settingsFile = fs.readFileSync(path.join(__dirname, "config/settings.json"))
         response.send(JSON.parse(settingsFile));
     })
 
 router.route("/postsettings")
-    .post(function(request, response) {
+    .post(function (request, response) {
         var settingsFile = path.join(__dirname, "config/settings.json");
         var settingsData = JSON.parse(fs.readFileSync(settingsFile));
         var resultMessage;
         var settingIndex;
 
-        settingsExist = settingsData.filter(function(item) {
+        var settingsExist = settingsData.filter(function (item) {
             return item.hostname == request.body.hostname
         })
 
@@ -58,32 +60,35 @@ router.route("/postsettings")
             resultMessage = "Settings for " + request.body.hostname + " added.";
             settingIndex = settingsData.length;
         } else {
-            settingIndex = _.findIndex(settingsData, function(setting) { return setting.hostname == request.body.hostname });
+            settingIndex = _.findIndex(settingsData, function (setting) {
+                return setting.hostname == request.body.hostname
+            });
             settingsData[settingIndex].port = request.body.port;
-            settingsData[settingIndex].certificates.client = request.body.certificates.client;
-            settingsData[settingIndex].certificates.key = request.body.certificates.key;
-            // settingsData[settingIndex].paths.metadata = request.body.paths.metadata;
-            // settingsData[settingIndex].paths.scriptLogs = request.body.paths.scriptLogs;
-            // settingsData[settingIndex].paths.QVDOutput = request.body.paths.QVDOutput;
-            // settingsData[settingIndex].tasks.qvdTask = request.body.tasks.qvdTask;
-            // settingsData[settingIndex].tasks.govDashTask = request.body.tasks.govDashTask;
+            settingsData[settingIndex].uploadApps = request.body.uploadApps;
+            settingsData[settingIndex].importExtensions = request.body.importExtensions;
+            settingsData[settingIndex].createDataConnections = request.body.createDataConnections;
+
             resultMessage = "Settings Updated for " + request.body.hostname + ".";
             settingIndex = settingIndex + 1
 
         }
         console.log(settingIndex);
         fs.writeFileSync(settingsFile, JSON.stringify(settingsData, null, 4));
-        response.send({ "message": resultMessage, "settings": settingsData, "index": settingIndex })
+        response.send({
+            "message": resultMessage,
+            "settings": settingsData,
+            "index": settingIndex
+        })
     })
 
 router.route("/deletesetting")
-    .post(function(request, response) {
+    .post(function (request, response) {
         var hostname = request.body.hostname;
         console.log(request.body.hostname);
         var settingsFile = path.join(__dirname, "config/settings.json");
         var settingsData = JSON.parse(fs.readFileSync(settingsFile));
 
-        settingsData = _.remove(settingsData, function(setting) {
+        settingsData = _.remove(settingsData, function (setting) {
             return setting.hostname !== hostname;
         })
 

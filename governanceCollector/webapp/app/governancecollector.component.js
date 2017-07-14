@@ -1,7 +1,7 @@
-(function() {
+(function () {
     "use strict";
     var module = angular.module("QlikSenseGovernance", ["btford.socket-io", "720kb.tooltips", "ngDialog", "ngFileUpload"])
-        .factory('mySocket', function(socketFactory) {
+        .factory('mySocket', function (socketFactory) {
             return socketFactory();
         });
 
@@ -10,64 +10,109 @@
         var url = "http://" + body.hostname + ":" + body.port + "/governance/dogovernance";
         console.log(url);
         return $http.post(url, body)
-            .then(function(result) {
+            .then(function (result) {
                 return result;
-            }, function(error) {
-                return { msg: "ERROR", error: error };
+            }, function (error) {
+                return {
+                    msg: "ERROR",
+                    error: error
+                };
             })
 
     }
 
     function uploadApps($http, body) {
         var url = "http://" + body.hostname + ":" + body.port + "/governance/uploadApps";
+        console.log(url);
         return $http.get(url)
-            .then(function(result) {
-                return result.data;
-            })
+            .then(function (result) {
+                console.log("made the request");
+                return result;
+                //return result.data;
+            }, function (somethingElse) {
+                return somethingElse;
+            });
     }
 
     function importExtensions($http, body) {
         var url = "http://" + body.hostname + ":" + body.port + "/governance/importExtensions";
         return $http.get(url)
-            .then(function(result) {
-                return result.data;
-            })
+            .then(function (result) {
+                return result;
+            }, function (somethingElse) {
+                return somethingElse;
+            });
     }
 
     function createDataConnections($http, body) {
         var url = "http://" + body.hostname + ":" + body.port + "/governance/createDataConnections";
         return $http.get(url)
-            .then(function(result) {
-                return result.data;
-            })
+            .then(function (result) {
+                return result;
+            }, function (somethingElse) {
+                return somethingElse;
+            });
     }
 
     function loadSettings($http) {
         return $http.get("./loadsettings")
-            .then(function(response) {
+            .then(function (response) {
                 return response.data;
             })
     }
 
     function postSettings($http, body) {
         return $http.post("./postsettings", body)
-            .then(function(result) {
+            .then(function (result) {
                 return result.data;
             })
     }
 
     function deleteSetting($http, body) {
         return $http.post("./deletesetting", body)
-            .then(function(result) {
+            .then(function (result) {
                 return result.data;
             });
     }
 
     function showAlert() {
         $("#settings-save-alert").hide();
-        $("#settings-save-alert").fadeTo(2000, 500).fadeOut(500, function() {
+        $("#settings-save-alert").fadeTo(2000, 500).fadeOut(500, function () {
             $("#settings-save-alert").fadeOut(500);
+            //$("#settings-save-alert").html = "";
         });
+    }
+
+    function updatesettingsList(list, entry) {
+        var settingIndex;
+        var settingsExist = list.filter(function (item) {
+            return item.hostname == entry.hostname;
+        })
+
+        if (settingsExist.length == 0) {
+            list.push(entry);
+            //resultMessage = "Settings for " + entry.hostname + " added.";
+            settingIndex = list.length - 1;
+            return {
+                list: list,
+                index: settingIndex
+            };
+        } else {
+            settingIndex = list.findIndex(function (setting) {
+                return setting.hostname == entry.hostname
+            });
+            list[settingIndex].port = entry.port;
+            list[settingIndex].uploadApps = entry.uploadApps;
+            list[settingIndex].importExtensions = entry.importExtensions;
+            list[settingIndex].createDataConnections = entry.createDataConnections;
+
+            //resultMessage = "Settings Updated for " + entry.hostname + ".";
+            settingIndex
+            return {
+                list: list,
+                index: settingIndex
+            };
+        }
     }
 
     function governanceCollectorBodyController($scope, $http, mySocket, ngDialog, Upload) {
@@ -97,40 +142,40 @@
 
         model.textRefreshGovernanceApp = "Or you can click this button and have the qvds loaded into the Governance Dashboard supplied with the installer.";
 
-        model.$onInit = function() {
+        model.$onInit = function () {
             console.log("Hello World");
             model.popServers();
 
         }
 
-        mySocket.on("governanceCollector", function(msg) {
+        mySocket.on("governanceCollector", function (msg) {
             model.statusOutput += msg + "\n";
             $('#output-area').scrollTop($('#output-area')[0].scrollHeight)
         })
 
-        model.clearStatus = function() {
+        model.clearStatus = function () {
             model.statusOutput = "";
         };
 
-        model.genMetadata = function() {
+        model.genMetadata = function () {
             model.boolGenMetadata = (model.boolGenMetadata) ? false : true;
             console.log(model.boolGenMetadata);
         }
 
-        model.parseLoadScripts = function() {
+        model.parseLoadScripts = function () {
             model.boolParseLoadScripts = (model.boolParseLoadScripts) ? false : true;
         }
 
-        model.genQVDs = function() {
+        model.genQVDs = function () {
             model.boolGenQVDs = (model.boolGenQVDs) ? false : true;
         }
 
-        model.refreshGovernanceApp = function() {
+        model.refreshGovernanceApp = function () {
             model.boolRefreshGovernanceApp = (model.boolRefreshGovernanceApp) ? false : true;
         }
 
 
-        model.gogoGovernance = function() {
+        model.gogoGovernance = function () {
             var body = {
                 hostname: model.hostname,
                 port: model.port,
@@ -140,7 +185,7 @@
                 boolRefreshGovernanceApp: model.boolRefreshGovernanceApp
             };
             doGovernance($http, body, model)
-                .then(function(result) {
+                .then(function (result) {
                     if (!result.msg == "ERROR") {
                         model.boolGenMetadata = false;
                         model.boolParseLoadScripts = false;
@@ -158,7 +203,7 @@
         model.hw = "Hello World";
 
 
-        model.openConfig = function() {
+        model.openConfig = function () {
             $("#settings-save-alert").hide();
 
             model.popSettings();
@@ -174,7 +219,8 @@
         };
 
 
-        model.selectSetting = function() {
+        model.selectSetting = function () {
+            console.log(model.settingsList);
             if (model.currentSetting.hostname == model.settingsList[0].hostname) {
                 model.hostname = "";
                 model.port = "";
@@ -190,7 +236,7 @@
             }
         }
 
-        model.selectServer = function() {
+        model.selectServer = function () {
             console.log(model.currentServer);
             if (model.currentServer.hostname == model.serverList[0].hostname) {
                 model.buttonsEnabled = false;
@@ -201,38 +247,41 @@
             }
         }
 
-        model.popSettings = function() {
+        model.popSettings = function () {
             model.saveMessage = "";
             model.hostname = "";
             model.port = "8592";
             model.uploadApps = false;
             model.importExtensions = false;
             model.createDataConnections = false;
-            model.settingsList = [];
+
             loadSettings($http)
-                .then(function(result) {
-                    result.unshift({ "hostname": "Please select a server or add one below." });
+                .then(function (result) {
+                    result.unshift({
+                        "hostname": "Please select a server or add one below."
+                    });
                     model.settingsList = result;
-                    //console.log(model.existingSettings);
+                    console.log(model.settingsList);
                     model.currentSetting = model.settingsList[0];
                 })
         }
 
-        model.popServers = function() {
+        model.popServers = function () {
             model.hostname = "";
             model.port = "";
 
-            model.serverList = [];
             loadSettings($http)
-                .then(function(result) {
-                    result.unshift({ "hostname": "Please select a server or click Add" });
+                .then(function (result) {
+                    result.unshift({
+                        "hostname": "Please select a server or click Add"
+                    });
                     model.serverList = result;
-                    //console.log(model.existingServers);
+                    console.log(model.serverList);
                     model.currentServer = model.serverList[0];
                 })
         }
 
-        model.saveSettings = function() {
+        model.saveSettings = function () {
             var body = {
                 "hostname": model.hostname,
                 "port": model.port,
@@ -244,21 +293,37 @@
             //console.log(body);
 
             postSettings($http, body)
-                .then(function(result) {
+                .then(function (result) {
+
                     model.saveMessage = result.message;
                     model.index = result.index;
-                    model.popSettings();
-                    model.popServers();
-                    showAlert();
+                    return;
                 })
+                .then(function () {
+                    model.popServers();
+                    return;
+                })
+                .then(function () {
+
+                    showAlert();
+                    setTimeout(function () {
+                        model.saveMessage = "";
+                    }, 3000);
+                    var foo = updatesettingsList(model.settingsList, body);
+                    model.settingsList = foo.list;
+                    model.currentSetting = model.settingsList[foo.index];
+                    model.selectSetting();
+                });
         }
 
-        model.deleteSetting = function() {
+        model.deleteSetting = function () {
             deleteSetting($http, model.currentSetting)
-                .then(function(result) {
+                .then(function (result) {
                     loadSettings($http)
-                        .then(function(result) {
-                            result.unshift({ "hostname": "Please select a server or add one below." });
+                        .then(function (result) {
+                            result.unshift({
+                                "hostname": "Please select a server or add one below."
+                            });
                             model.settingsList = result;
                             console.log(model.settingsList);
                             model.currentSetting = model.settingsList[0];
@@ -266,42 +331,51 @@
                 });
         }
 
-        model.importStuff = function() {
+        model.importStuff = function () {
             var body = {
                 hostname: model.hostname,
                 port: model.port
             }
             uploadApps($http, body)
-                .then(function(result) {
-                    console.log(result)
-                    $("#uploadApps").prop('checked', true);
-                    model.uploadApps = true;
-                    return importExtensions($http, body);
+                .then(function (result) {
+                    if (result.data && result.status == 200) {
+                        $("#uploadApps").prop('checked', true);
+                        model.uploadApps = true;
+                    }
+                    return importExtensions($http, body)
+                        .then(function (result) {
+                            if (result.data && result.status == 200) {
+                                $("#importExtensions").prop("checked", true);
+                                model.importExtensions = true;
+                            }
+                            return createDataConnections($http, body)
+                                .then(function (result) {
+                                    if (result.data && result.status == 200) {
+                                        $("#createDataConnections").prop("checked", true);
+                                        model.createDataConnections = true;
+                                    }
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                })
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        })
                 })
-                .then(function(result) {
-                    $("#importExtensions").prop("checked", true);
-                    model.importExtensions = true;
-                    return createDataConnections($http, body);
-                })
-                .then(function(result) {
-                    $("#createDataConnections").prop("checked", true);
-                    model.createDataConnections = true;
-                    return;
-                })
-                .then(function() {
-                    model.saveSettings();
-                })
-
-
+                .catch(function (error) {
+                    console.log(error);
+                });
 
         }
 
-        model.closeSettings = function() {
+        model.closeSettings = function () {
+            model.currentServer = model.serverList[0];
             model.popServers();
             ngDialog.closeAll();
         }
 
-        model.cancelSettings = function() {
+        model.cancelSettings = function () {
             ngDialog.closeAll();
         }
     }
@@ -309,9 +383,6 @@
     module.component("governanceCollectorBody", {
         transclude: true,
         templateUrl: "app/governance-collector-body.html",
-        bindings: {
-            servers: "<"
-        },
         controllerAs: "model",
         controller: ["$scope", "$http", "mySocket", "ngDialog", "Upload", governanceCollectorBodyController]
     });
