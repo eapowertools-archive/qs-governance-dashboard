@@ -22,13 +22,13 @@ var end_time;
 var x = {};
 
 function getSheets(app, appId, options) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         //Creating the promise for the Applications Sheets
         //Root admin privileges should allow him to access to all available applications. Otherwise check your environment's security rules for the designed user.      
         var sheetLayoutArray = [];
         var objectLayoutArray = [];
 
-        logMessage("info", "Collecting application sheets and sheet objects");
+        logMessage("info", "Collecting application sheets and sheet objects for appId: " + appId);
         var parse = !options.noData;
         app.createSessionObject({
                 qAppObjectListDef: {
@@ -44,38 +44,42 @@ function getSheets(app, appId, options) {
                 qMetaDef: {},
                 qExtendsId: ''
             })
-            .then(function(list) {
+            .then(function (list) {
                 return list.getLayout()
-                    .then(function(layout) {
-                        return Promise.all(layout.qAppObjectList.qItems.map(function(d) {
+                    .then(function (layout) {
+                        return Promise.all(layout.qAppObjectList.qItems.map(function (d) {
                                 x = {};
                                 start_time = Date.now();
                                 return app.getObject(d.qInfo.qId)
-                                    .then(function(sheet) {
+                                    .then(function (sheet) {
                                         return getSheetLayout(sheet, start_time)
-                                            .then(function(layout) {
+                                            .then(function (layout) {
                                                 sheetLayoutArray.push(layout);
                                                 return x.sheetLayout = layout;
                                             })
-                                            .then(function() {
+                                            .then(function () {
                                                 return getObjectLayouts(sheet, start_time, parse)
-                                                    .then(function(objectLayouts) {
+                                                    .then(function (objectLayouts) {
                                                         objectLayoutArray.push(objectLayouts);
                                                         return x.objectLayouts = objectLayouts;
                                                     });
                                             })
-                                            .then(function() {
+                                            .then(function () {
                                                 return x;
                                             });
                                     });
                             }))
-                            .then(function(resultArray) {
-                                logMessage("info", "Sheet and sheet object collection completed.")
-                                writeToXML("sheet", "Sheet", { sht_layout: sheetLayoutArray }, appId);
-                                writeToXML("sheetObject", "sheetObject", { str_layout: objectLayoutArray }, appId);
+                            .then(function (resultArray) {
+                                logMessage("info", "Sheet and sheet object collection completed on appId: " + appId)
+                                writeToXML("sheet", "Sheet", {
+                                    sht_layout: sheetLayoutArray
+                                }, appId);
+                                writeToXML("sheetObject", "sheetObject", {
+                                    str_layout: objectLayoutArray
+                                }, appId);
                                 resolve("sheet export complete")
                             })
-                            .catch(function(error) {
+                            .catch(function (error) {
                                 logMessage("error", "Error during sheet and sheet object metadata collection");
                                 logMessage("error", error.message);
                                 reject(error);
@@ -89,9 +93,9 @@ module.exports = getSheets;
 
 function getSheetLayout(sheet, start_time) {
     var end_time;
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
         sheet.getLayout()
-            .then(function(layout) {
+            .then(function (layout) {
                 end_time = Date.now();
                 var result = {
                     loadTime: end_time - start_time,
@@ -105,19 +109,19 @@ function getSheetLayout(sheet, start_time) {
 
 function getObjectLayouts(sheet, start_time, parse) {
     var end_time;
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
         sheet.getLayout()
-            .then(function(sheetLayout) {
+            .then(function (sheetLayout) {
                 return sheet.getChildInfos()
-                    .then(function(childInfos) {
-                        return Promise.all(childInfos.map(function(child) {
+                    .then(function (childInfos) {
+                        return Promise.all(childInfos.map(function (child) {
                                 return sheet.getChild(child.qId)
-                                    .then(function(object) {
-                                        if (object.qGenericType.toLowerCase() == "filterpane") {
+                                    .then(function (object) {
+                                        if (object.genericType.toLowerCase() == "filterpane") {
                                             return getObjectLayouts(object, start_time, parse);
                                         }
                                         return object.getFullPropertyTree()
-                                            .then(function(objectProps) {
+                                            .then(function (objectProps) {
                                                 end_time = Date.now();
                                                 objectProps = {
                                                     loadTime: end_time - start_time,
@@ -132,7 +136,7 @@ function getObjectLayouts(sheet, start_time, parse) {
                                             })
                                     })
                             }))
-                            .then(function(objectLayouts) {
+                            .then(function (objectLayouts) {
                                 resolve(objectLayouts);
                             })
                     })
@@ -142,30 +146,45 @@ function getObjectLayouts(sheet, start_time, parse) {
 
 function parseHypercubeDef(qHyperCubeDef) {
     if (qHyperCubeDef) {
-        qHyperCubeDef.qDimensions.forEach(function(dimension, index) {
+        qHyperCubeDef.qDimensions.forEach(function (dimension, index) {
             var parsed_dim = {};
 
             if (dimension.qLibraryId) {
                 parsed_dim = {
-                    parsedFields: { field: [] },
+                    parsedFields: {
+                        field: []
+                    },
                     parsingErrors: 1,
-                    parsingErrorsDetails: { parsedFieldErrors: "Library Dimension" }
+                    parsingErrorsDetails: {
+                        parsedFieldErrors: "Library Dimension"
+                    }
                 }
             } else {
                 if (dimension.qDef.qFieldDefs[0].charAt(0) == '=') {
-                    var parsed_dimensions = exprFields.checkForDimensionFields({ calculated_dimensions: dimension.qDef.qFieldDefs, non_calculated_dimensions: [] })._65;
+                    var parsed_dimensions = exprFields.checkForDimensionFields({
+                        calculated_dimensions: dimension.qDef.qFieldDefs,
+                        non_calculated_dimensions: []
+                    })._65;
 
                     parsed_dim = {
-                        parsedFields: { field: parsed_dimensions.dimensionFields },
+                        parsedFields: {
+                            field: parsed_dimensions.dimensionFields
+                        },
                         parsingErrors: parsed_dimensions.dimensionFieldsErrors.length,
-                        parsingErrorsDetails: { parsedFieldErrors: parsed_dimensions.dimensionFieldsErrors }
+                        parsingErrorsDetails: {
+                            parsedFieldErrors: parsed_dimensions.dimensionFieldsErrors
+                        }
                     }
 
                 } else {
                     parsed_dim = {
-                        parsedFields: { field: dimension.qDef.qFieldDefs[0] },
+                        parsedFields: {
+                            field: dimension.qDef.qFieldDefs[0]
+                        },
                         parsingErrors: 0,
-                        parsingErrorsDetails: { parsedFieldErrors: [] }
+                        parsingErrorsDetails: {
+                            parsedFieldErrors: []
+                        }
                     }
                 }
             }
@@ -173,22 +192,30 @@ function parseHypercubeDef(qHyperCubeDef) {
             qHyperCubeDef.qDimensions[index].parsedData = parsed_dim;
         });
 
-        qHyperCubeDef.qMeasures.forEach(function(measure, index) {
+        qHyperCubeDef.qMeasures.forEach(function (measure, index) {
             var parsed_msr = {};
 
             if (measure.qLibraryId) {
                 parsed_msr = {
-                    parsedFields: { field: [] },
+                    parsedFields: {
+                        field: []
+                    },
                     parsingErrors: 1,
-                    parsingErrorsDetails: { parsedFieldErrors: "Library Measure" }
+                    parsingErrorsDetails: {
+                        parsedFieldErrors: "Library Measure"
+                    }
                 }
             } else {
                 var parsed_measure = exprFields.checkForExpressionFields(measure.qDef.qDef)._65;
 
                 var parsed_msr = {
-                    parsedFields: { field: parsed_measure.expressionFields },
+                    parsedFields: {
+                        field: parsed_measure.expressionFields
+                    },
                     parsingErrors: parsed_measure.expressionFieldsError.length == 0 ? 0 : 1,
-                    parsingErrorsDetails: { parsedFieldErrors: [parsed_measure.expressionFieldsError] }
+                    parsingErrorsDetails: {
+                        parsedFieldErrors: [parsed_measure.expressionFieldsError]
+                    }
                 }
             }
 

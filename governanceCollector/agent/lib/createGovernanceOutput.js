@@ -23,20 +23,20 @@ function logMessage(level, msg) {
 var start_time, end_time;
 
 function doGovernance(config, options) {
-    return new Promise(function(resolve, reject) {
-        Promise.resolve(function() {
+    return new Promise(function (resolve, reject) {
+        Promise.resolve(function () {
                 start_time = new Date(Date.now());
                 logMessage("info", "Governance collection process started at " + start_time);
                 if (options.boolGenMetadata) {
                     return createGovernanceOutput(config, options)
-                        .then(function(result) {
+                        .then(function (result) {
                             console.log(result);
                             return result;
                         })
                 }
                 return;
             }())
-            .then(function(foo) {
+            .then(function (foo) {
                 console.log("checking if parsing load scripts");
                 if (options.boolParseLoadScripts) {
                     logMessage("info", "Parsing load script logs for lineage information");
@@ -44,7 +44,7 @@ function doGovernance(config, options) {
                 }
                 return;
             })
-            .then(function() {
+            .then(function () {
                 console.log("checking if generating QVDs");
 
                 if (options.boolGenQVDs) {
@@ -52,14 +52,14 @@ function doGovernance(config, options) {
                 }
                 return;
             })
-            .then(function() {
+            .then(function () {
                 console.log("checking if reloading gdash");
                 if (options.boolReloadGovDash) {
                     return reloadApp(config, config.agent.gDashTaskname)
                 }
                 return;
             })
-            .then(function() {
+            .then(function () {
                 end_time = new Date(Date.now());
                 var run_options = {
                     hostname: config.engine.hostname,
@@ -73,7 +73,7 @@ function doGovernance(config, options) {
                 writeToXML("run_options", "RunOptions", run_options);
                 resolve("DONE!!!")
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 reject(error);
             })
     })
@@ -82,57 +82,71 @@ function doGovernance(config, options) {
 module.exports = doGovernance;
 
 function createGovernanceOutput(config, options) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
 
         enigma.getService('qix', enigmaInstance(config))
-            .then(function(qix) {
+            .then(function (qix) {
                 qix.global.getDocList()
-                    .then(function(docList) {
+                    .then(function (docList) {
                         return qrsCalls.qrsAppsDataUsers(config)
-                            .then(function(result) {
+                            .then(function (result) {
                                 return result;
                             })
-                            .then(function(qrsResult) {
+                            .then(function (qrsResult) {
                                 logMessage("info", "doc lists, data connections, and user list collected from repository");
-                                writeToXML("documentList", "DocumentsList", { doc: docList });
-                                writeToXML("qrsDocumentList", "qrsDocumentsList", { app: qrsResult[0] });
-                                writeToXML("qrsDataConnectionList", "qrsDataConnectionList", { data: qrsResult[1] });
-                                writeToXML("qrsUserList", "qrsUserList", { data: qrsResult[2] });
+                                writeToXML("documentList", "DocumentsList", {
+                                    doc: docList
+                                });
+                                writeToXML("qrsDocumentList", "qrsDocumentsList", {
+                                    app: qrsResult[0]
+                                });
+                                writeToXML("qrsDataConnectionList", "qrsDataConnectionList", {
+                                    data: qrsResult[1]
+                                });
+                                writeToXML("qrsUserList", "qrsUserList", {
+                                    data: qrsResult[2]
+                                });
                                 return (docList);
                             });
                     })
-                    .then(function(docList) {
-                        if (config.agent.single_app) {
-                            logMessage("info", "Single App output generation selected for app: " + config.agent.appId);
-                            return backupApp(qix, config.agent.appId, config.agent)
-                                .then(function(result) {
-                                    logMessage("info", "Qlik Sense Governance run against " + config.agent.appId + "complete.");
+                    .then(function (docList) {
+                        if (config.agent.single_app || options.singleApp.boolSingleApp) {
+                            var singleAppId;
+                            if (config.agent.appId) {
+                                singleAppId = config.agent.appId
+                            } else {
+                                singleAppId = options.singleApp.appId
+                            }
+                            logMessage("info", "Single App output generation selected for app: " + singleAppId);
+                            return backupApp(qix, singleAppId, config.agent)
+                                .then(function (result) {
+                                    logMessage("info", "Qlik Sense Governance run against " + singleAppId + "complete.");
                                 });
                         } else {
                             logMessage("info", "Generating output for the entire Qlik Sense site");
-                            return Promise.all(docList.map(function(doc) {
+                            return Promise.all(docList.map(function (doc) {
                                     return backupApp(qix, doc.qDocId, config.agent)
-                                        .then(function(result) {
+                                        .then(function (result) {
                                             return result;
                                         });
                                 }))
-                                .then(function(resultArray) {
+                                .then(function (resultArray) {
                                     logMessage("info", "Qlik Sense Governance run against " + resultArray.length + " applications complete.");
                                     logger.info("Qlik Sense Governance run against all applications complete.", loggerObject);
                                 });
                         }
                     })
-                    .then(function() {
+                    .then(function () {
                         return userAccessControl(config)
-                            .then(function(result) {
+                            .then(function (result) {
                                 logMessage("info", "Performing access control checks");
                             });
                     })
-                    .then(function() {
+                    .then(function () {
                         resolve("Governance Output Created");
                     });
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 logMessage("error", "Error in Governance collection process");
                 logMessage("error", err.message);
                 reject(err.message);
@@ -145,12 +159,12 @@ function parseScript(config) {
 }
 
 function reloadApp(config, taskname) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         qrsCalls.qrsReloadTask(config, taskname)
-            .then(function(result) {
+            .then(function (result) {
                 logMessage("info", result);
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 logMessage("error", "Error executing " + taskname);
                 logMessage("error", error);
                 reject(error);
