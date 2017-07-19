@@ -19,6 +19,11 @@
                             </select>
                             <button class="lui-button" ng-click="model.openConfig()">Add</button>
                         </div>
+                        <div id="singleCollectionApp" ng-show="model.singleApp">
+                            <select name="avail-apps" id="availApps" ng-change="model.selectApps()" ng-model="model.currentApp" ng-init="model.initSelectApp()"
+                                class="lui-select" ng-options="app.name for app in model.appList track by app.name" style="width:80%">
+                            </select>
+                        </div>
                         <div tooltips tooltip-template="{{model.textGenMetaData}}" tooltip-side="right" tooltip-class="toolies">
                             <button id="genMetadata" class="lui-button leftButtons" ng-click="model.genMetadata()" ng-class=" model.buttonsEnabled ? (model.boolGenMetadata ? 'lui-button lui-button--success' : 'lui-button') : 'lui-button lui-disabled'"
                                 ng-mouseover="model.tipMeta=true" ng-mouseleave="mode.tipMeta=false">Generate App Metadata</button>
@@ -38,7 +43,7 @@
                     <div class="lui-label" ng-hide="model.currentServer.hostname==model.serverList[0].hostname">http://{{model.hostname}}:{{model.port}}</div>
 
                     <div class="govButtons">
-                        <button id="goButton" class="lui-button lui-disabled" ng-click="model.gogoGovernance()" ng-class="(model.boolGenMetadata || model.boolParseLoadScripts || model.boolGenQVDs || model.boolRefreshGovernanceApp) ? 'lui-button lui-button--success' : 'lui-button lui-disabled'">Governance!</button>
+                        <button id="goButton" class="lui-button lui-disabled" ng-click="model.gogoGovernance()" ng-class="((model.boolGenMetadata || model.boolParseLoadScripts || model.boolGenQVDs || model.boolRefreshGovernanceApp) && (!model.singleApp || (model.singleApp && model.currentApp.id != null))) ? 'lui-button lui-button--success' : 'lui-button lui-disabled'">Governance!</button>
                     </div>
                 </div>
             </div>

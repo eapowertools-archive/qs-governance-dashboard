@@ -41,7 +41,12 @@ router.use(function (req, res, next) {
     next();
 });
 
-//router.use('/config', express.static(__dirname + "/config"));
+var qrsInstance = {
+    hostname: config.qrs.hostname,
+    localCertPath: config.qrs.localCertPath
+};
+
+var qrs = new qrsInteract(qrsInstance);
 
 
 logger.info("qmcu-governance-collector logging started");
@@ -97,5 +102,13 @@ router.route("/createDataConnections")
                 response.send(result);
             })
     })
+
+router.route("/applist")
+    .get(function (request, response) {
+        qrs.Get("/app")
+            .then(function (result) {
+                response.send(result.body);
+            });
+    });
 
 module.exports = router;

@@ -21,6 +21,15 @@
 
     }
 
+    function loadApps($http, body) {
+        var url = "http://" + body.hostname + ":" + body.port + "/governance/applist";
+        console.log(url);
+        return $http.get(url)
+            .then(function (result) {
+                return result.data;
+            });
+    }
+
     function uploadApps($http, body) {
         var url = "http://" + body.hostname + ":" + body.port + "/governance/uploadApps";
         console.log(url);
@@ -145,6 +154,8 @@
         model.buttonsEnabled = false;
         model.settingsSaved = false;
         model.modal = false;
+        model.singleApp = false;
+        model.appList = [];
 
         model.textGenMetaData = "Activating this button will enable the Governance Collector to ";
         model.textGenMetaData += "collect Qlik Sense application metadata and store it into xml files";
@@ -199,6 +210,21 @@
                 boolGenQVDs: model.boolGenQVDs,
                 boolRefreshGovernanceApp: model.boolRefreshGovernanceApp
             };
+
+            if (model.singleApp) {
+                body.singleApp = {
+                    boolSingleApp: model.singleApp,
+                    appId: model.currentApp.id
+                }
+            } else {
+
+                body.singleApp = {
+                    boolSingleApp: model.singleApp,
+                    appId: null
+                }
+            }
+
+
             doGovernance($http, body, model)
                 .then(function (result) {
                     model.boolGenMetadata = false;
@@ -256,7 +282,28 @@
                 model.buttonsEnabled = true;
                 model.hostname = model.currentServer.hostname;
                 model.port = model.currentServer.port;
+
+                if (model.singleApp) {
+                    model.popApps();
+                }
             }
+        }
+
+        model.popApps = function () {
+            model.appList = [];
+            var body = {
+                hostname: model.hostname,
+                port: model.port
+            }
+            loadApps($http, body)
+                .then(function (result) {
+                    result.unshift({
+                        "name": "Please select an app name from the list",
+                        "id": null
+                    });
+                    model.appList = result;
+                    model.currentApp = model.appList[0];
+                })
         }
 
         model.popSettings = function () {
