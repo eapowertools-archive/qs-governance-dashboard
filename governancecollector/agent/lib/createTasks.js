@@ -19,8 +19,8 @@ function logMessage(level, msg) {
 }
 
 var qrsInstance = {
-    hostname: "june2017.qlikpoc.com", ///config.qrs.hostname,
-    localCertPath: "f:/my documents/certFiles/june2017.qlikpoc.com" //config.qrs.localCertPath
+    hostname: config.qrs.hostname,
+    localCertPath: config.qrs.localCertPath
 };
 
 var qrs = new qrsInteract(qrsInstance);
@@ -29,7 +29,7 @@ var taskArray = []
 var finalArray = [];
 var finalFinalArray = [];
 
-var packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, "../../../installer/package.json")));
+var packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, "../../install/package.json")));
 var packageJsonApps = packageJson.installer.apps;
 
 packageJsonApps.forEach(function (item) {
