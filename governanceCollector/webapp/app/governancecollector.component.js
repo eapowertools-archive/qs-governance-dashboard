@@ -384,6 +384,7 @@
                                                 model.createDataConnections = true;
                                             }
                                             model.modal = false;
+                                            model.saveSettings();
                                         })
                                         .catch(function (error) {
                                             console.log(error);
