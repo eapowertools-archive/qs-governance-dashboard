@@ -29,15 +29,40 @@
                                     ng-model="model.port">
                             </div>
                         </div>
+                        <div class="info-entry" style="display:flex;justify-content:center;padding-bottom:5px;">
+                            <button id="settings-save-button" class="lui-button lui-button--success" style="width:20%" ng-click="model.saveSettings()">Save</button>
+                        </div>
+                        <div class="info-entry" style="display:flex;justify-content:center;padding-bottom:5px;">
+                            <button class="lui-button lui-button--success" ng-click="model.importStuff()" ng-class="((model.uploadApps && model.createTasks && model.importExtensions && model.createDataConnections) || !model.settingsSaved) ? 'lui-button lui-button--success lui-disabled' : 'lui-button lui-button--success'">Import Resources</button>
+                            <div class="frame" style="display:flex;justify-content:center;margin-left:10px;" ng-show="model.modal">
+                                <div class="overlay">
+                                    <div id="imageWrapper" style="width:100%;height:100%;overflow:hidden;margin:auto">
+
+                                        <div>
+                                            <img id="spin" style="width:20%;height:20%;display:block;overflow:hidden" src="public/img/loader.svg" />
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
                         <div id="importStuff" style="display:flex;justify-content:space-between;padding-bottom:20px">
-                            <button class="lui-button lui-button--success" ng-click="model.importStuff()" ng-class="model.uploadApps && model.importExtensions && model.createDataConnections ? 'lui-button lui-button--success lui-disabled' : 'lui-button lui-button--success'">Import Resources</button>
                             <label class="lui-checkbox">
                                     <input class="lui-checkbox__input" type="checkbox" aria-label="Apps Imported" id="uploadApps" ng-model="model.uploadApps" disabled/>
                                 <div class="lui-checkbox__check-wrap">
                                     <span class="lui-checkbox__check" ></span>
                                     <span class="lui-checkbox__check-text">Apps Imported</span>
                                 </div>
-                                
+
+                            </label>
+                            <label class="lui-checkbox">
+                                    <input class="lui-checkbox__input" type="checkbox" aria-label="Tasks Created" id="createTasks" ng-model="model.createTasks" disabled/>
+                                <div class="lui-checkbox__check-wrap">
+                                    <span class="lui-checkbox__check" ></span>
+                                    <span class="lui-checkbox__check-text">Tasks Created</span>
+                                </div>
+
                             </label>
                             <label class="lui-checkbox">
                                     <input class="lui-checkbox__input" type="checkbox" aria-label="Extensions Imported" id="importExtensions" ng-model="model.importExtensions" disabled/>
@@ -45,7 +70,7 @@
                                     <span class="lui-checkbox__check" ></span>
                                     <span class="lui-checkbox__check-text">Extensions Imported</span>
                                 </div>
-                                
+
                             </label>
                             <label class="lui-checkbox">
                                     <input class="lui-checkbox__input" type="checkbox" aria-label="Data Connections Created" id="createDataConnections" ng-model="model.createDataConnections" disabled/>
@@ -56,9 +81,7 @@
                             </label>
 
                         </div>
-                        <div class="info-entry" style="justify-content:center;padding-bottom:5px;">
-                            <button id="settings-save-button" class="lui-button lui-button--success" style="width:20%;margin-left:6px;" ng-click="model.saveSettings()">Save</button>
-                        </div>
+
                         <div class="info-entry" style="justify-content:center;padding-bottom:5px;">
                             <label id="settings-save-alert" class="alert alert-success" style="font-size:12px;margin-bottom:0px;display:none;">{{model.saveMessage}}</label>
                         </div>
@@ -70,9 +93,12 @@
                 </div>
             </div>
         </div>
+
     </form>
 </div>
 
+
+<!-- style="position: fixed;top:188px;left:250px;bottom:0px;right:0px;overflow-y: auto;z-index:2000 " -->
 <!--
 <div class="settings-tab-content">
     <div>

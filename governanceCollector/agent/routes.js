@@ -11,6 +11,7 @@ var doGovernance = require("./lib/createGovernanceOutput");
 var socketHelper = require("./lib/socketHelper");
 var logger = require("./lib/logger");
 var uploadApps = require("./lib/uploadApps");
+var createTasks = require("./lib/createTasks");
 var importExtensions = require("./lib/importExtensions");
 var createDataConnections = require("./lib/createDataConnections");
 
@@ -32,7 +33,7 @@ router.use(bodyParser.urlencoded({
     extended: true
 }));
 
-router.use(function(req, res, next) {
+router.use(function (req, res, next) {
     console.log(req.connection.remoteAddress.split(":")[3]);
     socketHelper.createConnection("http://" + req.connection.remoteAddress.split(":")[3] + ":" + config.webApp.port);
     res.header("Access-Control-Allow-Origin", "*");
@@ -47,44 +48,52 @@ logger.info("qmcu-governance-collector logging started");
 
 
 router.route("/dogovernance")
-    .get(function(request, response) {
+    .get(function (request, response) {
         response.send("I want to do governance");
     })
-    .post(function(request, response) {
+    .post(function (request, response) {
         var options = request.body;
         console.log(options);
         doGovernance(config, options)
-            .then(function(result) {
+            .then(function (result) {
                 logMessage('info', 'I have collected governance!');
             });
         response.send("Governance collection will run on the server and request will not await a response");
     })
 
 router.route("/getconfig")
-    .get(function(request, response) {
+    .get(function (request, response) {
         response.json(config.agent);
     });
 
 router.route("/uploadApps")
-    .get(function(request, response) {
+    .get(function (request, response) {
         uploadApps()
-            .then(function(result) {
+            .then(function (result) {
+                response.send(result);
+            });
+    });
+
+router.route("/createTasks")
+    .get(function (request, response) {
+        createTasks()
+            .then(function (result) {
                 response.send(result);
             });
     });
 
 router.route("/importExtensions")
-    .get(function(request, response) {
+    .get(function (request, response) {
         importExtensions()
-            .then(function(result) {
+            .then(function (result) {
                 response.send(result);
             })
     })
 
 router.route("/createDataConnections")
-    .get(function(request, response) {
+    .get(function (request, response) {
         createDataConnections()
-            .then(function(result) {
+            .then(function (result) {
                 response.send(result);
             })
     })
