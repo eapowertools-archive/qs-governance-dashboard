@@ -90,15 +90,16 @@ function upload(app) {
             .then(function (result) {
                 logMessage("info", "Uploaded " + app.appName);
                 //create a task to go along with the app.
-                return qrs.Post("ReloadTask/create", taskTemplate(app.taskName, result.body.id, result.body.name), 'json')
-                    .then(function (taskCreateResult) {
-                        logMessage("info", "Task created: " + app.taskName + " " + JSON.stringify(taskCreateResult))
-                        resolve(result.body.name + " created " + result.body.createdDate + " with id=" + result.body.id);
-                    })
-                    .catch(function (error) {
-                        logMessage("error", "Failed to create task: " + app.taskName + " with error: " + JSON.stringify(error));
-                        resolve(false);
-                    })
+                // return qrs.Post("ReloadTask/create", taskTemplate(app.taskName, result.body.id, result.body.name), 'json')
+                //     .then(function (taskCreateResult) {
+                //         logMessage("info", "Task created: " + app.taskName + " " + JSON.stringify(taskCreateResult))
+                //         resolve(result.body.name + " created " + result.body.createdDate + " with id=" + result.body.id);
+                //     })
+                //     .catch(function (error) {
+                //         logMessage("error", "Failed to create task: " + app.taskName + " with error: " + JSON.stringify(error));
+                //         resolve(false);
+                //     })
+                resolve(result.body.name + " created " + result.body.createdDate + " with id=" + result.body.id);
             })
             .catch(function (error) {
                 logMessage("error", "Failed to create task: " + app.appName + " with error: " + JSON.stringify(error));
