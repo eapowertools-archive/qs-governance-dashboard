@@ -34,6 +34,19 @@
             });
     }
 
+    function createTasks($http, body) {
+        var url = "http://" + body.hostname + ":" + body.port + "/governance/createTasks";
+        console.log(url);
+        return $http.get(url)
+            .then(function (result) {
+                console.log("made the request");
+                return result;
+                //return result.data;
+            }, function (somethingElse) {
+                return somethingElse;
+            });
+    }
+
     function importExtensions($http, body) {
         var url = "http://" + body.hostname + ":" + body.port + "/governance/importExtensions";
         return $http.get(url)
@@ -130,6 +143,8 @@
         model.existingSettings = [];
         model.existingServers = [];
         model.buttonsEnabled = false;
+        model.settingsSaved = false;
+        model.modal = false;
 
         model.textGenMetaData = "Activating this button will enable the Governance Collector to ";
         model.textGenMetaData += "collect Qlik Sense application metadata and store it into xml files";
@@ -186,18 +201,11 @@
             };
             doGovernance($http, body, model)
                 .then(function (result) {
-                    if (!result.msg == "ERROR") {
-                        model.boolGenMetadata = false;
-                        model.boolParseLoadScripts = false;
-                        model.boolGenQVDs = false;
-                        model.boolRefreshGovernanceApp = false;
-                        // $scope.form.$setPristine();
-                        // $scope.form.$setUntouched();
-                        // console.log("Form Reset");
-                        model.statusOutput = result.data + "\n";
-                    } else {
-                        model.statusOutput += "A error occured during processing.\n";
-                    }
+                    model.boolGenMetadata = false;
+                    model.boolParseLoadScripts = false;
+                    model.boolGenQVDs = false;
+                    model.boolRefreshGovernanceApp = false;
+                    model.statusOutput = result.data + "\n";
                 })
         }
         model.hw = "Hello World";
@@ -225,14 +233,18 @@
                 model.hostname = "";
                 model.port = "";
                 model.uploadApps = false;
+                model.createTasks = false;
                 model.importExtensions = false;
                 model.createDataConnections = false;
+                model.settingsSaved = false;
             } else {
                 model.hostname = model.currentSetting.hostname;
                 model.port = model.currentSetting.port;
                 model.uploadApps = model.currentSetting.uploadApps;
+                model.createTasks = model.currentSetting.createTasks;
                 model.importExtensions = model.currentSetting.importExtensions;
                 model.createDataConnections = model.currentSetting.createDataConnections;
+                model.settingsSaved = true;
             }
         }
 
@@ -252,6 +264,7 @@
             model.hostname = "";
             model.port = "8592";
             model.uploadApps = false;
+            model.createTasks = false;
             model.importExtensions = false;
             model.createDataConnections = false;
 
@@ -286,6 +299,7 @@
                 "hostname": model.hostname,
                 "port": model.port,
                 "uploadApps": model.uploadApps,
+                "createTasks": model.createTasks,
                 "importExtensions": model.importExtensions,
                 "createDataConnections": model.createDataConnections
             };
@@ -297,6 +311,7 @@
 
                     model.saveMessage = result.message;
                     model.index = result.index;
+                    model.settingsSaved = true;
                     return;
                 })
                 .then(function () {
@@ -327,6 +342,13 @@
                             model.settingsList = result;
                             console.log(model.settingsList);
                             model.currentSetting = model.settingsList[0];
+                            model.hostname = "";
+                            model.port = "8592";
+                            model.settingsSaved = false;
+                            model.uploadApps = false;
+                            model.createTasks = false;
+                            model.importExtensions = false;
+                            model.createDataConnections = false;
                         })
                 });
         }
@@ -336,35 +358,51 @@
                 hostname: model.hostname,
                 port: model.port
             }
+            model.modal = true;
             uploadApps($http, body)
                 .then(function (result) {
                     if (result.data && result.status == 200) {
                         $("#uploadApps").prop('checked', true);
                         model.uploadApps = true;
                     }
-                    return importExtensions($http, body)
+                    return createTasks($http, body)
                         .then(function (result) {
                             if (result.data && result.status == 200) {
-                                $("#importExtensions").prop("checked", true);
-                                model.importExtensions = true;
+                                $("#createTasks").prop("checked", true);
+                                model.createTasks = true;
                             }
-                            return createDataConnections($http, body)
+                            return importExtensions($http, body)
                                 .then(function (result) {
                                     if (result.data && result.status == 200) {
-                                        $("#createDataConnections").prop("checked", true);
-                                        model.createDataConnections = true;
+                                        $("#importExtensions").prop("checked", true);
+                                        model.importExtensions = true;
                                     }
+                                    return createDataConnections($http, body)
+                                        .then(function (result) {
+                                            if (result.data && result.status == 200) {
+                                                $("#createDataConnections").prop("checked", true);
+                                                model.createDataConnections = true;
+                                            }
+                                            model.modal = false;
+                                        })
+                                        .catch(function (error) {
+                                            console.log(error);
+                                            model.modal = false;
+                                        })
                                 })
                                 .catch(function (error) {
                                     console.log(error);
+                                    model.modal = false;
                                 })
                         })
                         .catch(function (error) {
                             console.log(error);
+                            model.modal = false;
                         })
                 })
                 .catch(function (error) {
                     console.log(error);
+                    model.modal = false;
                 });
 
         }

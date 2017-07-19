@@ -29,7 +29,7 @@
         "path": "^0.12.7",
         "promise": "7.1.1",
         "q": "^1.5.0",
-        "qrs-interact": "^2.5.5",
+        "qrs-interact": "^2.5.6",
         "serializeapp": "^3.0.0",
         "socket.io": "^2.0.3",
         "socket.io-client": "^2.0.3",
