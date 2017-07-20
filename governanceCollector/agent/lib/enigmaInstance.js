@@ -1,16 +1,22 @@
 var fs = require("fs");
-var qixSchema = require("../node_modules/enigma.js/schemas/qix/3.2/schema.json");
+var qixSchema = require("../node_modules/enigma.js/schemas/12.20.0.json");
 var WebSocket = require('ws');
+var senseUtilities = require('enigma.js/sense-utilities');
 
 
-function enigmaInstance(config) {
+function buildConfig(config, identity) {
+    var newConfig = {
+        host: config.engine.hostname,
+        port: config.engine.port,
+        identity: identity
+    }
+    return senseUtilities.buildUrl(newConfig);
+}
+
+function enigmaInstance(config, identity) {
     var enigmaInstance = {
         schema: qixSchema,
-        session: {
-            route: "app/engineData",
-            host: config.engine.hostname,
-            port: config.engine.port
-        },
+        url: buildConfig(config, identity),
         createSocket(url) {
             return new WebSocket(url, {
                 ca: [fs.readFileSync(config.certificates.root)],
@@ -27,5 +33,5 @@ function enigmaInstance(config) {
 }
 
 
-
+//module.exports = buildConfig;
 module.exports = enigmaInstance;

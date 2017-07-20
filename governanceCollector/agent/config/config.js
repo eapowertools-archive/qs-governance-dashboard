@@ -7,7 +7,7 @@ var extend = require('extend');
 var installConfig;
 var baseConfigPath = path.join(__dirname, "/../config/");
 var dir = fs.readdirSync(baseConfigPath);
-dir.forEach(function(file) {
+dir.forEach(function (file) {
     if (file === 'installConfig.json') {
         installConfig = JSON.parse(fs.readFileSync(path.join(baseConfigPath, file)));
     }
@@ -65,7 +65,7 @@ var config = {
             parsedScriptLogPath: "c:/metadata"
         },
         single_app: false,
-        no_data: false,
+        noData: false,
         timer_mode: false,
         parseLoadScriptLogs: false,
         version: "1.0.0"

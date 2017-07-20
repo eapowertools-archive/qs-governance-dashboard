@@ -4,6 +4,8 @@ var enigma = require("enigma.js");
 var config = require("../config/config");
 var logger = require("./logger");
 var socketHelper = require("./socketHelper");
+var enigma = require('enigma.js');
+var enigmaInstance = require("./enigmaInstance");
 
 var loggerObject = {
     jsFile: "createDataConnections.js"
@@ -40,11 +42,12 @@ var createArray = [];
 
 function createDataConnections() {
     return new Promise(function (resolve) {
-        enigma.getService('qix', enigmaInstance(config))
-            .then(function (qix) {
-                return qix.global.createApp("qsgc-tempApp")
+        var session = enigma.create(enigmaInstance(config, appId));
+        session.open()
+            .then(function (global) {
+                return global.createApp("qsgc-tempApp")
                     .then(function (app) {
-                        return qix.global.openDoc(app.qAppId, '', '', '', false)
+                        return global.openDoc(app.qAppId, '', '', '', false)
                             .then(function (doc) {
                                 return doc.getConnections()
                                     .then(function (connList) {
@@ -67,22 +70,28 @@ function createDataConnections() {
                                     })
                                     .then(function (result) {
                                         logMessage("info", result)
-                                        return qix.global.deleteApp(app.qAppId);
+                                        return global.deleteApp(app.qAppId);
                                     })
                                     .then(function (result) {
                                         logMessage("info", "app deleted");
                                         return;
                                     })
                                     .then(function () {
-                                        logMessage("info", "Data connections created.");
-                                        resolve(true);
+                                        return session.close()
+                                            .then(function () {
+                                                logMessage("info", "Data connections created.");
+                                                resolve(true);
+                                            })
                                     })
                             })
                     })
             })
             .catch(function (error) {
-                logMessage("error", JSON.stringify(error));
-                resolve(false);
+                return session.close()
+                    .then(function () {
+                        logMessage("error", JSON.stringify(error));
+                        resolve(false);
+                    })
             })
     })
 }

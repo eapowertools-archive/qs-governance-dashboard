@@ -20,7 +20,7 @@ var start_time, end_time;
 function getAppTables(app, appId, options) {
     //Creating the promise for the Applications Tables
     //Root admin privileges should allow him to access to all available applications. Otherwise check your environment's security rules for the designed user.
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve) {
         logMessage("info", "Collecting list of tables in the application data model for app " + appId);
         var params = {
             "qWindowSize": {
@@ -38,7 +38,7 @@ function getAppTables(app, appId, options) {
         start_time = Date.now();
         //Requesting the tables of the document
         app.getTablesAndKeys(params.qWindowSize, params.qNullSize, params.qCellHeight, params.qSyntheticMode, params.qIncludeSysVars)
-            .then(function(key_tables) {
+            .then(function (key_tables) {
                 end_time = Date.now();
 
                 //Setting up data and options for XML file storage
@@ -49,11 +49,15 @@ function getAppTables(app, appId, options) {
 
                 return data;
             })
-            .then(function(data) {
-                logMessage("info", "Table metadata collection complete");
+            .then(function (data) {
+                logMessage("info", "Table metadata collection complete for appid: " + appId);
                 writeToXML("documentsKeyTables", "KeyTables", data, appId);
                 resolve("Checkpoint: Applications Tables are loaded");
-            });
+            })
+            .catch(function (error) {
+                logMessage("error", JSON.stringify(error));
+                resolve(error);
+            })
     });
 }
 

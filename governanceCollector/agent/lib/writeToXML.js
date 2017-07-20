@@ -17,7 +17,7 @@ function writeToXML(root, type, data, appId, options) {
 
 
     fs.writeFileSync(path.join(config.agent.metadataPath, (appId !== undefined ? appId + "_" : "") + type + ".xml"), xmlData);
-    logger.info("Wrote file: " + path.join(config.agent.metadataPath, (appId !== undefined ? appId + "_" : "") + type + ".xml"), loggerObject);
+    logger.debug("Wrote file: " + path.join(config.agent.metadataPath, (appId !== undefined ? appId + "_" : "") + type + ".xml"), loggerObject);
     return appId + "_" + type + ".xml file saved";
 }
 

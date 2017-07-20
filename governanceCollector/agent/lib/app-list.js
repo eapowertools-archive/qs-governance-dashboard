@@ -16,12 +16,12 @@ function logMessage(level, msg) {
 
 
 module.exports = {
-    getAppList: function(qix, options) {
-        return new Promise(function(resolve, reject) {
+    getAppList: function (qix, options) {
+        return new Promise(function (resolve, reject) {
             logMessage("info", "Collecting application list");
             var start_time = Date.now();
             return qix.global.getDocList()
-                .then(function(documents) {
+                .then(function (documents) {
                     var received_time = Date.now();
                     console.log("It took " + (received_time - start_time) + "ms to receive the info.");
 
@@ -36,10 +36,10 @@ module.exports = {
                     resolve("Checkpoint: Applications List is loaded");
 
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     logMessage("error", "Error processing application list");
 
-                    logMessage("error", error.message);
+                    logMessage("error", JSON.stringify(error));
                     reject(error);
                 });
         });

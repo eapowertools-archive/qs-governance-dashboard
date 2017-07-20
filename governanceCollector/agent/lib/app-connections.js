@@ -18,7 +18,7 @@ function logMessage(level, msg) {
 function getAppConnections(app, appId, options) {
     //Creating the promise for the Connections List
     //Root admin privileges should allow him to access to all available connections. Otherwise check your environment's security rules for the designed user.
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         logMessage("info", "Collecting data connections for app " + appId);
         console.log();
         console.log("*****************************************************");
@@ -28,7 +28,7 @@ function getAppConnections(app, appId, options) {
         var start_time = Date.now();
 
         app.getConnections()
-            .then(function(document_connections) {
+            .then(function (document_connections) {
                 var received_time = Date.now();
                 console.log("It took " + (received_time - start_time) + "ms to receive the info.");
 
@@ -44,9 +44,9 @@ function getAppConnections(app, appId, options) {
                 writeToXML("documentConnections", "DocumentsConnections", data, appId);
                 resolve("Checkpoint: Connections List is loaded");
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 logMessage("error", "Error processing data connections for app " + appId);
-                logMessage("error", error.message);
+                logMessage("error", JSON.stringify(error));
                 reject(new Error(error));
             });
     });

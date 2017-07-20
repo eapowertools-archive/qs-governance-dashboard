@@ -19,10 +19,10 @@ var end_time;
 
 
 function getStories(app, appId, options) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         //Creating the promise for the Applications Stories
         //Root admin privileges should allow him to access to all available applications. Otherwise check your environment's security rules for the designed user.      
-        logMessage("info", "Collecting story metadata");
+        logMessage("info", "Collecting story metadata for appId: " + appId);
         var x = {};
         var storyLayoutArray = [];
         var slideLayoutArray = [];
@@ -42,54 +42,58 @@ function getStories(app, appId, options) {
                 qMetaDef: {},
                 qExtendsId: ''
             })
-            .then(function(list) {
+            .then(function (list) {
                 return list.getLayout()
-                    .then(function(layout) {
-                        return Promise.all(layout.qAppObjectList.qItems.map(function(d) {
+                    .then(function (layout) {
+                        return Promise.all(layout.qAppObjectList.qItems.map(function (d) {
                                 x = {}
                                 start_time = Date.now();
                                 return app.getObject(d.qInfo.qId)
-                                    .then(function(story) {
+                                    .then(function (story) {
                                         //given a story, I need to get the story's layout, the slides in the story layout, and the items layout on the slides
                                         return getStoryLayout(story, start_time)
-                                            .then(function(layout) {
-                                                logMessage("info", "Collecting story layouts");
+                                            .then(function (layout) {
+                                                logMessage("debug", "Collecting story layouts");
                                                 storyLayoutArray.push(layout);
                                                 return x.storyLayout = layout;
                                             })
-                                            .then(function() {
+                                            .then(function () {
                                                 return getSlideLayouts(story, start_time)
-                                                    .then(function(slideLayouts) {
-                                                        logMessage("info", "Collecting slide layouts");
+                                                    .then(function (slideLayouts) {
+                                                        logMessage("debug", "Collecting slide layouts");
                                                         slideLayoutArray.push(slideLayouts);
                                                         return x.slideLayouts = slideLayouts;
                                                     })
                                             })
-                                            .then(function() {
+                                            .then(function () {
                                                 return getSlideItemLayouts(story, start_time)
-                                                    .then(function(slideItemLayouts) {
-                                                        logMessage("info", "Collecting slide item layouts");
+                                                    .then(function (slideItemLayouts) {
+                                                        logMessage("debug", "Collecting slide item layouts");
                                                         slideItemLayoutArray.push(slideItemLayouts);
                                                         return x.slideItemLayouts = slideItemLayouts;
                                                     })
                                             })
-                                            .then(function() {
+                                            .then(function () {
                                                 return x;
                                             });
                                     })
                             }))
-                            .then(function(resultArray) {
-                                logMessage("info", "Story metadata collection complete");
+                            .then(function (resultArray) {
+                                logMessage("info", "Story metadata collection complete for appId: " + appId);
                                 writeToXML("storySheets", "StorySlide", slideLayoutArray, appId);
-                                writeToXML("story", "Story", { str_layout: storyLayoutArray }, appId);
-                                writeToXML("storySheetSlideItems", "StorySlideItems", { slideitems: slideItemLayoutArray }, appId);
+                                writeToXML("story", "Story", {
+                                    str_layout: storyLayoutArray
+                                }, appId);
+                                writeToXML("storySheetSlideItems", "StorySlideItems", {
+                                    slideitems: slideItemLayoutArray
+                                }, appId);
                                 resolve("Story Information exported");
                             });
                     })
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 logMessage("error", "Error during slide metadata collection");
-                logMessage("error", error.message);
+                logMessage("error", JSON.stringify(error));
                 reject(error);
             })
     });
@@ -99,9 +103,9 @@ module.exports = getStories;
 
 function getStoryLayout(story, start_time) {
     var end_time;
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
         story.getLayout()
-            .then(function(layout) {
+            .then(function (layout) {
                 end_time = Date.now();
                 var result = {
                     loadTime: end_time - start_time,
@@ -115,15 +119,15 @@ function getStoryLayout(story, start_time) {
 
 function getSlideLayouts(story, start_time) {
     var end_time;
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
         story.getChildInfos()
-            .then(function(childInfos) {
-                return Promise.all(childInfos.map(function(child) {
+            .then(function (childInfos) {
+                return Promise.all(childInfos.map(function (child) {
                         start_time = Date.now();
                         return story.getChild(child.qId)
-                            .then(function(slide) {
+                            .then(function (slide) {
                                 return slide.getLayout()
-                                    .then(function(slideLayout) {
+                                    .then(function (slideLayout) {
                                         end_time = Date.now();
                                         slideLayout = {
                                             loadTime: end_time - start_time,
@@ -135,29 +139,37 @@ function getSlideLayouts(story, start_time) {
                                     })
                             })
                     }))
-                    .then(function(slideLayouts) {
+                    .then(function (slideLayouts) {
                         resolve(slideLayouts);
                     })
+                    .catch(function (error) {
+                        logMessage("error", JSON.stringify(error));
+                        resolve(error);
+                    })
+            })
+            .catch(function (error) {
+                logMessage("error", JSON.stringify(error));
+                resolve(error);
             })
     });
 }
 
 function getSlideItemLayouts(story, start_time) {
     var end_time;
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
         story.getChildInfos()
-            .then(function(childInfos) {
-                return Promise.all(childInfos.map(function(child) {
+            .then(function (childInfos) {
+                return Promise.all(childInfos.map(function (child) {
                     start_time = Date.now();
                     return story.getChild(child.qId)
-                        .then(function(slide) {
+                        .then(function (slide) {
                             return slide.getChildInfos()
-                                .then(function(slideItems) {
-                                    return Promise.all(slideItems.map(function(item) {
+                                .then(function (slideItems) {
+                                    return Promise.all(slideItems.map(function (item) {
                                             return slide.getChild(item.qId)
-                                                .then(function(slideItem) {
+                                                .then(function (slideItem) {
                                                     return slideItem.getLayout()
-                                                        .then(function(slideItemLayout) {
+                                                        .then(function (slideItemLayout) {
                                                             end_time = Date.now();
                                                             if (slideItemLayout.visualization == "snapshot") {
                                                                 slideItemLayout = {
@@ -188,13 +200,21 @@ function getSlideItemLayouts(story, start_time) {
                                                         })
                                                 })
                                         }))
-                                        .then(function(resultArray) {
+                                        .then(function (resultArray) {
                                             resolve(resultArray);
                                         })
                                 })
                         })
+                        .catch(function (error) {
+                            logMessage("error", JSON.stringify(error));
+                            resolve(error);
+                        })
                 }))
 
+            })
+            .catch(function (error) {
+                logMessage("error", JSON.stringify(error));
+                resolve(error);
             });
     });
 }

@@ -20,7 +20,7 @@
     "dependencies": {
         "bluebird": "^3.5.0",
         "body-parser": "^1.17.2",
-        "enigma.js": "^1.2.1",
+        "enigma.js": "^2.0.0-0",
         "express": "^4.15.3",
         "extend": "^3.0.1",
         "http": "0.0.0",

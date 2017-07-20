@@ -81,10 +81,14 @@ function getSheets(app, appId, options) {
                             })
                             .catch(function (error) {
                                 logMessage("error", "Error during sheet and sheet object metadata collection");
-                                logMessage("error", error.message);
+                                logMessage("error", JSON.stringify(error));
                                 reject(error);
                             });
                     })
+            })
+            .catch(function (error) {
+                logMessage("error", JSON.stringify(error));
+                reject(error);
             })
     });
 }
@@ -102,6 +106,10 @@ function getSheetLayout(sheet, start_time) {
                     layout: layout
                 };
                 resolve(result);
+            })
+            .catch(function (error) {
+                logMessage("error", JSON.stringify(error));
+                resolve(error);
             });
     })
 
@@ -139,7 +147,15 @@ function getObjectLayouts(sheet, start_time, parse) {
                             .then(function (objectLayouts) {
                                 resolve(objectLayouts);
                             })
+                            .catch(function (error) {
+                                logMessage("error", JSON.stringify(error));
+                                resolve(error);
+                            })
                     })
+            })
+            .catch(function (error) {
+                logMessage("error", JSON.stringify(error));
+                resolve(error);
             });
     });
 }
