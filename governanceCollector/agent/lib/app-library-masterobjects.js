@@ -23,7 +23,7 @@ var end_time;
 
 function getLibObjects(app, appId, options) {
 
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         //Creating the promise for the Applications Library Master Objects
         //Root admin privileges should allow him to access to all available applications. Otherwise check your environment's security rules for the designed user.      
         logMessage("info", "Collecting Master Library Visualization metadata from app " + appId);
@@ -42,14 +42,14 @@ function getLibObjects(app, appId, options) {
                 qMetaDef: {},
                 qExtendsId: ''
             })
-            .then(function(list) {
-                return list.getLayout().then(function(layout) {
-                    return Promise.all(layout.qAppObjectList.qItems.map(function(d) {
+            .then(function (list) {
+                return list.getLayout().then(function (layout) {
+                    return Promise.all(layout.qAppObjectList.qItems.map(function (d) {
                             start_time = Date.now();
                             return app.getObject(d.qInfo.qId)
-                                .then(function(obj) {
+                                .then(function (obj) {
                                     return obj.getLayout()
-                                        .then(function(obj_layout) {
+                                        .then(function (obj_layout) {
                                             obj_layout = {
                                                 qInfo: obj_layout.qInfo,
                                                 qMeta: obj_layout.qMeta,
@@ -61,19 +61,19 @@ function getLibObjects(app, appId, options) {
                                             }
                                             return obj_layout;
                                         })
-                                        .then(function(obj_layout) {
+                                        .then(function (obj_layout) {
                                             return obj.getEffectiveProperties()
-                                                .then(function(obj_eff_props) {
+                                                .then(function (obj_eff_props) {
 
                                                     //setting up loading time
                                                     end_time = Date.now();
 
                                                     obj_eff_props = {
-                                                            qInfo: obj_eff_props.qInfo,
-                                                            qMetaDef: obj_eff_props.qMetaDef,
-                                                            qHyperCubeDef: obj_eff_props.qHyperCubeDef
-                                                        }
-                                                        //Loading the master object's effective properties
+                                                        qInfo: obj_eff_props.qInfo,
+                                                        qMetaDef: obj_eff_props.qMetaDef,
+                                                        qHyperCubeDef: obj_eff_props.qHyperCubeDef
+                                                    }
+                                                    //Loading the master object's effective properties
                                                     var obj_props = {
                                                         obj_layout,
                                                         obj_eff_props,
@@ -81,34 +81,49 @@ function getLibObjects(app, appId, options) {
                                                     };
                                                     if (parse) {
                                                         if (obj_props.obj_eff_props.qHyperCubeDef) {
-                                                            obj_props.obj_eff_props.qHyperCubeDef.qDimensions.forEach(function(dimension, index) {
+                                                            obj_props.obj_eff_props.qHyperCubeDef.qDimensions.forEach(function (dimension, index) {
 
                                                                 var parsed_dim = {};
 
                                                                 if (dimension.qLibraryId) {
                                                                     parsed_dim = {
-                                                                        parsedFields: { field: [] },
+                                                                        parsedFields: {
+                                                                            field: []
+                                                                        },
                                                                         parsingErrors: 1,
-                                                                        parsingErrorsDetails: { parsedFieldErrors: "Library Dimension" }
+                                                                        parsingErrorsDetails: {
+                                                                            parsedFieldErrors: "Library Dimension"
+                                                                        }
                                                                     }
                                                                 } else {
 
                                                                     if (dimension.qDef.qFieldDefs[0].charAt(0) == '=') {
 
-                                                                        var parsed_dimensions = exprFields.checkForDimensionFields({ calculated_dimensions: dimension.qDef.qFieldDefs, non_calculated_dimensions: [] })._65;
+                                                                        var parsed_dimensions = exprFields.checkForDimensionFields({
+                                                                            calculated_dimensions: dimension.qDef.qFieldDefs,
+                                                                            non_calculated_dimensions: []
+                                                                        })._65;
 
                                                                         parsed_dim = {
-                                                                            parsedFields: { field: parsed_dimensions.dimensionFields },
+                                                                            parsedFields: {
+                                                                                field: parsed_dimensions.dimensionFields
+                                                                            },
                                                                             parsingErrors: parsed_dimensions.dimensionFieldsErrors.length,
-                                                                            parsingErrorsDetails: { parsedFieldErrors: parsed_dimensions.dimensionFieldsErrors }
+                                                                            parsingErrorsDetails: {
+                                                                                parsedFieldErrors: parsed_dimensions.dimensionFieldsErrors
+                                                                            }
                                                                         }
 
                                                                     } else {
 
                                                                         parsed_dim = {
-                                                                            parsedFields: { field: dimension.qDef.qFieldDefs[0] },
+                                                                            parsedFields: {
+                                                                                field: dimension.qDef.qFieldDefs[0]
+                                                                            },
                                                                             parsingErrors: 0,
-                                                                            parsingErrorsDetails: { parsedFieldErrors: [] }
+                                                                            parsingErrorsDetails: {
+                                                                                parsedFieldErrors: []
+                                                                            }
                                                                         }
                                                                     }
                                                                 }
@@ -117,24 +132,32 @@ function getLibObjects(app, appId, options) {
                                                             });
 
 
-                                                            obj_props.obj_eff_props.qHyperCubeDef.qMeasures.forEach(function(measure, index) {
+                                                            obj_props.obj_eff_props.qHyperCubeDef.qMeasures.forEach(function (measure, index) {
 
                                                                 var parsed_msr = {};
 
                                                                 if (measure.qLibraryId) {
                                                                     parsed_msr = {
-                                                                        parsedFields: { field: [] },
+                                                                        parsedFields: {
+                                                                            field: []
+                                                                        },
                                                                         parsingErrors: 1,
-                                                                        parsingErrorsDetails: { parsedFieldErrors: "Library Measure" }
+                                                                        parsingErrorsDetails: {
+                                                                            parsedFieldErrors: "Library Measure"
+                                                                        }
                                                                     }
                                                                 } else {
 
                                                                     var parsed_measure = exprFields.checkForExpressionFields(measure.qDef.qDef)._65;
 
                                                                     var parsed_msr = {
-                                                                        parsedFields: { field: parsed_measure.expressionFields },
+                                                                        parsedFields: {
+                                                                            field: parsed_measure.expressionFields
+                                                                        },
                                                                         parsingErrors: parsed_measure.expressionFieldsError.length == 0 ? 0 : 1,
-                                                                        parsingErrorsDetails: { parsedFieldErrors: [parsed_measure.expressionFieldsError] }
+                                                                        parsingErrorsDetails: {
+                                                                            parsedFieldErrors: [parsed_measure.expressionFieldsError]
+                                                                        }
                                                                     }
                                                                 }
 
@@ -147,23 +170,25 @@ function getLibObjects(app, appId, options) {
 
                                                     return obj_props;
                                                 })
-                                                .then(function(data) {
+                                                .then(function (data) {
                                                     return data;
                                                 })
                                         });
                                 })
 
                         }))
-                        .then(function(resultArray) {
-                            logMessage("info", "Master Library Visualization collection complete from app " + appId);
-                            writeToXML("libraryMasterObjects", "LibraryMasterObjects", { masterobject: resultArray }, appId);
+                        .then(function (resultArray) {
+                            logMessage("debug", "Master Library Visualization collection complete from app " + appId);
+                            writeToXML("libraryMasterObjects", "LibraryMasterObjects", {
+                                masterobject: resultArray
+                            }, appId);
                             resolve("Checkpoint: Applications Library Master Objects are loaded");
                         });
                 });
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 logMessage("error", "Error processing Master Library Visualizations for app " + appId);
-                logMessage("error", error.message);
+                logMessage("error", JSON.stringify(error));
                 reject(error);
             });
     });

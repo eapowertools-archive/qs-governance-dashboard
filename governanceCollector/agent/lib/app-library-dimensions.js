@@ -27,7 +27,7 @@ var end_time;
 function getDimensions(app, appId, options) {
     //Creating the promise for the Applications Library Dimensions
     //Root admin privileges should allow him to access to all available applications. Otherwise check your environment's security rules for the designed user.
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         logMessage("info", "Collecting dimension metadata from app " + appId);
         var parse = !options.noData;
         app.createSessionObject({
@@ -38,36 +38,44 @@ function getDimensions(app, appId, options) {
                     },
                     qMeta: {}
                 },
-                qInfo: { qId: "DimensionList", qType: "DimensionList" }
+                qInfo: {
+                    qId: "DimensionList",
+                    qType: "DimensionList"
+                }
             })
-            .then(function(list) {
+            .then(function (list) {
                 return list.getLayout()
-                    .then(function(layout) {
-                        return Promise.all(layout.qDimensionList.qItems.map(function(d) {
+                    .then(function (layout) {
+                        return Promise.all(layout.qDimensionList.qItems.map(function (d) {
 
                                 start_time = Date.now();
                                 return app.getDimension(d.qInfo.qId)
-                                    .then(function(dimension) {
+                                    .then(function (dimension) {
 
                                         return dimension.getLinkedObjects()
-                                            .then(function(dim_lnk) {
+                                            .then(function (dim_lnk) {
                                                 logMessage("debug", "dimension linked objects: " + d.qInfo.qId + ":" + JSON.stringify(dim_lnk));
                                                 return dimension.getLayout()
-                                                    .then(function(dim_layout) {
+                                                    .then(function (dim_layout) {
                                                         var dim_data = {
-                                                            linkedObjects: { dim_lnk: dim_lnk },
+                                                            linkedObjects: {
+                                                                dim_lnk: dim_lnk
+                                                            },
                                                             qInfo: dim_layout.qInfo,
                                                             qMeta: dim_layout.qMeta,
                                                             qDim: dim_layout.qDim
                                                         };
                                                         return dim_data;
                                                     })
-                                                    .then(function(dim_data) {
+                                                    .then(function (dim_data) {
                                                         if (parse) {
                                                             logMessage("debug", "Parsing expressions in dimensions.");
-                                                            var parse_dimensions = { calculated_dimensions: [], non_calculated_dimensions: [] };
+                                                            var parse_dimensions = {
+                                                                calculated_dimensions: [],
+                                                                non_calculated_dimensions: []
+                                                            };
 
-                                                            dim_data.qDim.qFieldDefs.forEach(function(dimension_expression) {
+                                                            dim_data.qDim.qFieldDefs.forEach(function (dimension_expression) {
                                                                 if (dimension_expression.charAt(0) == '=') {
                                                                     parse_dimensions.calculated_dimensions.push(dimension_expression);
                                                                 } else {
@@ -76,11 +84,15 @@ function getDimensions(app, appId, options) {
                                                             });
 
                                                             return exprFields.checkForDimensionFields(parse_dimensions)
-                                                                .then(function(dimensions_parsed) {
+                                                                .then(function (dimensions_parsed) {
                                                                     var parsed = {
-                                                                        parsedFields: { field: dimensions_parsed.dimensionFields },
+                                                                        parsedFields: {
+                                                                            field: dimensions_parsed.dimensionFields
+                                                                        },
                                                                         parsingErrors: dimensions_parsed.dimensionFieldsErrors.length,
-                                                                        parsingErrorsDetails: { parsedFieldErrors: dimensions_parsed.dimensionFieldsErrors }
+                                                                        parsingErrorsDetails: {
+                                                                            parsedFieldErrors: dimensions_parsed.dimensionFieldsErrors
+                                                                        }
                                                                     };
 
                                                                     dim_data.parsedData = parsed;
@@ -90,7 +102,7 @@ function getDimensions(app, appId, options) {
                                                             return dim_data;
                                                         }
                                                     })
-                                                    .then(function(dim_layout) {
+                                                    .then(function (dim_layout) {
                                                         end_time = Date.now();
                                                         return {
                                                             linkedObjects: dim_layout.linkedObjects,
@@ -105,16 +117,18 @@ function getDimensions(app, appId, options) {
                                             });
                                     });
                             }))
-                            .then(function(resultArray) {
-                                logMessage("info", "Dimension metadata collection complete.");
-                                writeToXML("libraryDimensions", "LibraryDimensions", { dimension: resultArray }, appId);
+                            .then(function (resultArray) {
+                                logMessage("debug", "Dimension metadata collection complete for appId: " + appId);
+                                writeToXML("libraryDimensions", "LibraryDimensions", {
+                                    dimension: resultArray
+                                }, appId);
                                 resolve("Checkpoint: Applications Library Dimensions are loaded");
                             });
                     })
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 logMessage("error", "Error processing dimensions for app " + appId);
-                logMessage("error", error.message);
+                logMessage("error", JSON.stringify(error));
                 reject(error);
             });
     });

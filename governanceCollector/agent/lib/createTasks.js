@@ -62,6 +62,10 @@ function getAppIds() {
             .then(function () {
                 resolve(finalArray)
             })
+            .catch(function (error) {
+                logMessage("error", JSON.stringify(error));
+                resolve(error);
+            })
     })
 }
 
@@ -72,28 +76,49 @@ function taskExists(appArray) {
                 //console.log(result);
                 resolve(result);
             })
+            .catch(function (error) {
+                logMessage("error", JSON.stringify(error));
+                resolve(error);
+            })
     })
 }
 
 function doTaskStuff() {
     return new Promise(function (resolve) {
-        return getAppIds().then(function (foo) {
-            return taskExists(foo)
-                .then(function (bar) {
-                    foo.forEach(function (item) {
-                        var result = bar.filter(function (task) {
-                            return item.taskName == task.name
+            return getAppIds()
+                .then(function (foo) {
+                    return taskExists(foo)
+                        .then(function (bar) {
+                            foo.forEach(function (item) {
+                                var result = bar.filter(function (task) {
+                                    return item.taskName == task.name
+                                })
+                                if (result.length == 0) {
+                                    finalFinalArray.push(createTask(item))
+                                }
+                            });
+                            if (finalFinalArray.length > 0) {
+                                return createTasks(finalFinalArray)
+                            }
                         })
-                        if (result.length == 0) {
-                            finalFinalArray.push(createTask(item))
-                        }
-                    });
-                    if (finalFinalArray.length > 0) {
-                        return createTasks(finalFinalArray)
-                    }
+                        .catch(function (error) {
+                            logMessage("error", JSON.stringify(error));
+                            resolve(error);
+                        })
+                        .catch(function (error) {
+                            logMessage("error", JSON.stringify(error));
+                            resolve(error);
+                        })
+                })
+                .catch(function (error) {
+                    logMessage("error", JSON.stringify(error));
+                    resolve(error);
                 })
         })
-    })
+        .catch(function (error) {
+            logMessage("error", JSON.stringify(error));
+            resolve(error);
+        })
 }
 
 

@@ -23,7 +23,7 @@ function logMessage(level, msg) {
 var start_time, end_time;
 
 function doGovernance(config, options) {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
         Promise.resolve(function () {
                 start_time = new Date(Date.now());
                 logMessage("info", "Governance collection process started at " + start_time);
@@ -74,7 +74,7 @@ function doGovernance(config, options) {
                 resolve("DONE!!!")
             })
             .catch(function (error) {
-                reject(error);
+                resolve(error);
             })
     })
 }
@@ -82,11 +82,11 @@ function doGovernance(config, options) {
 module.exports = doGovernance;
 
 function createGovernanceOutput(config, options) {
-    return new Promise(function (resolve, reject) {
-
-        enigma.getService('qix', enigmaInstance(config))
-            .then(function (qix) {
-                qix.global.getDocList()
+    return new Promise(function (resolve) {
+        var session = enigma.create(enigmaInstance(config, "docList"))
+        session.open()
+            .then(function (global) {
+                global.getDocList()
                     .then(function (docList) {
                         return qrsCalls.qrsAppsDataUsers(config)
                             .then(function (result) {
@@ -118,14 +118,14 @@ function createGovernanceOutput(config, options) {
                                 singleAppId = options.singleApp.appId
                             }
                             logMessage("info", "Single App output generation selected for app: " + singleAppId);
-                            return backupApp(qix, singleAppId, config.agent)
+                            return backupApp(config, singleAppId, config.agent)
                                 .then(function (result) {
                                     logMessage("info", "Qlik Sense Governance run against " + singleAppId + "complete.");
                                 });
                         } else {
                             logMessage("info", "Generating output for the entire Qlik Sense site");
                             return Promise.all(docList.map(function (doc) {
-                                    return backupApp(qix, doc.qDocId, config.agent)
+                                    return backupApp(config, doc.qDocId, config.agent)
                                         .then(function (result) {
                                             return result;
                                         });
@@ -148,8 +148,8 @@ function createGovernanceOutput(config, options) {
             })
             .catch(function (err) {
                 logMessage("error", "Error in Governance collection process");
-                logMessage("error", err.message);
-                reject(err.message);
+                logMessage("error", JSON.stringify(err));
+                resolve(err);
             });
     });
 }
@@ -159,15 +159,15 @@ function parseScript(config) {
 }
 
 function reloadApp(config, taskname) {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
         qrsCalls.qrsReloadTask(config, taskname)
             .then(function (result) {
                 logMessage("info", result);
             })
             .catch(function (error) {
                 logMessage("error", "Error executing " + taskname);
-                logMessage("error", error);
-                reject(error);
+                logMessage("error", JSON.stringify(error));
+                resolve(error);
             })
     });
 }

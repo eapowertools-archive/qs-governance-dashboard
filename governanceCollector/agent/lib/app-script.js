@@ -22,17 +22,17 @@ var end_time;
 function getAppScript(app, appId, options) {
     //Creating the promise for the Applications Scripts
     //Root admin privileges should allow him to access to all available applications. Otherwise check your environment's security rules for the designed user.
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
         logMessage("info", "Collecting application script for app " + appId);
         start_time = Date.now();
         //requesting the script of the document
         app.getScript()
-            .then(function(script) {
+            .then(function (script) {
                 var script_lines = [];
                 script_lines = script.split('\n');
 
                 var connect_statements = [];
-                script_lines.forEach(function(line, index) {
+                script_lines.forEach(function (line, index) {
                     var new_line = line.replace('\t', '').replace('\r', '');
                     if (new_line.search('LIB CONNECT TO ') > -1) {
                         connect_statements.push({
@@ -44,11 +44,19 @@ function getAppScript(app, appId, options) {
                 });
 
                 end_time = Date.now();
-                var data = { script: script, connect_statements: connect_statements, parseTime: end_time - start_time };
+                var data = {
+                    script: script,
+                    connect_statements: connect_statements,
+                    parseTime: end_time - start_time
+                };
 
                 logMessage("info", "application script collection complete for app " + appId);
                 writeToXML("documentScript", "ScriptInfo", data, appId);
                 resolve("Checkpoint: Applications Scripts are loaded");
+            })
+            .catch(function (error) {
+                logMessage("error", JSON.stringify(error));
+                resolve(error);
             });
     });
 }
