@@ -102,6 +102,8 @@ function doTaskStuff() {
                             });
                             if (finalFinalArray.length > 0) {
                                 return createTasks(finalFinalArray);
+                            } else {
+                                return true;
                             }
                         })
                         .then(function (tasks) {

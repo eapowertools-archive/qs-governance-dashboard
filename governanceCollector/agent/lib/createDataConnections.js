@@ -42,7 +42,7 @@ var createArray = [];
 
 function createDataConnections() {
     return new Promise(function (resolve) {
-        var session = enigma.create(enigmaInstance(config, appId));
+        var session = enigma.create(enigmaInstance(config, "dataConn"));
         session.open()
             .then(function (global) {
                 return global.createApp("qsgc-tempApp")

@@ -65,6 +65,7 @@ router.route("/postsettings")
             });
             settingsData[settingIndex].port = request.body.port;
             settingsData[settingIndex].uploadApps = request.body.uploadApps;
+            settingsData[settingIndex].createTasks = request.body.createTasks;
             settingsData[settingIndex].importExtensions = request.body.importExtensions;
             settingsData[settingIndex].createDataConnections = request.body.createDataConnections;
 
