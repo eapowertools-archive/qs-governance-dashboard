@@ -18,6 +18,7 @@ The Qlik Sense Governance Collector is web application that collects metadata fr
         - [Using EAPowertools Service Dispatcher (default)](#docs/agent/operation/eapowertools-service-dispatcher.md)
         - [Node.js](#docs/agent/operation/node.md)
         - [Command Line](#docs/agent/operation/command-line)
+---
 
 ## Getting Started
 
