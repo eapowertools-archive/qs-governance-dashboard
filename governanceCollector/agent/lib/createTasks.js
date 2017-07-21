@@ -69,12 +69,11 @@ function getAppIds() {
     })
 }
 
-function taskExists(appArray) {
+function getTasks() {
     return new Promise(function (resolve) {
-        return qrs.Get("/ReloadTask")
+        return qrs.Get("/reloadtask")
             .then(function (result) {
-                //console.log(result);
-                resolve(result);
+                resolve(result.body);
             })
             .catch(function (error) {
                 logMessage("error", JSON.stringify(error));
@@ -87,19 +86,26 @@ function doTaskStuff() {
     return new Promise(function (resolve) {
             return getAppIds()
                 .then(function (foo) {
-                    return taskExists(foo)
+                    return getTasks()
                         .then(function (bar) {
                             foo.forEach(function (item) {
                                 var result = bar.filter(function (task) {
                                     return item.taskName == task.name
                                 })
+
                                 if (result.length == 0) {
+                                    logMessage("info", "The task " + item.taskName + " does not exist in the repository, therefore, it will be created.");
                                     finalFinalArray.push(createTask(item))
+                                } else {
+                                    logMessage("info", "The task " + item.taskName + " exists in the repository, therefore, it will not be created.");
                                 }
                             });
                             if (finalFinalArray.length > 0) {
-                                return createTasks(finalFinalArray)
+                                return createTasks(finalFinalArray);
                             }
+                        })
+                        .then(function (tasks) {
+                            resolve(true);
                         })
                         .catch(function (error) {
                             logMessage("error", JSON.stringify(error));
@@ -124,13 +130,14 @@ function doTaskStuff() {
 
 function createTask(task) {
     return new Promise(function (resolve) {
-        return qrs.Post("ReloadTask/create", taskTemplate(info.taskName, info.id, info.name), 'json')
+        var taskToCreate = taskTemplate(task.taskName, task.id, task.name);
+        return qrs.Post("ReloadTask/create", taskToCreate, 'json')
             .then(function (taskCreateResult) {
-                logMessage("info", "Task created: " + app.taskName + " " + JSON.stringify(taskCreateResult))
-                resolve(result.body.name + " created " + result.body.createdDate + " with id=" + result.body.id);
+                logMessage("info", "Task created: " + taskCreateResult.body.name + " created " + taskCreateResult.body.createdDate + " with id=" + taskCreateResult.body.id)
+                resolve(true);
             })
             .catch(function (error) {
-                logMessage("error", "Failed to create task: " + app.taskName + " with error: " + JSON.stringify(error));
+                logMessage("error", "Failed to create task: " + task.taskName + " with error: " + JSON.stringify(error));
                 resolve(false);
             })
     })
