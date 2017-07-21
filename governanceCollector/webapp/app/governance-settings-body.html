@@ -33,7 +33,7 @@
                             <button id="settings-save-button" class="lui-button lui-button--success" style="width:20%" ng-click="model.saveSettings()">Save</button>
                         </div>
                         <div class="info-entry" style="display:flex;justify-content:center;padding-bottom:5px;">
-                            <button class="lui-button lui-button--success" ng-click="model.importStuff()" ng-class="((model.uploadApps && model.createTasks && model.importExtensions && model.createDataConnections) || !model.settingsSaved) ? 'lui-button lui-button--success lui-disabled' : 'lui-button lui-button--success'">Import Resources</button>
+                            <button class="lui-button lui-button--success" ng-click="model.importStuff()" ng-class="!model.settingsSaved ? 'lui-button lui-button--success lui-disabled' : 'lui-button lui-button--success'">Import Resources</button>
                             <div class="frame" style="display:flex;justify-content:center;margin-left:10px;" ng-show="model.modal">
                                 <div class="overlay">
                                     <div id="imageWrapper" style="width:100%;height:100%;overflow:hidden;margin:auto">

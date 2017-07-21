@@ -125,6 +125,7 @@
             });
             list[settingIndex].port = entry.port;
             list[settingIndex].uploadApps = entry.uploadApps;
+            list[settingIndex].createTasks = entry.createTasks;
             list[settingIndex].importExtensions = entry.importExtensions;
             list[settingIndex].createDataConnections = entry.createDataConnections;
 

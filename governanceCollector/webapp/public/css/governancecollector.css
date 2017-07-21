@@ -365,3 +365,64 @@ input[type=text]:focus {
     background: #61a729;
     border-color: transparent;
 }
+
+@-webkit-keyframes spinnerRotate {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@-moz-keyframes spinnerRotate {
+    from {
+        -moz-transform: rotate(0deg);
+    }
+    to {
+        -moz-transform: rotate(360deg);
+    }
+}
+
+@-ms-keyframes spinnerRotate {
+    from {
+        -ms-transform: rotate(0deg);
+    }
+    to {
+        -ms-transform: rotate(360deg);
+    }
+}
+
+.governance-settings #spin {
+    /*position:fixed; */
+    /*top:50%;
+    left:50%; */
+    -webkit-animation-name: spinnerRotate;
+    -webkit-animation-duration: 1.0s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+    -moz-animation-name: spinnerRotate;
+    -moz-animation-duration: 1.0s;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-timing-function: linear;
+    -ms-animation-name: spinnerRotate;
+    -ms-animation-duration: 1.0s;
+    -ms-animation-iteration-count: infinite;
+    -ms-animation-timing-function: linear;
+}
+
+
+/*dim the background*/
+
+
+/* .governance-settings .overlay {
+    position: absolute;
+    top: 188;
+    left: 250;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.25);
+    opacity: 0.5;
+    
+} */
