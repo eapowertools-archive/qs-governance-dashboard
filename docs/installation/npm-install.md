@@ -1,17 +1,17 @@
 # Installing qs-governance-collector using npm and node.js
 
 ## Table of Contents
-* [Before beginning](#Before-beginning)
-* [Prerequisites](#Prerequisites)
-* [Installation](#Installation)
+* [Before beginning](#before-beginning)
+* [Prerequisites](#prerequisites)
+* [Installation](#installation)
     * Web Application
-        * [Installing the web application](#Installing-the-web-application)
-        * [Add the web application to Powertools Service Dispatcher](#Add-the-web-application-to-Powertools-Service-Dispatcher)
+        * [Installing the web application](#installing-the-web-application)
+        * [Add the web application to Powertools Service Dispatcher](#add-the-web-application-to-powertools-service-dispatcher)
     * Agent
-        * [Installing the agent](#Installint-the-agent)
-        * [Configure the agent](#Configure-the-agent)
-        * [Add the agent service configuration to Powertools Service Dispatcher](Add-the-agent-service-configuration-to-Powertools-Service-Dispatcher)
-* [Running the governance collector without using the Powertools Service Dispatcher](#Running-the-governance-collector-without-using-the-Powertools-Service-Dispatcher)  
+        * [Installing the agent](#installing-the-agent)
+        * [Configure the agent](#configure-the-agent)
+        * [Add the agent service configuration to Powertools Service Dispatcher](#add-the-agent-service-configuration-to-powertools-service-dispatcher)
+* [Running the governance collector without using the Powertools Service Dispatcher](#running-the-governance-collector-without-using-the-powertools-service-dispatcher)  
 
 ---
 
