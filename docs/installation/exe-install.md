@@ -13,12 +13,12 @@
 4. The license agreement appears.  Please take a moment to review the license.  Choose I accept and click the Next button.   
 ![3](../img/installation/3.png)
 
-5. Before clicking Next when the select destination location screen appears, verify the following:
+5. Before clicking Next when the select destination location screen appears, verify the following:    
+![4](../img/installation/4.png)
 
 > If the EA Powertools Service Dispatcher is already installed, verify the path of the PowertoolsServiceDispatcher folder (*default:%programfiles%\qlik\sense\eapowertools\powertoolsservicedispatcher*).  Install the governance collector in an adjacent location to this folder (*eg: %programfiles%\qlik\sense\eapowertools\governancecollector*)
 
-> If the EA Powertools Service Dispatcher is **not** installed, keep the default installation path or change to an alternative location.  The Powertools Service Dispatcher will be installed alongside the governance collector.    
-![4](../img/installation/4.png)
+> If the EA Powertools Service Dispatcher is **not** installed, keep the default installation path or change to an alternative location.  The Powertools Service Dispatcher will be installed alongside the governance collector.   
 
 6. Review the installation path and click the Install button to place the files on the destination system.    
 ![5](../img/installation/5.png)
