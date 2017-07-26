@@ -5,19 +5,19 @@ The Qlik Sense Governance Collector (**qsgc**) is a web application that collect
 ---
 - [Getting Started](#getting-started)
 - Installation
-    - [Installer](#docs/installation/exe-install.md)
-    - [Install with npm](#docs/installation/npm-install.md)
-    - [Importing Qlik Resources](#docs/installation/qlik-config.md)
+    - [Installer](docs/installation/exe-install.md)
+    - [Install with npm](docs/installation/npm-install.md)
+    - [Importing Qlik Resources](docs/installation/qlik-config.md)
 - WebApp
-    - [Configuration](#docs/webapp/configuration.md)
-    - [User Guide](#docs/webapp/user-guide.md)
+    - [Configuration](docs/webapp/configuration.md)
+    - [User Guide](docs/webapp/user-guide.md)
 - Agent
-    - [Configuration](#docs/agent/configuration.md)
+    - [Configuration](docs/agent/configuration.md)
     - Operation
-        - [Using EAPowertools Service Dispatcher (default)](#docs/agent/operation/eapowertools-service-dispatcher.md)
-        - [Node.js](#docs/agent/operation/node.md)
-        - [Command Line](#docs/agent/operation/command-line)
-    - [API](#docs/agent/api.md)
+        - [Using EAPowertools Service Dispatcher (default)](docs/agent/operation/eapowertools-service-dispatcher.md)
+        - [Node.js](docs/agent/operation/node.md)
+        - [Command Line](docs/agent/operation/command-line)
+    - [API](docs/agent/api.md)
 ---
 
 ## Getting Started
