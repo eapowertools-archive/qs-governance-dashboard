@@ -68,7 +68,7 @@ var config = {
         noData: false,
         timer_mode: false,
         parseLoadScriptLogs: false,
-        version: "1.0.0"
+        version: "1.0.0.15"
     },
     logging: {
         logPath: logPath,

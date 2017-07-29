@@ -6,7 +6,7 @@ var extend = require('extend');
 var installConfig;
 var baseConfigPath = path.join(__dirname, "/../config/");
 var dir = fs.readdirSync(baseConfigPath);
-dir.forEach(function(file) {
+dir.forEach(function (file) {
     if (file === 'installConfig.json') {
         installConfig = JSON.parse(fs.readFileSync(path.join(baseConfigPath, file)));
     }
@@ -20,7 +20,7 @@ var config = {
         publicPath: path.join(__dirname, "/../public"),
         nodeModPath: path.join(__dirname, "/../node_modules"),
         appPath: path.join(__dirname, '/../app/'),
-        version: "1.0.0"
+        version: "1.0.0.15"
     },
     logging: {
         logPath: logPath,
