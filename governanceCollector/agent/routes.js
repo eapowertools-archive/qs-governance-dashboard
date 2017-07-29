@@ -14,6 +14,7 @@ var uploadApps = require("./lib/uploadApps");
 var createTasks = require("./lib/createTasks");
 var importExtensions = require("./lib/importExtensions");
 var createDataConnections = require("./lib/createDataConnections");
+const checkIp = require("./lib/ipChecker");
 
 var loggerObject = {
     jsFile: "routes.js"
@@ -34,8 +35,8 @@ router.use(bodyParser.urlencoded({
 }));
 
 router.use(function (req, res, next) {
-    console.log(req.connection.remoteAddress.split(":")[3]);
-    socketHelper.createConnection("http://" + req.connection.remoteAddress.split(":")[3] + ":" + config.webApp.port);
+    var ipToUse = checkIp(req.connection.remoteAddress);
+    socketHelper.createConnection("http://" + ipToUse + ":" + config.webApp.port);
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
