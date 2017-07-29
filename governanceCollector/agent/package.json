@@ -1,41 +1,42 @@
 {
-    "name": "qs-governance-collector-agent",
-    "version": "1.0.0",
-    "description": "A node.js app for processing Governance Collection requests from the Governance Collector Webapp, via REST, or command-line",
-    "main": "qs-governance-collector-agent",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "node server.js"
-    },
-    "keywords": [
-        "qliksense",
-        "qlik",
-        "sense",
-        "governance",
-        "collector",
-        "powertools"
-    ],
-    "author": "Renato Viera with contributors",
-    "license": "MIT",
-    "dependencies": {
-        "bluebird": "^3.5.0",
-        "body-parser": "^1.17.2",
-        "enigma.js": "^2.0.0-0",
-        "express": "^4.15.3",
-        "extend": "^3.0.1",
-        "http": "0.0.0",
-        "js2xmlparser": "^3.0.0",
-        "lodash": "^4.17.4",
-        "path": "^0.12.7",
-        "promise": "7.1.1",
-        "q": "^1.5.0",
-        "qrs-interact": "^2.5.6",
-        "serializeapp": "^3.0.0",
-        "socket.io": "^2.0.3",
-        "socket.io-client": "^2.0.3",
-        "util": "^0.10.3",
-        "winston": "^2.3.1",
-        "winston-daily-rotate-file": "^1.4.6",
-        "ws": "^3.0.0"
-    }
+  "name": "qs-governance-collector-agent",
+  "version": "1.0.0",
+  "description": "A node.js app for processing Governance Collection requests from the Governance Collector Webapp, via REST, or command-line",
+  "main": "qs-governance-collector-agent",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "qliksense",
+    "qlik",
+    "sense",
+    "governance",
+    "collector",
+    "powertools"
+  ],
+  "author": "Renato Viera with contributors",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "body-parser": "^1.17.2",
+    "enigma.js": "^2.0.0-0",
+    "express": "^4.15.3",
+    "extend": "^3.0.1",
+    "http": "0.0.0",
+    "ipaddr.js": "^1.4.0",
+    "js2xmlparser": "^3.0.0",
+    "lodash": "^4.17.4",
+    "path": "^0.12.7",
+    "promise": "7.1.1",
+    "q": "^1.5.0",
+    "qrs-interact": "^2.5.6",
+    "serializeapp": "^3.0.0",
+    "socket.io": "^2.0.3",
+    "socket.io-client": "^2.0.3",
+    "util": "^0.10.3",
+    "winston": "^2.3.1",
+    "winston-daily-rotate-file": "^1.4.6",
+    "ws": "^3.0.0"
+  }
 }
