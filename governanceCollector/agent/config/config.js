@@ -64,11 +64,13 @@ var config = {
             loadScriptLogPath: [loadScriptLogPath],
             parsedScriptLogPath: "c:/metadata"
         },
+        qvdTaskname: "qsgc-Generate-Governance-QVDs",
+        gDashTaskname: "qsgc-Refresh-Governance-Dashboard",
         single_app: false,
         noData: false,
         timer_mode: false,
         parseLoadScriptLogs: false,
-        version: "1.0.0"
+        version: "1.0.0.15"
     },
     logging: {
         logPath: logPath,
