@@ -64,6 +64,8 @@ var config = {
             loadScriptLogPath: [loadScriptLogPath],
             parsedScriptLogPath: "c:/metadata"
         },
+        qvdTaskname: "qsgc-Generate-Governance-QVDs",
+        gDashTaskname: "qsgc-Refresh-Governance-Dashboard",
         single_app: false,
         noData: false,
         timer_mode: false,
