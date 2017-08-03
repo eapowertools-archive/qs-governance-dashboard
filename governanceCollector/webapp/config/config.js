@@ -20,7 +20,7 @@ var config = {
         publicPath: path.join(__dirname, "/../public"),
         nodeModPath: path.join(__dirname, "/../node_modules"),
         appPath: path.join(__dirname, '/../app/'),
-        version: "1.0.0.16"
+        version: "1.0.0.17"
     },
     logging: {
         logPath: logPath,
