@@ -7,186 +7,203 @@ var inquirer = require('inquirer');
 var spawnIt = require("child_process").execSync;
 var tarball = require("tarball-extract");
 var confOps = require("./lib/services.conf");
+var serviceCluster = require("./lib/qrsCluster")
 
 var pathPattern = /^[a-zA-Z]:((\\|\/)[a-zA-Z0-9\s_@\-^!#$%&+={}\[\]]+)+$/;
 var uncPattern = /^((\\\\|\\|\/)[a-zA-Z0-9\s_@\-^!#$%&+={}\[\]]+)+$/;
 
-installText();
 
-var firstQuestion = [{
-    type: 'confirm',
-    name: 'beginInstall',
-    message: 'Welcome to the Qlik Sense Governance Collector Install.  Ready to begin?',
-    default: true
-}];
+serviceCluster()
+    .then(function (result) {
+        installText();
+        var archivedScriptLogsPath = result.body.settings.sharedPersistenceProperties.archivedLogsRootFolder;
 
-var installQuestion = [{
-    type: 'list',
-    name: 'installType',
-    message: 'The QSGC has an web app component, and an agent component.  It is possible to install the components on the same system.  What component(s)would you like to install?',
-    choices: ['complete', 'web app', 'agent']
-}];
+        var firstQuestion = [{
+            type: 'confirm',
+            name: 'beginInstall',
+            message: 'Welcome to the Qlik Sense Governance Collector Install.  Ready to begin?',
+            default: true
+        }];
 
-var webAppQuestions = [{
-    type: 'input',
-    name: 'webPort',
-    message: colors.green("The default port for the web app is 8591.  To change it, enter the port number:"),
-    default: 8591,
-    validate: function (input) {
-        var pattern = /[1-9]/
-        if (input.toString().match(pattern)) {
-            return true;
-        }
-        return colors.red("Please enter a valid tcp port number");
-    }
+        var installQuestion = [{
+            type: 'list',
+            name: 'installType',
+            message: 'The QSGC has an web app component, and an agent component.  It is possible to install the components on the same system.  What component(s)would you like to install?',
+            choices: ['complete', 'web app', 'agent']
+        }];
 
-}]
-
-var agentQuestions = [{
-        type: 'input',
-        name: 'webPort',
-        message: colors.green("The web app web port is required for the agent to send messages back to the web app.  The default port for the web app is 8591.  To change it, enter the port number:"),
-        default: 8591,
-        validate: function (input) {
-            var pattern = /[1-9]/
-            if (input.toString().match(pattern)) {
-                return true;
+        var webAppQuestions = [{
+            type: 'input',
+            name: 'webPort',
+            message: colors.green("The default port for the web app is 8591.  To change it, enter the port number:"),
+            default: 8591,
+            validate: function (input) {
+                var pattern = /[1-9]/
+                if (input.toString().match(pattern)) {
+                    return true;
+                }
+                return colors.red("Please enter a valid tcp port number");
             }
-            return colors.red("Please enter a valid tcp port number");
-        }
-    },
-    {
-        type: 'input',
-        name: 'agentPort',
-        message: colors.green("The default port for the agent is 8592.  To change it, enter the port number:"),
-        default: 8592,
-        validate: function (input) {
-            var pattern = /[1-9]/
-            if (input.toString().match(pattern)) {
-                return true;
-            }
-            return colors.red("Please enter a valid tcp port number");
-        }
-    },
-    {
-        type: 'input',
-        name: 'metadataPath',
-        message: colors.green("Enter the path metadata will be output to:"),
-        default: "c:\\metadata",
-        validate: function (input) {
-            if (input.match(pathPattern) || input.match(uncPattern)) {
-                return true;
-            }
-            return colors.red("Please enter a valid path");
-        }
-    },
-    {
-        type: 'input',
-        name: 'qvdOutputPath',
-        message: colors.green("Enter the path generate QVDs will be output to:"),
-        default: "c:\\qvdOutput",
-        validate: function (input) {
-            if (input.match(pathPattern) || input.match(uncPattern)) {
-                return true;
-            }
-            return colors.red("Please enter a valid path");
-        }
-    },
-    {
-        type: 'input',
-        name: 'parsedScriptLogPath',
-        message: colors.green("Enter the path parsed script logs will be output to:"),
-        default: "\\\\share\\parsedScriptLogs",
-        validate: function (input) {
-            if (input.match(pathPattern) || input.match(uncPattern)) {
-                return true;
-            }
-            return colors.red("Please enter a valid path");
-        }
-    },
-    {
-        type: 'confirm',
-        name: 'createPaths',
-        message: colors.green("Do you want the installer to create these paths if they don't exist?  ") + colors.yellow("UNC paths will ") + colors.red("NOT") + colors.yellow(" be created.  Create them manually."),
-        default: true,
 
-    }
-    // {
-    //     type: 'input',
-    //     name: 'qvdTaskName',
-    //     message: colors.green("Enter the name of the qvd generator task:"),
-    //     default: "qsgc-Generate-Governance-QVDs"
-    // },
-    // {
-    //     type: 'input',
-    //     name: 'gDashTaskName',
-    //     message: colors.green("Enter the name of the qvd generator task:"),
-    //     default: "qsgc-Refresh-Governance-Dashboard"
-    // },
-]
+        }]
 
-var confirmInstall = [{
-    type: 'confirm',
-    name: 'confirmInstall',
-    message: colors.yellow()
-}]
-
-var x = {};
-
-inquirer.prompt(firstQuestion)
-    .then(function (answer) {
-        if (answer.beginInstall) {
-            return inquirer.prompt(installQuestion)
-                .then(function (installAnswer) {
-                    x.installAnswer = installAnswer
-                    if (installAnswer.installType == "web app") {
-                        return inquirer.prompt(webAppQuestions)
-                            .then(function (webAppAnswers) {
-                                x.webAppAnswers = webAppAnswers;
-                                return webAppAnswers;
-                            })
-                    } else {
-                        return inquirer.prompt(agentQuestions)
-                            .then(function (agentAnswers) {
-                                x.agentAnswers = agentAnswers;
-                                return agentAnswers;
-                            })
+        var agentQuestions = [{
+                type: 'input',
+                name: 'webPort',
+                message: colors.green("The web app web port is required for the agent to send messages back to the web app.  The default port for the web app is 8591.  To change it, enter the port number:"),
+                default: 8591,
+                validate: function (input) {
+                    var pattern = /[1-9]/
+                    if (input.toString().match(pattern)) {
+                        return true;
                     }
-                })
-                .then(function (answers) {
-                    return inquirer.prompt([{
-                            type: 'confirm',
-                            name: 'confirmInstall',
-                            message: colors.yellow("You have chosen to install the " + x.installAnswer.installType + ".  Are you ready to install?")
-                        }])
-                        .then(function (response) {
-                            if (response.confirmInstall) {
-                                switch (x.installAnswer.installType) {
-                                    case 'web app':
-                                        return installWebApp(x.webAppAnswers);
-                                    case 'agent':
-                                        return installAgent(x.agentAnswers);
-                                    default:
-                                        return installAll(x);
-                                }
+                    return colors.red("Please enter a valid tcp port number");
+                }
+            },
+            {
+                type: 'input',
+                name: 'agentPort',
+                message: colors.green("The default port for the agent is 8592.  To change it, enter the port number:"),
+                default: 8592,
+                validate: function (input) {
+                    var pattern = /[1-9]/
+                    if (input.toString().match(pattern)) {
+                        return true;
+                    }
+                    return colors.red("Please enter a valid tcp port number");
+                }
+            },
+            {
+                type: 'input',
+                name: 'metadataPath',
+                message: colors.green("Enter the path metadata will be output to:"),
+                default: "c:\\metadata",
+                validate: function (input) {
+                    if (input.match(pathPattern) || input.match(uncPattern)) {
+                        return true;
+                    }
+                    return colors.red("Please enter a valid path");
+                }
+            },
+            {
+                type: 'input',
+                name: 'qvdOutputPath',
+                message: colors.green("Enter the path generate QVDs will be output to:"),
+                default: "c:\\qvdOutput",
+                validate: function (input) {
+                    if (input.match(pathPattern) || input.match(uncPattern)) {
+                        return true;
+                    }
+                    return colors.red("Please enter a valid path");
+                }
+            },
+            {
+                type: 'input',
+                name: 'archivedScriptLogsPath',
+                message: colors.green("Enter the path where script logs exist:"),
+                default: archivedScriptLogsPath,
+                validate: function (input) {
+                    if (input.match(pathPattern) || input.match(uncPattern)) {
+                        return true;
+                    }
+                    return colors.red("Please enter a valid path");
+                }
+            },
+            {
+                type: 'input',
+                name: 'parsedScriptLogPath',
+                message: colors.green("Enter the path parsed script logs will be output to:"),
+                default: "c:\\metadata",
+                validate: function (input) {
+                    if (input.match(pathPattern) || input.match(uncPattern)) {
+                        return true;
+                    }
+                    return colors.red("Please enter a valid path");
+                }
+            },
+            {
+                type: 'confirm',
+                name: 'createPaths',
+                message: colors.green("Do you want the installer to create these paths if they don't exist?  ") + colors.yellow("UNC paths will ") + colors.red("NOT") + colors.yellow(" be created.  Create them manually."),
+                default: true,
+
+            }
+            // {
+            //     type: 'input',
+            //     name: 'qvdTaskName',
+            //     message: colors.green("Enter the name of the qvd generator task:"),
+            //     default: "qsgc-Generate-Governance-QVDs"
+            // },
+            // {
+            //     type: 'input',
+            //     name: 'gDashTaskName',
+            //     message: colors.green("Enter the name of the qvd generator task:"),
+            //     default: "qsgc-Refresh-Governance-Dashboard"
+            // },
+        ]
+
+        var confirmInstall = [{
+            type: 'confirm',
+            name: 'confirmInstall',
+            message: colors.yellow()
+        }]
+
+        var x = {};
+
+        inquirer.prompt(firstQuestion)
+            .then(function (answer) {
+                if (answer.beginInstall) {
+                    return inquirer.prompt(installQuestion)
+                        .then(function (installAnswer) {
+                            x.installAnswer = installAnswer
+                            if (installAnswer.installType == "web app") {
+                                return inquirer.prompt(webAppQuestions)
+                                    .then(function (webAppAnswers) {
+                                        x.webAppAnswers = webAppAnswers;
+                                        return webAppAnswers;
+                                    })
+                            } else {
+                                return inquirer.prompt(agentQuestions)
+                                    .then(function (agentAnswers) {
+                                        x.agentAnswers = agentAnswers;
+                                        return agentAnswers;
+                                    })
                             }
-                            //return false;
                         })
-                })
-                .then(function (install) {
-                    if (install) {
-                        console.log(colors.green("Install complete!"));
-                    } else {
-                        console.log(colors.red("Install failed or cancelled"));
-                    }
-                    return;
-                })
-        }
-        console.log(colors.red("Install failed or cancelled"));
-        return;
-        //return false;
+                        .then(function (answers) {
+                            return inquirer.prompt([{
+                                    type: 'confirm',
+                                    name: 'confirmInstall',
+                                    message: colors.yellow("You have chosen to install the " + x.installAnswer.installType + ".  Are you ready to install?")
+                                }])
+                                .then(function (response) {
+                                    if (response.confirmInstall) {
+                                        switch (x.installAnswer.installType) {
+                                            case 'web app':
+                                                return installWebApp(x.webAppAnswers);
+                                            case 'agent':
+                                                return installAgent(x.agentAnswers);
+                                            default:
+                                                return installAll(x);
+                                        }
+                                    }
+                                    //return false;
+                                })
+                        })
+                        .then(function (install) {
+                            if (install) {
+                                console.log(colors.green("Install complete!"));
+                            } else {
+                                console.log(colors.red("Install failed or cancelled"));
+                            }
+                            return;
+                        })
+                }
+                console.log(colors.red("Install failed or cancelled"));
+                return;
+                //return false;
+            })
     })
-
 
 function installText() {
     var file = fs.readFileSync(path.join(__dirname, "install.md"), "utf-8");
@@ -262,6 +279,7 @@ function installAgent(options) {
                     "port": options.agentPort,
                     "metadataPath": options.metadataPath,
                     "qvdOutputPath": options.qvdOutputPath,
+                    "loadScriptLogPath": [options.archivedScriptLogsPath],
                     "loadScriptParsing": {
                         "parsedScriptLogPath": options.parsedScriptLogPath
                     },

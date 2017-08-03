@@ -69,12 +69,33 @@
     border-color: #595959;
 }
 
-.governanceCollector .govButtons {
+.governanceCollector #far-left {
+    width: 225px;
+    margin-left: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: left;
+    background-color: #E6E6E6;
+    color: #595959;
+    padding: 5px;
+}
+
+.governanceCollector .govSelectButtons {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     height: inherit;
-    width: 50%;
+    width: 100%;
+    min-width: 200px;
+}
+
+.governanceCollector .gogoGov {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: inherit;
+    width: 75%;
     min-width: 200px;
 }
 
@@ -100,7 +121,7 @@
 }
 
 .governanceCollector #goButton {
-    min-width: 300px;
+    min-width: 200px;
     height: 56px;
     font-size: 36px;
 }

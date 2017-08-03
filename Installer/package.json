@@ -1,29 +1,31 @@
 {
-    "name": "qs-governance-collector-installer2",
-    "version": "1.0.0",
-    "description": "an installer for Qlik Sense Governance Collector",
-    "main": "install.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "",
-    "license": "MIT",
-    "dependencies": {
-        "bluebird": "^3.5.0",
-        "colors": "^1.1.2",
-        "inquirer": "^3.1.1",
-        "path": "^0.12.7",
-        "tarball-extract": "0.0.6"
-    },
-    "installer": {
-        "apps": [{
-                "appName": "Qlik Sense Governance Dashboard",
-                "taskName": "qsgc-Refresh-Governance-Dashboard"
-            },
-            {
-                "appName": "Qlik Sense Governance QVD Generator",
-                "taskName": "qsgc-Generate-Governance-QVDs"
-            }
-        ]
-    }
+  "name": "qs-governance-collector-installer2",
+  "version": "1.0.0",
+  "description": "an installer for Qlik Sense Governance Collector",
+  "main": "install.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "colors": "^1.1.2",
+    "inquirer": "^3.1.1",
+    "path": "^0.12.7",
+    "qrs-interact": "^2.5.7",
+    "tarball-extract": "0.0.6"
+  },
+  "installer": {
+    "apps": [
+      {
+        "appName": "Qlik Sense Governance Dashboard",
+        "taskName": "qsgc-Refresh-Governance-Dashboard"
+      },
+      {
+        "appName": "Qlik Sense Governance QVD Generator",
+        "taskName": "qsgc-Generate-Governance-QVDs"
+      }
+    ]
+  }
 }
