@@ -24,24 +24,36 @@ function logMessage(level, msg) {
 }
 
 function parse(logFilesDirectoryFullPaths, outputPath, logFilesFilter, logFilesForce) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         main.getParser()
-            .then(function(parser) {
+            .then(function (parser) {
                 logMessage("info", "begin parsing");
-                return Promise.all(logFilesDirectoryFullPaths.map(function(filePath) {
+                return Promise.all(logFilesDirectoryFullPaths.map(function (filePath) {
                         logMessage("info", "Identifying files to parse in " + filePath);
 
-                        var files = newestFileList(filePath);
+                        var dirs = fs.readdirSync(filePath)
+
+                        var files = [];
+                        dirs.forEach(function (dirItem) {
+                            if (fs.statSync(dirItem).isDirectory()) {
+                                files.concat(newestFileList(path.join(filePath, dirItem, "script")))
+                            }
+                        })
+
+                        files.concat(newestFileList(filePath));
 
                         logMessage("info", files.length + " files to process")
                         var resultArray = [];
-                        files.forEach(function(file) {
-                            resultArray.push({ fileName: file, fullName: path.join(filePath, file) });
+                        files.forEach(function (file) {
+                            resultArray.push({
+                                fileName: file,
+                                fullName: path.join(filePath, file)
+                            });
                         })
                         return resultArray;
 
                     }))
-                    .then(function(files) {
+                    .then(function (files) {
                         //console.log(files);
                         return Promise.all([
 
@@ -52,34 +64,34 @@ function parse(logFilesDirectoryFullPaths, outputPath, logFilesFilter, logFilesF
                         ]);
                     })
             })
-            .then(function(reply) {
+            .then(function (reply) {
                 var parser = reply[0];
                 var files = reply[1];
                 var maxCount = files.length;
                 var i = 0;
-                promiseWhile(function() {
+                promiseWhile(function () {
                         // Condition for stopping
                         return i < maxCount;
-                    }, function() {
+                    }, function () {
                         // The function to run, should return a promise
-                        return new Promise(function(resolve, reject) {
+                        return new Promise(function (resolve, reject) {
                             // Arbitrary 250ms async method to simulate async process
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 logMessage("info", "Processing file number " + i + ": " + files[i].fileName);
                                 processFile(parser, files[i], outputPath)
-                                    .then(function(result) {
+                                    .then(function (result) {
                                         i += 1;
                                         resolve(result);
                                     })
                             }, 250);
                         });
                     })
-                    .then(function(results) {
+                    .then(function (results) {
                         // Notice we can chain it because it's a Promise, this will run after completion of the promiseWhile Promise!
                         logMessage("info", "Parsing script log files complete");
                         resolve(results);
                     })
-                    .catch(function(error) {
+                    .catch(function (error) {
                         //console.log("error!")
                         reject(error);
                     });
@@ -121,7 +133,7 @@ function parseQlikLogFile(parser, file) {
 
 }
 
-Array.prototype.getUnique = function() {
+Array.prototype.getUnique = function () {
     var u = {},
         a = [];
     for (var i = 0, l = this.length; i < l; ++i) {
@@ -136,14 +148,14 @@ Array.prototype.getUnique = function() {
 
 
 function getFields(parsedFile) {
-    var loadStatements = parsedFile.result.filter(function(blk) {
+    var loadStatements = parsedFile.result.filter(function (blk) {
         return blk.blockType == "LOAD";
     });
 
     var fieldArray = [];
     var fieldItem = {};
 
-    loadStatements.forEach(function(entry, index) {
+    loadStatements.forEach(function (entry, index) {
         fieldItem = {};
         fieldItem.tableName = findTableNames(entry.block.prefixes)
         fieldItem.parentId = index;
@@ -175,14 +187,14 @@ function findTableNames(prefix) {
 
 
 function getLibConnections(parsedFile) {
-    var loadStatements = parsedFile.result.filter(function(blk) {
+    var loadStatements = parsedFile.result.filter(function (blk) {
         return blk.blockType == "LOAD";
     });
 
     var loadStatementArray = [];
     var loadStatementItem = {};
 
-    loadStatements.forEach(function(loadStatement, index) {
+    loadStatements.forEach(function (loadStatement, index) {
         //console.log(loadStatement)
 
         if (loadStatement.block.source != undefined) {
@@ -192,7 +204,9 @@ function getLibConnections(parsedFile) {
                 loadStatementItem.keyLib = index;
                 loadStatementItem.libRow = loadStatement.rowNumber;
                 loadStatementItem.loadType = loadStatement.blockType;
-                loadStatementItem.params = { param: loadStatement.block.source.data.params };
+                loadStatementItem.params = {
+                    param: loadStatement.block.source.data.params
+                };
 
 
                 var from = loadStatement.block.source.data.from;
@@ -211,13 +225,13 @@ function getLibConnections(parsedFile) {
 
 
 function getLoadStatements(parsedFile) {
-    var loadStatements = parsedFile.result.filter(function(blk) {
+    var loadStatements = parsedFile.result.filter(function (blk) {
         return blk.blockType == "LOAD";
     });
     var loadStatementArray = [];
     var loadStatementItem = {};
 
-    loadStatements.forEach(function(loadStatement, index) {
+    loadStatements.forEach(function (loadStatement, index) {
         if (loadStatement.block.source != undefined) {
             loadStatementItem = {};
             loadStatementItem.tableName = findTableNames(loadStatement.block.prefixes);
@@ -225,7 +239,9 @@ function getLoadStatements(parsedFile) {
             loadStatementItem.sourceLoadType = loadStatement.block.source.loadBlockType;
             loadStatementItem.loadType = loadStatement.blockType;
             loadStatementItem.sourceParam = buildParamStatement(loadStatement.block.source.data.params);
-            loadStatementItem.params = { param: loadStatement.block.source.data.params };
+            loadStatementItem.params = {
+                param: loadStatement.block.source.data.params
+            };
             loadStatementItem.source = loadStatement.block.source.data.from;
             loadStatementItem.sourceTable = loadStatement.block.source.data.table;
             loadStatementItem.load = loadStatement.block.load;
@@ -238,7 +254,7 @@ function getLoadStatements(parsedFile) {
 function buildParamStatement(params) {
     if (params) {
         var foo = '[';
-        params.forEach(function(param, index) {
+        params.forEach(function (param, index) {
             foo += JSON.stringify(param) + (index < params.length - 1 ? ',' : ']');
         })
         return foo;
@@ -250,10 +266,10 @@ function buildParamStatement(params) {
 }
 
 
-var promiseWhile = function(condition, action) {
+var promiseWhile = function (condition, action) {
     var resolver = Promise.defer();
 
-    var loop = function() {
+    var loop = function () {
         if (!condition()) return resolver.resolve();
         return Promise.cast(action())
             .then(loop)
@@ -267,10 +283,10 @@ var promiseWhile = function(condition, action) {
 
 
 function processFile(parser, file, outputPath) {
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
 
         readFile(file.fullName, 'utf-8')
-            .then(function(fileContent) {
+            .then(function (fileContent) {
 
                 return {
                     fullName: file.fullName,
@@ -279,7 +295,7 @@ function processFile(parser, file, outputPath) {
                 }
 
             })
-            .then(function(file) {
+            .then(function (file) {
                 logMessage("info", "begin parsing " + file.fileName)
                 var parsedFile = parseQlikLogFile(parser, file)
 
@@ -296,17 +312,29 @@ function processFile(parser, file, outputPath) {
                 //var stuff = loadStatementArray.getUnique();
                 logMessage("info", "Finishing parsing " + file.fileName)
                 if (!parsedFile.parsed || (
-                        parsedFile.result.filter(function(blk) { return blk.blockType == 'FAILED'; }).length == 0 &&
-                        parsedFile.result.filter(function(blk) { return blk.blockType == 'UNKNOWN'; }).length > 0
+                        parsedFile.result.filter(function (blk) {
+                            return blk.blockType == 'FAILED';
+                        }).length == 0 &&
+                        parsedFile.result.filter(function (blk) {
+                            return blk.blockType == 'UNKNOWN';
+                        }).length > 0
                     )) {
 
-                    var strParsed = util.inspect(parsedFile, { showHidden: false, depth: null, colors: false, maxArrayLength: null });
+                    var strParsed = util.inspect(parsedFile, {
+                        showHidden: false,
+                        depth: null,
+                        colors: false,
+                        maxArrayLength: null
+                    });
 
                     // console.log('err', file.fileName);
                     logMessage("error", "An error occured parsing " + file.fileName);
                     fs.writeFileSync(path.join(outputPath, 'err-' + file.fileName), strParsed);
 
-                    resolve({ type: 'err', file: file });
+                    resolve({
+                        type: 'err',
+                        file: file
+                    });
 
                 } else {
 
@@ -315,11 +343,14 @@ function processFile(parser, file, outputPath) {
                     fs.writeFileSync(path.join(outputPath, 'done-' + file.fileName), JSON.stringify(parsedFile));
                     logMessage("info", "completed parsing " + file.fileName);
                     // return Promise.resolve(arr.concat([{ type: 'done', file: file }]));
-                    resolve({ type: "done", file: file });
+                    resolve({
+                        type: "done",
+                        file: file
+                    });
 
                 }
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 logMessage("error", "Error parsing " + file.fileName);
                 resolve("Error parsing " + file.fileName);
             });

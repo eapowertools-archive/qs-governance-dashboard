@@ -279,8 +279,8 @@ function installAgent(options) {
                     "port": options.agentPort,
                     "metadataPath": options.metadataPath,
                     "qvdOutputPath": options.qvdOutputPath,
-                    "loadScriptLogPath": [options.archivedScriptLogsPath],
                     "loadScriptParsing": {
+                        "loadScriptLogPath": [options.archivedScriptLogsPath],
                         "parsedScriptLogPath": options.parsedScriptLogPath
                     },
                 }
