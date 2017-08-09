@@ -21,7 +21,7 @@ function logMessage(level, msg) {
 }
 
 var qrsCalls = {
-    qrsAppList: function(options) {
+    qrsAppList: function (options) {
         logMessage("info", "Gathering application list.");
         var qrsInstance = {
             hostname: options.qrs.hostname,
@@ -30,7 +30,7 @@ var qrsCalls = {
 
         var qrs = new qrsInteract(qrsInstance);
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             // qrs.Get("app/full")
             //     .then(function(result) {
             //         resolve(result.body);
@@ -40,7 +40,7 @@ var qrsCalls = {
             //     });
 
             qrs.Get("app/count")
-                .then(function(result) {
+                .then(function (result) {
                     var maxCount = result.body.value;
                     var i = 0;
                     var resultArray = [];
@@ -50,16 +50,16 @@ var qrsCalls = {
                         logMessage("info", "There are more than 1000 apps in the repository.  Collecting all the app information may take a few minutes");
                     }
 
-                    promiseWhile(function() {
+                    promiseWhile(function () {
                         // Condition for stopping
                         return i <= maxCount;
-                    }, function() {
+                    }, function () {
                         // The function to run, should return a promise
-                        return new Promise(function(resolve, reject) {
+                        return new Promise(function (resolve, reject) {
                             // Arbitrary 250ms async method to simulate async process
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 qrs.Post("app/table?orderAscending=true&skip=" + i + "&sortColumn=name&take=500", appSchema, 'json')
-                                    .then(function(results) {
+                                    .then(function (results) {
                                         logMessage("info", "App list collection " + ((i / maxCount) * 100).toFixed(2) + "% complete.");
                                         var foo = results.body.rows;
                                         resultArray = resultArray.concat(foo);
@@ -68,12 +68,12 @@ var qrsCalls = {
                                     });
                             }, 250);
                         });
-                    }).then(function() {
+                    }).then(function () {
                         // Notice we can chain it because it's a Promise, this will run after completion of the promiseWhile Promise!
                         logMessage("info", "app list collection complete.")
                         var finalArray = [];
                         var obj;
-                        resultArray.forEach(function(item, index) {
+                        resultArray.forEach(function (item, index) {
 
                             obj = {
                                 "id": item[0],
@@ -100,7 +100,7 @@ var qrsCalls = {
 
         });
     },
-    qrsDataConnList: function(options) {
+    qrsDataConnList: function (options) {
         logMessage("info", "Gathering data connection list.");
         var qrsInstance = {
             hostname: options.qrs.hostname,
@@ -109,7 +109,7 @@ var qrsCalls = {
 
         var qrs = new qrsInteract(qrsInstance);
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             // qrs.Get("dataconnection/full")
             //     .then(function(result) {
             //         resolve(result.body);
@@ -119,7 +119,7 @@ var qrsCalls = {
             //     });
 
             qrs.Get("dataconnection/count")
-                .then(function(result) {
+                .then(function (result) {
                     var maxCount = result.body.value;
                     var i = 0;
                     var resultArray = [];
@@ -130,16 +130,16 @@ var qrsCalls = {
                         logMessage("info", "There are more than 1000 data connections in the repository.  Collecting all the data connection information may take a few minutes");
                     }
 
-                    promiseWhile(function() {
+                    promiseWhile(function () {
                         // Condition for stopping
                         return i <= maxCount;
-                    }, function() {
+                    }, function () {
                         // The function to run, should return a promise
-                        return new Promise(function(resolve, reject) {
+                        return new Promise(function (resolve, reject) {
                             // Arbitrary 250ms async method to simulate async process
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 qrs.Post("dataconnection/table?orderAscending=true&skip=" + i + "&sortColumn=name&take=500", connectionSchema, 'json')
-                                    .then(function(results) {
+                                    .then(function (results) {
                                         logMessage("info", "data connection list collection " + ((i / maxCount) * 100).toFixed(2) + "% complete.");
 
                                         var foo = results.body.rows;
@@ -149,12 +149,12 @@ var qrsCalls = {
                                     });
                             }, 250);
                         });
-                    }).then(function() {
+                    }).then(function () {
                         // Notice we can chain it because it's a Promise, this will run after completion of the promiseWhile Promise!
                         logMessage("info", "data connection list collection complete.")
                         var finalArray = [];
                         var obj;
-                        resultArray.forEach(function(item, index) {
+                        resultArray.forEach(function (item, index) {
 
                             obj = {
                                 "id": item[0],
@@ -177,7 +177,7 @@ var qrsCalls = {
 
         });
     },
-    qrsUserList: function(options) {
+    qrsUserList: function (options) {
         logMessage("info", "Gathering user list.");
         var qrsInstance = {
             hostname: options.qrs.hostname,
@@ -186,7 +186,7 @@ var qrsCalls = {
 
         var qrs = new qrsInteract(qrsInstance);
         var resultArray = [];
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             // qrs.Get("user/full")
             //     .then(function(result) {
             //         resolve(result.body);
@@ -196,7 +196,7 @@ var qrsCalls = {
             //     });
 
             qrs.Get("user/count")
-                .then(function(result) {
+                .then(function (result) {
                     var maxCount = result.body.value;
                     var i = 0;
                     var resultArray = [];
@@ -207,16 +207,16 @@ var qrsCalls = {
                         logMessage("info", "There are more than 1000 users in the repository.  Collecting all the user information may take a few minutes");
                     }
 
-                    promiseWhile(function() {
+                    promiseWhile(function () {
                         // Condition for stopping
                         return i <= maxCount;
-                    }, function() {
+                    }, function () {
                         // The function to run, should return a promise
-                        return new Promise(function(resolve, reject) {
+                        return new Promise(function (resolve, reject) {
                             // Arbitrary 250ms async method to simulate async process
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 qrs.Post("User/table?orderAscending=true&skip=" + i + "&sortColumn=name&take=500", userSchema, 'json')
-                                    .then(function(results) {
+                                    .then(function (results) {
                                         logMessage("info", "User list collection " + ((i / maxCount) * 100).toFixed(2) + "% complete.");
                                         var foo = results.body.rows;
                                         resultArray = resultArray.concat(foo);
@@ -225,12 +225,12 @@ var qrsCalls = {
                                     });
                             }, 250);
                         });
-                    }).then(function() {
+                    }).then(function () {
                         // Notice we can chain it because it's a Promise, this will run after completion of the promiseWhile Promise!
                         logMessage("info", "User list collection complete.")
                         var finalArray = [];
                         var obj;
-                        resultArray.forEach(function(item, index) {
+                        resultArray.forEach(function (item, index) {
 
                             obj = {
                                 "id": item[0],
@@ -259,7 +259,7 @@ var qrsCalls = {
 
         });
     },
-    qrsAuditMatrix: function(options, resource) {
+    qrsAuditMatrix: function (options, resource) {
         logMessage("info", "Auditing the resource: " + resource);
         var qrsInstance = {
             hostname: options.qrs.hostname,
@@ -274,25 +274,25 @@ var qrsCalls = {
             "subjectRef": {
                 "resourceFilter": ""
             },
-            "actions": 383,
+            "actions": 511,
             "environmentAttributes": "",
             "subjectProperties": ["id", "name", "userId", "userDirectory"],
             "auditLimit": 10000,
             "outputObjectsPrivileges": 4
         };
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             qrs.Post("systemRule/Security/audit/matrix", body, "json")
-                .then(function(response) {
+                .then(function (response) {
                     resolve(response.body);
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     logger.error(error.stack, loggerObject);
                     reject(error);
                 })
         });
     },
-    qrsGetList: function(options, path) {
+    qrsGetList: function (options, path) {
         var qrsInstance = {
             hostname: options.qrs.hostname,
             localCertPath: options.qrs.localCertPath
@@ -300,54 +300,54 @@ var qrsCalls = {
 
         var qrs = new qrsInteract(qrsInstance);
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             qrs.Get(path)
-                .then(function(result) {
+                .then(function (result) {
                     resolve(result.body);
                 });
         })
     },
-    qrsPost: function(options, path, body) {
+    qrsPost: function (options, path, body) {
         var qrsInstance = {
             hostname: options.qrs.hostname,
             localCertPath: options.qrs.localCertPath
         };
 
         var qrs = new qrsInteract(qrsInstance);
-        return new Promise(function(resolve) {
+        return new Promise(function (resolve) {
             qrs.Post(path, body, 'json')
-                .then(function(result) {
+                .then(function (result) {
                     resolve(result.body);
                 });
         })
     },
-    qrsAppsDataUsers: function(options) {
-        return new Promise(function(resolve, reject) {
+    qrsAppsDataUsers: function (options) {
+        return new Promise(function (resolve, reject) {
             return Promise.all([qrsCalls.qrsAppList(options), qrsCalls.qrsDataConnList(options), qrsCalls.qrsUserList(options)])
-                .then(function(resultArray) {
+                .then(function (resultArray) {
                     resolve(resultArray);
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     logMessage("error", "Error gathering information from repository.");
                     logMessage("error", error.message);
                     reject(error.stack);
                 });
         });
     },
-    qrsReloadTask: function(options, taskname) {
+    qrsReloadTask: function (options, taskname) {
         var qrsInstance = {
             hostname: options.qrs.hostname,
             localCertPath: options.qrs.localCertPath
         };
 
         var qrs = new qrsInteract(qrsInstance);
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             reloadApp.reloadApp(qrs, taskname)
-                .then(function(result) {
+                .then(function (result) {
                     logMessage(result);
                     resolve(result)
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     logMessage("error", "Error runnnig reload task.");
                     logMessage("error", error.message);
                     reject(error.stack);
@@ -359,10 +359,10 @@ var qrsCalls = {
 module.exports = qrsCalls;
 
 
-var promiseWhile = function(condition, action) {
+var promiseWhile = function (condition, action) {
     var resolver = Promise.defer();
 
-    var loop = function() {
+    var loop = function () {
         if (!condition()) return resolver.resolve();
         return Promise.cast(action())
             .then(loop)
