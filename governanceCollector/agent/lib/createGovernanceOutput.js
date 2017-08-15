@@ -13,6 +13,7 @@ var loggerObject = {
     jsFile: "createGovernanceOutput.js"
 }
 
+
 function logMessage(level, msg) {
     if (level == "info" || level == "error") {
         socketHelper.sendMessage("governanceCollector", msg);
@@ -83,6 +84,7 @@ module.exports = doGovernance;
 
 function createGovernanceOutput(config, options) {
     return new Promise(function (resolve) {
+        var x = {};
         var session = enigma.create(enigmaInstance(config, "docList"))
         session.open()
             .then(function (global) {
@@ -106,6 +108,10 @@ function createGovernanceOutput(config, options) {
                                 writeToXML("qrsUserList", "qrsUserList", {
                                     data: qrsResult[2]
                                 });
+                                writeToXML("qrsAllocatedUserList", "qrsAllocatedUserList", {
+                                    data: qrsResult[3]
+                                });
+                                x.qrsResult = qrsResult;
                                 return (docList);
                             });
                     })
@@ -137,7 +143,13 @@ function createGovernanceOutput(config, options) {
                         }
                     })
                     .then(function () {
-                        return userAccessControl(config)
+                        var userList;
+                        if (config.agent.accessControlAllUsers) {
+                            userList = x.qrsResult[2];
+                        } else {
+                            userList = x.qrsResult[3];
+                        }
+                        return userAccessControl.userAccessControl(config, userList)
                             .then(function (result) {
                                 logMessage("info", "Performing access control checks");
                             });

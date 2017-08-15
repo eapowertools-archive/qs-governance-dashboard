@@ -10,6 +10,7 @@ var loggerObject = {
 }
 
 var userSchema = JSON.parse(fs.readFileSync(path.join(__dirname, "../schemas/userSchema.json")));
+var allocatedUserSchema = JSON.parse(fs.readFileSync(path.join(__dirname, "../schemas/allocatedUserSchema.json")));
 var appSchema = JSON.parse(fs.readFileSync(path.join(__dirname, "../schemas/appSchema.json")));
 var connectionSchema = JSON.parse(fs.readFileSync(path.join(__dirname, "../schemas/connectionSchema.json")));
 
@@ -259,8 +260,105 @@ var qrsCalls = {
 
         });
     },
-    qrsAuditMatrix: function (options, resource) {
-        logMessage("info", "Auditing the resource: " + resource);
+    qrsAllocatedUserList: function (options) {
+        logMessage("info", "Gathering allocated user list.");
+        var qrsInstance = {
+            hostname: options.qrs.hostname,
+            localCertPath: options.qrs.localCertPath
+        };
+
+        var qrs = new qrsInteract(qrsInstance);
+        var resultArray = [];
+        return new Promise(function (resolve, reject) {
+            // qrs.Get("user/full")
+            //     .then(function(result) {
+            //         resolve(result.body);
+            //     })
+            //     .catch(function(error) {
+            //         reject(error);
+            //     });
+
+            qrs.Get("License/UserAccessType/count")
+                .then(function (result) {
+                    var maxCount = result.body.value;
+                    var i = 0;
+                    var resultArray = [];
+
+                    logMessage("info", "found " + maxCount + " allocated users.");
+
+                    if (maxCount > 1000) {
+                        logMessage("info", "There are more than 1000 allocated users in the repository.  Collecting all the user information may take a few minutes");
+                    }
+
+                    promiseWhile(function () {
+                        // Condition for stopping
+                        return i <= maxCount;
+                    }, function () {
+                        // The function to run, should return a promise
+                        return new Promise(function (resolve, reject) {
+                            // Arbitrary 250ms async method to simulate async process
+                            setTimeout(function () {
+                                qrs.Post("License/UserAccessType/table?orderAscending=true&skip=" + i + "&sortColumn=name&take=500", allocatedUserSchema, 'json')
+                                    .then(function (results) {
+                                        logMessage("info", "Allocated user list collection " + ((i / maxCount) * 100).toFixed(2) + "% complete.");
+                                        var foo = results.body.rows;
+                                        resultArray = resultArray.concat(foo);
+                                        i = i + 500;
+                                        resolve();
+                                    });
+                            }, 250);
+                        });
+                    }).then(function () {
+                        // Notice we can chain it because it's a Promise, this will run after completion of the promiseWhile Promise!
+                        logMessage("info", "Allocated user list collection complete.")
+                        var finalArray = [];
+                        var obj;
+                        resultArray.forEach(function (item, index) {
+
+                            obj = {
+                                "id": item[0],
+                                "userId": item[1],
+                                "userDirectory": item[2],
+                                "name": item[3]
+                            }
+                            finalArray.push(obj);
+
+                        })
+
+                        resolve(finalArray);
+                        // fs.writeFileSync("./usersList.json", JSON.stringify(resultArray, null, 4));
+                    });
+
+
+                });
+
+        });
+    },
+    qrsAuditCountResources: function (options, resourceType, resourceFilter) {
+        logMessage("info", "Counting resources for resource type: " + resourceType);
+        var qrsInstance = {
+            hostname: options.qrs.hostname,
+            localCertPath: options.qrs.localCertPath
+        };
+
+        var qrs = new qrsInteract(qrsInstance);
+        var body = {
+            "resourceType": resourceType,
+            "resourceFilter": resourceFilter
+        }
+        return new Promise(function (resolve, reject) {
+            qrs.Post("systemRule/Security/audit/countresources", body, "json")
+                .then(function (response) {
+                    resolve(response.body.value);
+                })
+                .catch(function (error) {
+                    logger.error(error, loggerObject);
+                    reject(error);
+                })
+        });
+    },
+    qrsAuditMatrix: function (options, auditObject) {
+        logMessage("info", "Auditing the resource: " + auditObject.resourceType);
         var qrsInstance = {
             hostname: options.qrs.hostname,
             localCertPath: options.qrs.localCertPath
@@ -268,18 +366,7 @@ var qrsCalls = {
 
         var qrs = new qrsInteract(qrsInstance);
 
-        var body = {
-            "resourceType": resource,
-            "resourceRef": {},
-            "subjectRef": {
-                "resourceFilter": ""
-            },
-            "actions": 511,
-            "environmentAttributes": "",
-            "subjectProperties": ["id", "name", "userId", "userDirectory"],
-            "auditLimit": 10000,
-            "outputObjectsPrivileges": 4
-        };
+        var body = createAuditBody(auditObject);
 
         return new Promise(function (resolve, reject) {
             qrs.Post("systemRule/Security/audit/matrix", body, "json")
@@ -287,7 +374,7 @@ var qrsCalls = {
                     resolve(response.body);
                 })
                 .catch(function (error) {
-                    logger.error(error.stack, loggerObject);
+                    logMessage("error", error);
                     reject(error);
                 })
         });
@@ -323,7 +410,7 @@ var qrsCalls = {
     },
     qrsAppsDataUsers: function (options) {
         return new Promise(function (resolve, reject) {
-            return Promise.all([qrsCalls.qrsAppList(options), qrsCalls.qrsDataConnList(options), qrsCalls.qrsUserList(options)])
+            return Promise.all([qrsCalls.qrsAppList(options), qrsCalls.qrsDataConnList(options), qrsCalls.qrsUserList(options), qrsCalls.qrsAllocatedUserList(options)])
                 .then(function (resultArray) {
                     resolve(resultArray);
                 })
@@ -373,3 +460,19 @@ var promiseWhile = function (condition, action) {
 
     return resolver.promise;
 };
+
+function createAuditBody(auditObject) {
+    const body = {
+        "resourceType": auditObject.resourceType,
+        "resourceRef": auditObject.resourceRefFilter,
+        "subjectRef": auditObject.subjectRefFilter,
+        "actions": 511,
+        "environmentAttributes": "",
+        "resourceProperties": ["name", "engineObjectId", "objectType"],
+        "subjectProperties": ["id", "name", "userId", "userDirectory"],
+        "auditLimit": auditObject.auditLimit,
+        "outputObjectsPrivileges": 4
+    }
+
+    return body;
+}
