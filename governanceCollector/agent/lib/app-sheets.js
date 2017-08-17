@@ -97,7 +97,7 @@ module.exports = getSheets;
 
 function getSheetLayout(sheet, start_time) {
     var end_time;
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
         sheet.getLayout()
             .then(function (layout) {
                 end_time = Date.now();
@@ -109,7 +109,7 @@ function getSheetLayout(sheet, start_time) {
             })
             .catch(function (error) {
                 logMessage("error", JSON.stringify(error));
-                resolve(error);
+                reject(error);
             });
     })
 
@@ -117,7 +117,7 @@ function getSheetLayout(sheet, start_time) {
 
 function getObjectLayouts(sheet, start_time, parse) {
     var end_time;
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
         sheet.getLayout()
             .then(function (sheetLayout) {
                 return sheet.getChildInfos()
@@ -149,13 +149,13 @@ function getObjectLayouts(sheet, start_time, parse) {
                             })
                             .catch(function (error) {
                                 logMessage("error", JSON.stringify(error));
-                                resolve(error);
+                                reject(error);
                             })
                     })
             })
             .catch(function (error) {
                 logMessage("error", JSON.stringify(error));
-                resolve(error);
+                reject(error);
             });
     });
 }

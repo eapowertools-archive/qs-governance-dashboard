@@ -1,0 +1,24 @@
+{
+    "entity": "License.UserAccessType",
+    "columns": [{
+            "name": "id",
+            "columnType": "Property",
+            "definition": "user.id"
+        },
+        {
+            "name": "userId",
+            "columnType": "Property",
+            "definition": "user.userId"
+        },
+        {
+            "name": "userDirectory",
+            "columnType": "Property",
+            "definition": "user.userDirectory"
+        },
+        {
+            "name": "name",
+            "columnType": "Property",
+            "definition": "user.name"
+        }
+    ]
+}

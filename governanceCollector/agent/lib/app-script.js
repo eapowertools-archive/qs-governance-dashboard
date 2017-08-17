@@ -22,7 +22,7 @@ var end_time;
 function getAppScript(app, appId, options) {
     //Creating the promise for the Applications Scripts
     //Root admin privileges should allow him to access to all available applications. Otherwise check your environment's security rules for the designed user.
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
         logMessage("info", "Collecting application script for app " + appId);
         start_time = Date.now();
         //requesting the script of the document
@@ -56,7 +56,7 @@ function getAppScript(app, appId, options) {
             })
             .catch(function (error) {
                 logMessage("error", JSON.stringify(error));
-                resolve(error);
+                reject(error);
             });
     });
 }

@@ -8,10 +8,13 @@ var logger = require("./logger");
 var userAccessControl = require("./userAccessControl");
 var parseScriptLogs = require("./parseScriptLogs");
 var socketHelper = require("./socketHelper");
+var deleteFiles = require("./deleteFiles");
+var path = require("path");
 
 var loggerObject = {
     jsFile: "createGovernanceOutput.js"
 }
+
 
 function logMessage(level, msg) {
     if (level == "info" || level == "error") {
@@ -23,19 +26,22 @@ function logMessage(level, msg) {
 var start_time, end_time;
 
 function doGovernance(config, options) {
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
         Promise.resolve(function () {
-                start_time = new Date(Date.now());
-                logMessage("info", "Governance collection process started at " + start_time);
-                if (options.boolGenMetadata) {
-                    return createGovernanceOutput(config, options)
-                        .then(function (result) {
-                            console.log(result);
-                            return result;
-                        })
-                }
-                return;
-            }())
+            start_time = new Date(Date.now());
+            logMessage("info", "Governance collection process started at " + start_time);
+            if (options.boolGenMetadata) {
+                logMessage("info", "Deleting Metadata XML files")
+                deleteFiles(config.agent.metadataPath);
+                deleteFiles(path.join(config.agent.metadataPath,"userAccess"));
+                return createGovernanceOutput(config, options)
+                    .then(function (result) {
+                        console.log(result);
+                        return result;
+                    })
+            }
+            return;
+        }())
             .then(function (foo) {
                 console.log("checking if parsing load scripts");
                 if (options.boolParseLoadScripts) {
@@ -74,7 +80,8 @@ function doGovernance(config, options) {
                 resolve("DONE!!!")
             })
             .catch(function (error) {
-                resolve(error);
+	    	logMessage("error",error);
+                reject(error);
             })
     })
 }
@@ -83,6 +90,7 @@ module.exports = doGovernance;
 
 function createGovernanceOutput(config, options) {
     return new Promise(function (resolve) {
+        var x = {};
         var session = enigma.create(enigmaInstance(config, "docList"))
         session.open()
             .then(function (global) {
@@ -106,6 +114,10 @@ function createGovernanceOutput(config, options) {
                                 writeToXML("qrsUserList", "qrsUserList", {
                                     data: qrsResult[2]
                                 });
+                                writeToXML("qrsAllocatedUserList", "qrsAllocatedUserList", {
+                                    data: qrsResult[3]
+                                });
+                                x.qrsResult = qrsResult;
                                 return (docList);
                             });
                     })
@@ -125,11 +137,11 @@ function createGovernanceOutput(config, options) {
                         } else {
                             logMessage("info", "Generating output for the entire Qlik Sense site");
                             return Promise.all(docList.map(function (doc) {
-                                    return backupApp(config, doc.qDocId, config.agent)
-                                        .then(function (result) {
-                                            return result;
-                                        });
-                                }))
+                                return backupApp(config, doc.qDocId, config.agent)
+                                    .then(function (result) {
+                                        return result;
+                                    });
+                            }))
                                 .then(function (resultArray) {
                                     logMessage("info", "Qlik Sense Governance run against " + resultArray.length + " applications complete.");
                                     logger.info("Qlik Sense Governance run against all applications complete.", loggerObject);
@@ -137,9 +149,16 @@ function createGovernanceOutput(config, options) {
                         }
                     })
                     .then(function () {
-                        return userAccessControl(config)
+                        var userList;
+                        if (config.agent.accessControlAllUsers) {
+                            userList = x.qrsResult[2];
+                        } else {
+                            userList = x.qrsResult[3];
+                        }
+                        logMessage("info", "Performing access control checks");
+                        return userAccessControl.userAccessControl(config, userList)
                             .then(function (result) {
-                                logMessage("info", "Performing access control checks");
+                                return Promise.all(appObjectAccessControl(config, userList))
                             });
                     })
                     .then(function () {
@@ -159,7 +178,7 @@ function parseScript(config) {
 }
 
 function reloadApp(config, taskname) {
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
         qrsCalls.qrsReloadTask(config, taskname)
             .then(function (result) {
                 logMessage("info", result);
@@ -167,7 +186,16 @@ function reloadApp(config, taskname) {
             .catch(function (error) {
                 logMessage("error", "Error executing " + taskname);
                 logMessage("error", JSON.stringify(error));
-                resolve(error);
+                reject(error);
             })
     });
+}
+
+function appObjectAccessControl(config, userList) {
+    var resultArray = []
+    var appObjects = config.agent.appObjectsAccessControlList;
+    appObjects.forEach(function (appObject) {
+        resultArray.push(userAccessControl.userAppObjectAccessControl(config, userList, appObject));
+    })
+    return resultArray;
 }
