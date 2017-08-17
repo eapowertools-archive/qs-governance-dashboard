@@ -66,15 +66,16 @@ function progressCheck(qrsInteract, id, step, callback) {
     var path = "/executionresult/";
     path += "?filter=Executionid eq " + id;
     return qrsInteract.Get(path)
-        .then(function (reloadProgress) {
-            //logMessage("info", JSON.stringify(reloadProgress));
+        .then(function(reloadProgress) {
+             logMessage("debug",  JSON.stringify(reloadProgress))
             if (reloadProgress.body[0].duration > 0) {
                 logMessage("debug", JSON.stringify(reloadProgress))
                 return callback(null, 'Reload Complete');
             } else {
                 var reloadStep = reloadProgress.body[0].details.length;
-                if (reloadStep > step) {
-                    logMessage("info", reloadStep + ": " + reloadProgress.body[0].details[reloadStep - 1].message);
+                if(reloadStep > step)
+                {
+                    logMessage("info", reloadStep + ": " + reloadProgress.body[0].details[reloadStep-1].message);
                 }
                 return progressCheck(qrsInteract, id, reloadStep, callback);
             }

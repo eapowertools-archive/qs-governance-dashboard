@@ -66,11 +66,13 @@ var config = {
         },
         qvdTaskname: "qsgc-Generate-Governance-QVDs",
         gDashTaskname: "qsgc-Refresh-Governance-Dashboard",
+        accessControlAllUsers: false,
+        appObjectsAccessControlList: ["sheet","story", "embeddedsnapshot", "dimension", "measure", "masterobject", "bookmark"],
         single_app: false,
         noData: false,
         timer_mode: false,
         parseLoadScriptLogs: false,
-        version: "1.0.0.17"
+        version: "1.0.0.18"
     },
     logging: {
         logPath: logPath,

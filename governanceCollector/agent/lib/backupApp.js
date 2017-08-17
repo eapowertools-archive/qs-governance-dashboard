@@ -19,7 +19,7 @@ function logMessage(level, msg) {
 var start_time, end_time, load_time;
 
 function backupApp(config, appId, options) {
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
         var x = {};
         start_time = Date.now();
         logMessage("info", "Collecting application metadata for app " + appId);
@@ -45,7 +45,7 @@ function backupApp(config, appId, options) {
                             .then(function () {
                                 logMessage("error", "Error during backup process");
                                 logMessage("error", JSON.stringify(error));
-                                resolve(error);
+                                reject(error);
                             })
 
                     });
@@ -55,7 +55,7 @@ function backupApp(config, appId, options) {
                     .then(function () {
                         logMessage("error", "Error during backup process");
                         logMessage("error", JSON.stringify(error));
-                        resolve(error);
+                        reject(error);
                     })
 
             });

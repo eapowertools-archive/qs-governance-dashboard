@@ -26,35 +26,32 @@ var userAccessControl = {
                 .then(function (count) {
                     logMessage("info", "Found " + count + " object of type " + objectType);
                     return Promise.map(userList, function (userInfo, index, length) {
-                            logMessage("info", "Processing user " + index + " of " + length + " " + objectType + "s.  User is " + userInfo.userDirectory + "\\" + userInfo.userId);
-                            var auditObject = createAuditObject("App.Object", count, userInfo.id, objectType);
-                            return qrsCalls.qrsAuditMatrix(config, auditObject)
-                                .then(function (result) {
-                                    result.matrix.forEach(function (item, index) {
-
-                                        result.matrix[index].name = result.resources[result.matrix[index].resourceId].resourceProperties.name;
-                                        result.matrix[index].engineObjectId = result.resources[result.matrix[index].resourceId].resourceProperties.engineobjectid;
-                                        result.matrix[index].objectType = result.resources[result.matrix[index].resourceId].resourceProperties.objecttype;
-                                        result.matrix[index].userId = result.subjects[result.matrix[index].subjectId].subjectProperties.userid;
-                                        result.matrix[index].userDirectory = result.subjects[result.matrix[index].subjectId].subjectProperties.userdirectory;
-                                        result.matrix[index].audit.access = convertActionBin(item.audit.access);
-                                        result.matrix[index].audit.disabled = convertActionBin(item.audit.disabled);
-                                    });
-                                    return result;
-                                })
-                                .then(function (result) {
-                                    //fs.writeFileSync(path.join(config.agent.metadataPath,"userAccess","testResult_" + userInfo.id + ".json"), JSON.stringify(result));
-                                    //console.log(result.matrix.length)
-                                    writeToXML("qrsAccessControlMatrix", "AppObject", result.matrix, userInfo.id + "_" + objectType, undefined, "userAccess");
-                                    return result;
-                                })
-                                .catch(function (error) {
-                                    logMessage("error", error);
-                                    return error;
+                        logMessage("info", "Processing user " + index + " of " + length + " " + objectType + "s.  User is " + userInfo.userDirectory + "\\" + userInfo.userId);
+                        var auditObject = createAuditObject("App.Object", count, { "resourceFilter": "objectType eq '" + objectType + "'" }, { "resourceFilter": "id eq " + userInfo.id });
+                        return qrsCalls.qrsAuditMatrix(config, auditObject)
+                            .then(function (result) {
+                                result.matrix.forEach(function (item, index) {
+                                    result.matrix[index].name = result.resources[result.matrix[index].resourceId].resourceProperties.name;
+                                    result.matrix[index].engineObjectId = result.resources[result.matrix[index].resourceId].resourceProperties.engineobjectid;
+                                    result.matrix[index].objectType = result.resources[result.matrix[index].resourceId].resourceProperties.objecttype;
+                                    result.matrix[index].userId = result.subjects[result.matrix[index].subjectId].subjectProperties.userid;
+                                    result.matrix[index].userDirectory = result.subjects[result.matrix[index].subjectId].subjectProperties.userdirectory;
+                                    result.matrix[index].audit.access = convertActionBin(item.audit.access);
+                                    result.matrix[index].audit.disabled = convertActionBin(item.audit.disabled);
                                 });
-                        }, {
-                            concurrency: 5
-                        })
+                                return result;
+                            })
+                            .then(function (result) {
+                                //fs.writeFileSync(path.join(config.agent.metadataPath,"userAccess","testResult_" + userInfo.id + ".json"), JSON.stringify(result));
+                                //console.log(result.matrix.length)
+                                writeToXML("qrsAccessControlMatrix", "AppObject", result.matrix, userInfo.id + "_" + objectType, undefined, "userAccess");
+                                return result;
+                            })
+                            .catch(function (error) {
+                                logMessage("error", error);
+                                return error;
+                            });
+                    }, { concurrency: 5 })
                         .then(function (resultArray) {
                             resolve("yay!");
                         })
@@ -70,31 +67,29 @@ var userAccessControl = {
             var selectionBasis = list(userList);
             logMessage("info", "Obtaining access control information from the repository");
             return Promise.all(selectionBasis.map(function (listItem) {
-                    return qrsCalls.qrsPost(config, "selection", listItem)
-                        .then(function (selection) {
-                            return selection.id;
-                        })
-                }))
+                return qrsCalls.qrsPost(config, "selection", listItem)
+                    .then(function (selection) {
+                        return selection.id;
+                    })
+                    .catch(function (error) {
+                        logMessage("error", error)
+                        reject(error);
+                    })
+            }))
                 .then(function (resultArray) {
-                    return Promise.all(resources.map(function (resource) {
-                        var resourceTable = createTable(resource.resourceRef);
-                        console.log(resource.resourceRef);
-                        return qrsCalls.qrsPost(config, resource.resourcePath + "/table", resourceTable)
-                            .then(function (table) {
-                                console.log(table.rows.length);
-                                return table.rows;
-                            })
-                            .then(function (tableRows) {
-                                return Promise.map(resultArray, function (selectionItem) {
-                                    return qrsCalls.qrsAuditMatrix(config, resource.resourceRef, selectionItem)
+                    return Promise.map(resultArray, function (selectionItem) {
+                        return Promise.all(resources.map(function (resource) {
+                            return qrsCalls.qrsAuditCountResources(config, resource.resourceRef, "")
+                                .then(function (count) {
+                                    logMessage("info", "Found " + count + " resource of type " + resource.resourceRef);
+                                    var auditObject = createAuditObject(resource.resourceRef, count * userList.length, {"resourceFilter": ""}, { "selection": selectionItem });
+                                    return qrsCalls.qrsAuditMatrix(config, auditObject)
                                         .then(function (result) {
                                             console.log(result.matrix.length);
                                             result.matrix.forEach(function (item, index) {
-                                                var matchedObject = tableRows.find(findRowMatch, [result.matrix[index].resourceId]);
-
-                                                result.matrix[index].name = matchedObject[1];
-                                                result.matrix[index].engineObjectId = matchedObject[2];
-                                                result.matrix[index].objectType = matchedObject[3];
+                                                result.matrix[index].name = result.resources[result.matrix[index].resourceId].resourceProperties.name;
+                                                result.matrix[index].userId = result.subjects[result.matrix[index].subjectId].subjectProperties.userid;
+                                                result.matrix[index].userDirectory = result.subjects[result.matrix[index].subjectId].subjectProperties.userdirectory;
                                                 result.matrix[index].audit.access = convertActionBin(item.audit.access);
                                                 result.matrix[index].audit.disabled = convertActionBin(item.audit.disabled);
                                             });
@@ -103,17 +98,16 @@ var userAccessControl = {
                                         .then(function (result) {
                                             //fs.writeFileSync(path.join(config.agent.metadataPath,"userAccess","testResult_" + selectionItem + ".json"), JSON.stringify(result));
                                             console.log(result.matrix.length)
-                                            writeToXML("qrsAccessControlMatrix", resource.resourceRef, result, selectionItem, undefined, "userAccess");
+                                            writeToXML("qrsAccessControlMatrix", resource.resourceRef, result.matrix, selectionItem, undefined, "userAccess");
                                             return result;
+                                        })
+                                        .catch(function (error) {
+                                            logMessage("error", error)
+                                            reject(error)
                                         });
-                                }, {
-                                    concurrency: 2
-                                })
-                            })
-                            .then(function (resultarray) {
-                                return resultArray;
-                            });
-                    }))
+                                });
+                        }))
+                    }, { concurrency: 2 })
                 })
                 .then(function (resultArray) {
                     console.log("hello world");
@@ -121,6 +115,7 @@ var userAccessControl = {
                     resolve("Access Control Information Obtained");
                 })
                 .catch(function (error) {
+                    logMessage("error", error)
                     reject(error);
                 });
         });
@@ -206,12 +201,16 @@ function list(userList) {
     for (i = 0; i <= userList.length - 1; i++) {
         j++;
         if (j == 100 || i == userList.length - 1) {
-            mainArray.push({
-                "items": every1kArray
-            });
+            let object = {
+                "type": "user",
+                "objectID": userList[i].id
+            };
+            every1kArray.push(object);
+            mainArray.push({ "items": every1kArray });
             every1kArray = [];
             j = 0;
-        } else {
+        }
+        else {
             let object = {
                 "type": "user",
                 "objectID": userList[i].id
@@ -223,15 +222,11 @@ function list(userList) {
     return mainArray;
 }
 
-function createAuditObject(type, count, id, objectType) {
+function createAuditObject(type, count, resourceRefFilter, subjectRefFilter) {
     var auditObject = {
         "resourceType": type,
-        "resourceRefFilter": {
-            "resourceFilter": "objectType eq '" + objectType + "'"
-        },
-        "subjectRefFilter": {
-            "resourceFilter": "id eq " + id
-        },
+        "resourceRefFilter": resourceRefFilter,
+        "subjectRefFilter": subjectRefFilter,
         "auditLimit": count
     }
     return auditObject;
