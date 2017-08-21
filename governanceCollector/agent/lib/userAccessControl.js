@@ -17,8 +17,12 @@ function logMessage(level, msg) {
     logger.log(level, msg, loggerObject);
 }
 
+var start_time, end_time;
+
 var userAccessControl = {
     userAppObjectAccessControl: function (config, userList, objectType) {
+        start_time = new Date(Date.now());
+        logMessage("info", objectType + " access control collection started at " + start_time);
         return new Promise(function (resolve, reject) {
             logMessage("info", "Obtaining access control information on " + objectType + " from the repository");
             var userCount = userList.length;
@@ -42,10 +46,10 @@ var userAccessControl = {
                                 return result;
                             })
                             .then(function (result) {
-                                //fs.writeFileSync(path.join(config.agent.metadataPath,"userAccess","testResult_" + userInfo.id + ".json"), JSON.stringify(result));
+                                //fs.writeFileSync(path.join(config.agent.metadataPath,"userAccess",objectType, userInfo.id + "_" + objectType + ".json"), JSON.stringify(result));
                                 //console.log(result.matrix.length)
-                                writeToXML("qrsAccessControlMatrix", "AppObject", result.matrix, userInfo.id + "_" + objectType, undefined, "userAccess");
-                                return result;
+                                //writeToXML("qrsAccessControlMatrix", "AppObject", result.matrix, userInfo.id + "_" + objectType, undefined, "userAccess");
+                                return result.matrix;
                             })
                             .catch(function (error) {
                                 logMessage("error", error);
@@ -53,6 +57,18 @@ var userAccessControl = {
                             });
                     }, { concurrency: 5 })
                         .then(function (resultArray) {
+                            console.log(resultArray.length);
+                            return createOutput(resultArray, config, objectType)
+                                .then(function (foobar) {
+
+                                    end_time = new Date(Date.now());
+                                    logMessage("info", objectType + " access control collection process complete at " + end_time);
+                                    logMessage("info", "It took " + findDateDiff(start_time, end_time) + " to complete this operation");
+                                    return;
+
+                                })
+                        })
+                        .then(function () {
                             resolve("yay!");
                         })
                         .catch(function (error) {
@@ -193,6 +209,20 @@ function findRowMatch(row) {
     }
 }
 
+function createOutput(resultArray, config, objectType) {
+    return new Promise(function (resolve) {
+        let maxCount = resultArray.length
+        console.log(maxCount);
+
+        fs.writeFileSync(path.join(config.agent.metadataPath, "userAccess", objectType, objectType + ".json"), JSON.stringify(resultArray, null, 4));
+        resultArray.forEach(function (result, index) {
+            writeToXML("qrsAccessControlMatrix", objectType + "_" + index, result, undefined, undefined, "userAccess/" + objectType);
+        })
+        resolve("Files Done!");
+    })
+
+}
+
 function list(userList) {
     var maxCount = userList.length;
     var i, j = 0;
@@ -230,4 +260,25 @@ function createAuditObject(type, count, resourceRefFilter, subjectRefFilter) {
         "auditLimit": count
     }
     return auditObject;
+}
+function findDateDiff(date1, date2) {
+    //Get 1 day in milliseconds
+    var one_day = 1000 * 60 * 60 * 24;
+
+    // Convert both dates to milliseconds
+    var date1_ms = date1.getTime();
+    var date2_ms = date2.getTime();
+
+    // Calculate the difference in milliseconds
+    var difference_ms = date2_ms - date1_ms;
+    //take out milliseconds
+    difference_ms = difference_ms / 1000;
+    var seconds = Math.floor(difference_ms % 60);
+    difference_ms = difference_ms / 60;
+    var minutes = Math.floor(difference_ms % 60);
+    difference_ms = difference_ms / 60;
+    var hours = Math.floor(difference_ms % 24);
+    var days = Math.floor(difference_ms / 24);
+
+    return days + ' days, ' + hours + ' hours, ' + minutes + ' minutes, and ' + seconds + ' seconds';
 }

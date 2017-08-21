@@ -78,15 +78,18 @@ var qrsCalls = {
 
                             obj = {
                                 "id": item[0],
-                                "modifiedByUserName": item[1],
-                                "name": item[2],
-                                "publishTime": item[3],
-                                "description": item[4],
-                                "fileSize": item[5],
-                                "lastReloadTime": item[6],
-                                "savedInProductVersion": item[7],
-                                "stream": item[8],
-                                "owner": item[9]
+                                "createdDate" : item[1],
+                                "modifiedDate": item[2],
+                                "modifiedByUserName": item[3],
+                                "name": item[4],
+                                "published": item[5],
+                                "publishTime": item[6],
+                                "description": item[7],
+                                "fileSize": item[8],
+                                "lastReloadTime": item[9],
+                                "savedInProductVersion": item[10],
+                                "stream": item[11],
+                                "owner": item[12]
                             }
                             finalArray.push(obj);
 

@@ -10,7 +10,10 @@ var loggerObject = {
 
 function writeToXML(root, type, data, appId, options, morePath) {
     options = options || {
-        useCDATA: true
+        useCDATA: true,
+        declaration: {
+            include: false
+        }
     };
 
     morePath = morePath || "";

@@ -6,6 +6,16 @@
             "definition": "id"
         },
         {
+            "name": "createdDate",
+            "columnType": "Property",
+            "definition": "createdDate"
+        },
+        {
+            "name": "modifiedDate",
+            "columnType": "Property",
+            "definition": "modifiedDate"
+        },
+        {
             "name": "modifiedByUserName",
             "columnType": "Property",
             "definition": "modifiedByUserName"
@@ -14,6 +24,11 @@
             "name": "name",
             "columnType": "Property",
             "definition": "name"
+        },
+        {
+            "name": "published",
+            "columnType": "Property",
+            "definition": "published"
         },
         {
             "name": "publishTime",
