@@ -12,6 +12,7 @@ var serviceCluster = require("./lib/qrsCluster")
 var pathPattern = /^[a-zA-Z]:((\\|\/)[a-zA-Z0-9\s_@\-^!#$%&+={}\[\]]+)+$/;
 var uncPattern = /^((\\\\|\\|\/)[a-zA-Z0-9\s_@\-^!#$%&+={}\[\]]+)+$/;
 
+var appObjectsArray = ["sheet", "story", "embeddedsnapshot", "dimension", "measure", "masterobject", "bookmark"]
 
 serviceCluster()
     .then(function (result) {
@@ -293,11 +294,26 @@ function installAgent(options) {
                         try {
                             console.log(colors.green("Creating directory: " + options.metadataPath));
                             fs.mkdirSync(options.metadataPath);
+                            fs.mkdirSync(path.join(options.metadataPath, "userAccess"));
+                            appObjectsArray.forEach(function (appObject) {
+                                fs.mkdirSync(path.join(options.metadataPath, "userAccess", appobject));
+                            })
                         } catch (e) {
-                            console.log(colors.red("Unable to create directory: " + options.metadataPath));
+                            console.log(colors.red("Unable to create directory.  Error: " + e));
                         }
                     } else {
                         console.log(colors.yellow(options.metadataPath + " exists.  It will not be created again."))
+                        if (!fs.existsSync(path.join(options.metadataPath, "userAccess"))) {
+                            try {
+                                console.log(colors.green("Creating directory: " + path.join(options.metadataPath, "userAccess")));
+                                fs.mkdirSync(path.join(options.metadataPath, "userAccess"));
+                                appObjectsArray.forEach(function (appObject) {
+                                    fs.mkdirSync(path.join(options.metadataPath, "userAccess", appobject));
+                                })
+                            } catch (e) {
+                                console.log(colors.red("Unable to create directory.  Error: " + e));
+                            }
+                        }
                     }
                 } else {
                     console.log(colors.yellow("metadata path is a unc path.  ") + colors.green(options.metadataPath) + colors.yellow(" will not be created.  Create it manually."));
