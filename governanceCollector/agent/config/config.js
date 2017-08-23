@@ -51,7 +51,7 @@ var config = {
         publicPath: path.join(__dirname, "/../public"),
         nodeModPath: path.join(__dirname, "/../node_modules"),
         appPath: path.join(__dirname, '/../app/'),
-        version: "1.0.0.18"
+        version: "1.0.0.19"
     },
     agent: {
         port: 8592,
@@ -67,12 +67,12 @@ var config = {
         qvdTaskname: "qsgc-Generate-Governance-QVDs",
         gDashTaskname: "qsgc-Refresh-Governance-Dashboard",
         accessControlAllUsers: false,
-        appObjectsAccessControlList: ["sheet","story", "embeddedsnapshot", "dimension", "measure", "masterobject", "bookmark"],
+        appObjectsAccessControlList: ["sheet", "story", "embeddedsnapshot", "dimension", "measure", "masterobject", "bookmark"],
         single_app: false,
         noData: false,
         timer_mode: false,
         parseLoadScriptLogs: false,
-        version: "1.0.0.18"
+        version: "1.0.0.19"
     },
     logging: {
         logPath: logPath,
