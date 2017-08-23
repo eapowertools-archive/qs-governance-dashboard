@@ -17,13 +17,12 @@
     "tarball-extract": "0.0.6"
   },
   "installer": {
-    "apps": [
-      {
-        "appName": "Qlik Sense Governance Dashboard",
+    "apps": [{
+        "appName": "Governance Dashboard for Qlik Sense",
         "taskName": "qsgc-Refresh-Governance-Dashboard"
       },
       {
-        "appName": "Qlik Sense Governance QVD Generator",
+        "appName": "Governance QVD Generator for Qlik Sense",
         "taskName": "qsgc-Generate-Governance-QVDs"
       }
     ]

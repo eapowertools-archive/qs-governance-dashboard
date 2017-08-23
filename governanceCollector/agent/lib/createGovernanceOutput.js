@@ -28,20 +28,23 @@ var start_time, end_time;
 function doGovernance(config, options) {
     return new Promise(function (resolve, reject) {
         Promise.resolve(function () {
-            start_time = new Date(Date.now());
-            logMessage("info", "Governance collection process started at " + start_time);
-            if (options.boolGenMetadata) {
-                logMessage("info", "Deleting Metadata XML files")
-                deleteFiles(config.agent.metadataPath);
-                deleteFiles(path.join(config.agent.metadataPath,"userAccess"));
-                return createGovernanceOutput(config, options)
-                    .then(function (result) {
-                        console.log(result);
-                        return result;
-                    })
-            }
-            return;
-        }())
+                start_time = new Date(Date.now());
+                logMessage("info", "Governance collection process started at " + start_time);
+                if (options.boolGenMetadata) {
+                    logMessage("info", "Deleting Metadata XML files")
+                    deleteFiles(config.agent.metadataPath);
+                    deleteFiles(path.join(config.agent.metadataPath, "userAccess"));
+                    config.agent.appObjectsAccessControlList.forEach(function (appObject) {
+                        deleteFiles(path.join(config.agent.metadataPath, "userAccess", appObject));
+                    });
+                    return createGovernanceOutput(config, options)
+                        .then(function (result) {
+                            console.log(result);
+                            return result;
+                        })
+                }
+                return;
+            }())
             .then(function (foo) {
                 console.log("checking if parsing load scripts");
                 if (options.boolParseLoadScripts) {
@@ -80,7 +83,7 @@ function doGovernance(config, options) {
                 resolve("DONE!!!")
             })
             .catch(function (error) {
-	    	logMessage("error",error);
+                logMessage("error", error);
                 reject(error);
             })
     })
@@ -137,11 +140,11 @@ function createGovernanceOutput(config, options) {
                         } else {
                             logMessage("info", "Generating output for the entire Qlik Sense site");
                             return Promise.all(docList.map(function (doc) {
-                                return backupApp(config, doc.qDocId, config.agent)
-                                    .then(function (result) {
-                                        return result;
-                                    });
-                            }))
+                                    return backupApp(config, doc.qDocId, config.agent)
+                                        .then(function (result) {
+                                            return result;
+                                        });
+                                }))
                                 .then(function (resultArray) {
                                     logMessage("info", "Qlik Sense Governance run against " + resultArray.length + " applications complete.");
                                     logger.info("Qlik Sense Governance run against all applications complete.", loggerObject);
@@ -182,6 +185,7 @@ function reloadApp(config, taskname) {
         qrsCalls.qrsReloadTask(config, taskname)
             .then(function (result) {
                 logMessage("info", result);
+                resolve(result);
             })
             .catch(function (error) {
                 logMessage("error", "Error executing " + taskname);
