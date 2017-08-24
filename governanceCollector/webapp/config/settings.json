@@ -1,7 +1,8 @@
 [{
     "hostname": "sense32.112adams.local",
     "port": "8592",
-    "uploadApps": false,
-    "importExtensions": false,
-    "createDataConnections": false
+    "uploadApps": true,
+    "createTasks": true,
+    "importExtensions": true,
+    "createDataConnections": true
 }]
