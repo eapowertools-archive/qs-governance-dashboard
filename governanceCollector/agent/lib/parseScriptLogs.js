@@ -35,22 +35,26 @@ function parse(logFilesDirectoryFullPaths, outputPath, logFilesFilter, logFilesF
 
                         var files = [];
                         dirs.forEach(function (dirItem) {
-                            if (fs.statSync(dirItem).isDirectory()) {
-                                files.concat(newestFileList(path.join(filePath, dirItem, "script")))
+                            logMessage("debug", "Checking " + dirItem);
+                            if (fs.statSync(path.join(filePath, dirItem)).isDirectory()) {
+                                files = files.concat(newestFileList(path.join(filePath, dirItem, "script")))
+                            } else {
+                                logMessage("debug", dirItem + " not considered a directory");
                             }
                         })
 
-                        files.concat(newestFileList(filePath));
+                        files = files.concat(newestFileList(filePath));
 
                         logMessage("info", files.length + " files to process")
-                        var resultArray = [];
-                        files.forEach(function (file) {
-                            resultArray.push({
-                                fileName: file,
-                                fullName: path.join(filePath, file)
-                            });
-                        })
-                        return resultArray;
+                        // var resultArray = [];
+                        // files.forEach(function (file) {
+                        //     resultArray.push({
+                        //         fileName: file,
+                        //         fullName: path.join(filePath, file)
+                        //     });
+                        // })
+                        // return resultArray;
+                        return files;
 
                     }))
                     .then(function (files) {
@@ -320,32 +324,32 @@ function processFile(parser, file, outputPath) {
                         }).length > 0
                     )) {
 
-                    var strParsed = util.inspect(parsedFile, {
-                        showHidden: false,
-                        depth: null,
-                        colors: false,
-                        maxArrayLength: null
-                    });
+                    // var strParsed = util.inspect(parsedFile, {
+                    //     showHidden: false,
+                    //     depth: null,
+                    //     colors: false,
+                    //     maxArrayLength: null
+                    // });
 
                     // console.log('err', file.fileName);
                     logMessage("error", "An error occured parsing " + file.fileName);
-                    fs.writeFileSync(path.join(outputPath, 'err-' + file.fileName), strParsed);
+                    //fs.writeFileSync(path.join(outputPath, 'err-' + file.fileName), strParsed);
 
                     resolve({
                         type: 'err',
-                        file: file
+                        file: file.fileName
                     });
 
                 } else {
 
                     // console.log('done', file.fileName);
 
-                    fs.writeFileSync(path.join(outputPath, 'done-' + file.fileName), JSON.stringify(parsedFile));
+                    //fs.writeFileSync(path.join(outputPath, 'done-' + file.fileName), JSON.stringify(parsedFile));
                     logMessage("info", "completed parsing " + file.fileName);
                     // return Promise.resolve(arr.concat([{ type: 'done', file: file }]));
                     resolve({
                         type: "done",
-                        file: file
+                        file: file.fileName
                     });
 
                 }
