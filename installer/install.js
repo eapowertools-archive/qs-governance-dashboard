@@ -296,7 +296,7 @@ function installAgent(options) {
                             fs.mkdirSync(options.metadataPath);
                             fs.mkdirSync(path.join(options.metadataPath, "userAccess"));
                             appObjectsArray.forEach(function (appObject) {
-                                fs.mkdirSync(path.join(options.metadataPath, "userAccess", appobject));
+                                fs.mkdirSync(path.join(options.metadataPath, "userAccess", appObject));
                             })
                         } catch (e) {
                             console.log(colors.red("Unable to create directory.  Error: " + e));
@@ -308,7 +308,7 @@ function installAgent(options) {
                                 console.log(colors.green("Creating directory: " + path.join(options.metadataPath, "userAccess")));
                                 fs.mkdirSync(path.join(options.metadataPath, "userAccess"));
                                 appObjectsArray.forEach(function (appObject) {
-                                    fs.mkdirSync(path.join(options.metadataPath, "userAccess", appobject));
+                                    fs.mkdirSync(path.join(options.metadataPath, "userAccess", appObject));
                                 })
                             } catch (e) {
                                 console.log(colors.red("Unable to create directory.  Error: " + e));
