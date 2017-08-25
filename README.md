@@ -90,3 +90,11 @@ When at least one of the buttons is selected, the Governance button on the right
 ![run](https://eapowertools.s3.amazonaws.com/governance-collector/img/webapp/run.png) 
 
 When the process starts, the log will populate with status messages.  Depending on the environment, a process may take as little as a couple minutes or as long as a few hours.
+
+## Contributing
+
+We :heart: collaboration and contribution.  If you are interested in contributing code or updates to the Qlik Sense applications provided with the qsgc, have a look at our **[code of conduct](CONTRIBUTING.md)** on our contributing page.
+
+## License
+
+**[MIT](LICENSE)**
