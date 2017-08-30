@@ -136,6 +136,11 @@ function createGovernanceOutput(config, options) {
                             return backupApp(config, singleAppId, config.agent)
                                 .then(function (result) {
                                     logMessage("info", "Qlik Sense Governance run against " + singleAppId + "complete.");
+                                    return result;
+                                })
+                                .catch(function (error) {
+                                    logMessage("error", "Backup process failed for appid " + doc.qDocId + ". " + JSON.stringify(error));
+                                    return error;
                                 });
                         } else {
                             logMessage("info", "Generating output for the entire Qlik Sense site");
@@ -143,11 +148,16 @@ function createGovernanceOutput(config, options) {
                                     return backupApp(config, doc.qDocId, config.agent)
                                         .then(function (result) {
                                             return result;
+                                        })
+                                        .catch(function (error) {
+                                            logMessage("error", "Backup process failed for appid " + doc.qDocId + ". " + JSON.stringify(error));
+                                            return error;
                                         });
                                 }))
                                 .then(function (resultArray) {
                                     logMessage("info", "Qlik Sense Governance run against " + resultArray.length + " applications complete.");
                                     logger.info("Qlik Sense Governance run against all applications complete.", loggerObject);
+                                    return;
                                 });
                         }
                     })
