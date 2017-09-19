@@ -7,7 +7,7 @@ var fs = require('fs');
 var Promise = require('bluebird');
 var qrsInteract = require('qrs-interact');
 var _ = require("lodash");
-var doGovernance = require("./lib/createGovernanceOutput");
+//var doGovernance = require("./lib/createGovernanceOutput");
 var socketHelper = require("./lib/socketHelper");
 var logger = require("./lib/logger");
 var uploadApps = require("./lib/uploadApps");
@@ -16,6 +16,7 @@ var importExtensions = require("./lib/importExtensions");
 var createDataConnections = require("./lib/createDataConnections");
 const checkIp = require("./lib/ipChecker");
 const qrsCalls = require("./lib/qrsCalls");
+const queueItUp = require("./lib/queueItUp");
 
 var loggerObject = {
     jsFile: "routes.js"
@@ -61,10 +62,10 @@ router.route("/dogovernance")
     .post(function (request, response) {
         var options = request.body;
         console.log(options);
-        doGovernance(config, options)
-            .then(function (result) {
-                logMessage('info', 'I have collected governance!');
-            });
+        queueItUp(config, options);
+        // .then(function (result) {
+        //     logMessage('info', 'I have collected governance!');
+        // });
         response.send("Governance collection will run on the server and request will not await a response");
     })
 
@@ -123,7 +124,7 @@ router.route("/applistfull")
         }
         qrsCalls.qrsAppList(options)
             .then(function (result) {
-                response.send(result.body)
+                response.send(result)
             });
     })
 

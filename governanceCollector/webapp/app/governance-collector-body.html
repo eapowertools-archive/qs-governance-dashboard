@@ -50,9 +50,9 @@
                 <div id="right">
                     <div class="lui-label" ng-hide="model.currentServer.hostname==model.serverList[0].hostname">http://{{model.hostname}}:{{model.port}}</div>
                     <div class="gogoGov">
-                        <button id="goButton" class="lui-button lui-disabled" ng-click="model.gogoGovernance()" ng-class="((model.boolGenMetadata || model.boolParseLoadScripts || model.boolGenQVDs || model.boolRefreshGovernanceApp) && (!model.singleApp || (model.singleApp && model.currentApp.id != null))) ? 'lui-button lui-button--success' : 'lui-button lui-disabled'">Governance!</button>
+                        <button id="goButton" class="lui-button lui-disabled" ng-click="model.gogoGovernance()" ng-class="((model.boolGenMetadata || model.boolAccessControlData ||model.boolParseLoadScripts || model.boolGenQVDs || model.boolRefreshGovernanceApp)) ? 'lui-button lui-button--success' : 'lui-button lui-disabled'">Governance!</button>
                     </div>
-                    <div class="lui-label" ng-hide="model.currentServer.hostname==model.serverList[0].hostname || !((model.boolGenMetadata || model.boolParseLoadScripts || model.boolGenQVDs || model.boolRefreshGovernanceApp) && (!model.singleApp || (model.singleApp && model.currentApp.id != null)))">Click above to start processing.</div>
+                    <div class="lui-label" ng-hide="model.currentServer.hostname==model.serverList[0].hostname || !((model.boolGenMetadata || model.boolAccessControlData || model.boolParseLoadScripts || model.boolGenQVDs || model.boolRefreshGovernanceApp))">Click above to start processing.</div>
                 </div>
             </div>
             <div id="output" class="frame">

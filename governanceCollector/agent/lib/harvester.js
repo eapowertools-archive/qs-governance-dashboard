@@ -52,12 +52,12 @@ let harvester = {
                 return error;
             });
     },
-    getUserAccessControl: function (config, userList) {
+    getUserAccessControl: function (config, options, userList) {
         if (userList != null || userList != undefined) {
             //run access control collection on provided list of users.
-            return userAccessControl.userAccessControl(config, userList)
+            return userAccessControl.userAccessControl(config, options, userList)
                 .then(function (result) {
-                    return Promise.all(appObjectAccessControl(config, userList))
+                    return Promise.all(appObjectAccessControl(config, options, userList))
                 });
         } else {
             //get a list of users and run collection process.
@@ -68,9 +68,9 @@ let harvester = {
                     return qrsCalls.qrsAllocatedUserList(config);
                 }
             }).then(function (userList) {
-                return userAccessControl.userAccessControl(config, userList)
+                return userAccessControl.userAccessControl(config, options, userList)
                     .then(function (result) {
-                        return Promise.all(appObjectAccessControl(config, userList))
+                        return Promise.all(appObjectAccessControl(config, options, userList))
                     });
             })
         }
@@ -97,7 +97,7 @@ let harvester = {
                             .then(function (resultArray) {
                                 logMessage("info", "Qlik Sense Governance run against " + resultArray.length + " applications complete.");
                                 logger.info("Qlik Sense Governance run against all applications complete.", loggerObject);
-                                return;
+                                resolve("metadata collection complete");
                             });
 
                     })
@@ -118,9 +118,9 @@ let harvester = {
 
 module.exports = harvester;
 
-function appObjectAccessControl(config, userList) {
+function appObjectAccessControl(config, options, userList) {
     var resultArray = []
-    var appObjects = config.agent.appObjectsAccessControlList;
+    var appObjects = options.accessControl.appObjects;
     appObjects.forEach(function (appObject) {
         resultArray.push(userAccessControl.userAppObjectAccessControl(config, userList, appObject));
     })

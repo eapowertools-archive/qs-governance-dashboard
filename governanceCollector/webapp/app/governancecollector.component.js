@@ -24,7 +24,7 @@
     }
 
     function loadApps($http, body) {
-        var url = "http://" + body.hostname + ":" + body.port + "/governance/applist";
+        var url = "http://" + body.hostname + ":" + body.port + "/governance/applistfull";
         console.log(url);
         return $http.get(url)
             .then(function (result) {
@@ -161,10 +161,12 @@
         model.singleApp = false;
         model.appList = [];
         model.dualmultioptions = {};
-        model.tempAppList = [];
         model.appObjectList = [];
         model.resources = [];
-
+        model.selectedResources = [];
+        model.selectedAppObjects = [];
+        model.resourceSelected = false;
+        model.appObjectSelected = false;
 
         model.textGenMetaData = "Activating this button will enable the Governance Collector to ";
         model.textGenMetaData += "collect Qlik Sense application metadata and store it into xml files";
@@ -184,8 +186,8 @@
         model.$onInit = function () {
             console.log("Hello World");
             model.popServers();
-            model.appObjectList = ["sheet", "story", "embeddedsnapshot", "dimension", "measure", "masterobject", "bookmark"];
-            model.resources = ["App", "DataConnection", "ContentLibrary", "Stream"];
+            model.appObjectList = appObjectList;
+            model.resources = qmcResources;
         }
 
         mySocket.on("governanceCollector", function (msg) {
@@ -203,7 +205,7 @@
             console.log(model.boolGenMetadata);
         }
 
-        model.genUserAccessControlData = function () {
+        model.genAccessControlData = function () {
             model.boolAccessControlData = (model.boolAccessControlData) ? false : true;
             console.log(model.boolAccessControlData);
         }
@@ -226,24 +228,25 @@
                 hostname: model.hostname,
                 port: model.port,
                 boolGenMetadata: model.boolGenMetadata,
+                boolAccessControlData: model.boolAccessControlData,
                 boolParseLoadScripts: model.boolParseLoadScripts,
                 boolGenQVDs: model.boolGenQVDs,
                 boolRefreshGovernanceApp: model.boolRefreshGovernanceApp
             };
 
-            if (model.singleApp) {
-                body.singleApp = {
-                    boolSingleApp: model.singleApp,
-                    appId: model.currentApp.id
-                }
-            } else {
-
-                body.singleApp = {
-                    boolSingleApp: model.singleApp,
-                    appId: null
+            //Add sections to the body for the different items to be queued and run.
+            if (model.boolGenMetadata) {
+                body.appMetadata = {
+                    appArray: model.dualmultioptions.selectedItems
                 }
             }
 
+            if (model.boolAccessControlData) {
+                body.accessControl = {
+                    resources: model.selectedResources,
+                    appObjects: model.selectedAppObjects
+                }
+            }
 
             doGovernance($http, body, model)
                 .then(function (result) {
@@ -252,28 +255,17 @@
                     model.boolGenQVDs = false;
                     model.boolRefreshGovernanceApp = false;
                     model.statusOutput = result.data + "\n";
+                    model.dualmultioptions.items = model.appList;
+                    model.dualmultioptions.selectedItems = [];
+                    model.selectedResources = [];
+                    model.selectedAppObjects = [];
+                    model.resources = qmcResources;
+                    model.appObjectList = appObjectList;
                 })
         }
         model.hw = "Hello World";
 
         model.openAppMetadataCollector = function () {
-
-            model.tempAppList = [{
-                    name: "foo",
-                    id: "x123",
-                    filesize: 12345
-                },
-                {
-                    name: "bar",
-                    id: "45678",
-                    filesize: 14,
-                },
-                {
-                    name: "yay",
-                    id: "910203",
-                    filesize: 4592,
-                }
-            ]
 
             model.dualmultioptions = {
                 title: "Application list for " + model.hostname,
@@ -282,7 +274,7 @@
                 labelSelected: "Selected Items",
                 helpMessage: "Click items to transfer them between fields.",
                 orderProperty: "name",
-                items: model.dualmultioptions.items != undefined ? model.dualmultioptions.items : model.tempAppList,
+                items: model.dualmultioptions.items != undefined ? model.dualmultioptions.items : model.appList,
                 selectedItems: model.dualmultioptions.selectedItems != undefined ? model.dualmultioptions.selectedItems : []
             }
 
@@ -296,6 +288,7 @@
         };
 
         model.openAccessControlCollector = function () {
+
             ngDialog.open({
                 template: "app/governance-access-control-collector-body.html",
                 className: "governance-access-control-collector",
@@ -303,7 +296,53 @@
                 controller: governanceCollectorBodyController,
                 scope: $scope
             })
+
         };
+
+        model.checkedResources = function (value) {
+            var rawIndex;
+            rawIndex = model.resources.findIndex(function (resource, i) {
+                return resource.name === value;
+            })
+
+            if (document.getElementById(value).checked === true) {
+                model.selectedResources.push(value);
+                model.resources[rawIndex].checked = true;
+            } else {
+                var indexx = model.selectedResources.indexOf(value);
+                model.selectedResources.splice(indexx, 1);
+                model.resources[rawIndex].checked = false;
+            }
+
+            if (model.selectedResources.length > 0) {
+                model.resourceSelected = true;
+            } else {
+                model.resourceSelected = false;
+            }
+            console.log(model.selectedResources);
+        }
+
+        model.checkedAppObjects = function (value) {
+            var rawIndex;
+            rawIndex = model.appObjectList.findIndex(function (appObject, i) {
+                return appObject.name === value;
+            })
+            if (document.getElementById(value).checked === true) {
+                model.selectedAppObjects.push(value);
+                model.appObjectList[rawIndex].checked = true;
+            } else {
+                var indexx = model.selectedAppObjects.indexOf(value);
+                model.selectedAppObjects.splice(indexx, 1);
+                model.appObjectList[rawIndex].checked = false;
+            }
+
+            if (model.selectedAppObjects.length > 0) {
+                model.appObjectSelected = true;
+            } else {
+                model.appObjectSelected = false;
+            }
+            console.log(model.selectedAppObjects);
+        }
 
         model.openConfig = function () {
             $("#settings-save-alert").hide();
@@ -347,13 +386,13 @@
             if (model.currentServer.hostname == model.serverList[0].hostname) {
                 model.buttonsEnabled = false;
             } else {
-                model.buttonsEnabled = true;
+
                 model.hostname = model.currentServer.hostname;
                 model.port = model.currentServer.port;
-
-                if (model.singleApp) {
-                    model.popApps();
-                }
+                model.popApps()
+                    .then(function () {
+                        model.buttonsEnabled = true;
+                    });
             }
         }
 
@@ -363,14 +402,9 @@
                 hostname: model.hostname,
                 port: model.port
             }
-            loadApps($http, body)
+            return loadApps($http, body)
                 .then(function (result) {
-                    result.unshift({
-                        "name": "Please select an app name from the list",
-                        "id": null
-                    });
                     model.appList = result;
-                    model.currentApp = model.appList[0];
                 })
         }
 
@@ -531,13 +565,12 @@
 
         model.closeAppMetadataCollect = function () {
             ngDialog.closeAll();
-            (model.dualmultioptions.selectedItems.length > 0) ?
-            model.boolGenMetadata = true: model.boolGenMetadata = false
+            model.boolGenMetadata = (model.dualmultioptions.selectedItems.length > 0) ? true : false;
         }
 
         model.closeAccessControlCollect = function () {
             ngDialog.closeAll();
-            (model.accessControlResources.length > 0 || model.accessControlAppObjectResources.length > 0) ? model.boolAccessControlData = true: model.boolAccessControlData = false;
+            model.boolAccessControlData = (model.selectedResources.length > 0 || model.selectedAppObjects.length > 0) ? true : false;
         }
 
         model.cancelSettings = function () {
@@ -553,3 +586,57 @@
     });
 
 }());
+
+const appObjectList = [{
+    name: "sheet",
+    checked: false
+}, {
+    name: "story",
+    checked: false
+}, {
+    name: "embeddedsnapshot",
+    checked: false
+}, {
+    name: "dimension",
+    checked: false
+}, {
+    name: "measure",
+    checked: false
+}, {
+    name: "masterobject",
+    checked: false
+}, {
+    name: "bookmark",
+    checked: false
+}];
+
+const qmcResources = [{
+    name: "App",
+    checked: false
+}, {
+    name: "DataConnection",
+    checked: false
+}, {
+    name: "ContentLibrary",
+    checked: false
+}, {
+    name: "Stream",
+    checked: false
+}];
+
+const tempAppList = [{
+        name: "foo",
+        id: "x123",
+        filesize: 12345
+    },
+    {
+        name: "bar",
+        id: "45678",
+        filesize: 14,
+    },
+    {
+        name: "yay",
+        id: "910203",
+        filesize: 4592,
+    }
+];
