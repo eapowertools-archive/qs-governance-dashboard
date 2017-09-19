@@ -1,7 +1,7 @@
-(function() {
+(function () {
     "use strict";
-    var module = angular.module("QlikSenseGovernance", ["ui.router", "localytics.directives", "720kb.tooltips"]);
-    module.config(function($stateProvider, $urlRouterProvider) {
+    var module = angular.module("QlikSenseGovernance", ["ui.router", "localytics.directives", "720kb.tooltips", "dualmultiselect"]);
+    module.config(function ($stateProvider, $urlRouterProvider) {
         $stateProvider.state('route', {
             url: "/ui",
             templateUrl: "/ui"

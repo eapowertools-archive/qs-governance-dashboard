@@ -15,6 +15,7 @@ var createTasks = require("./lib/createTasks");
 var importExtensions = require("./lib/importExtensions");
 var createDataConnections = require("./lib/createDataConnections");
 const checkIp = require("./lib/ipChecker");
+const qrsCalls = require("./lib/qrsCalls");
 
 var loggerObject = {
     jsFile: "routes.js"
@@ -111,5 +112,19 @@ router.route("/applist")
                 response.send(result.body);
             });
     });
+
+router.route("/applistfull")
+    .get(function (request, response) {
+        let options = {
+            qrs: {
+                hostname: qrsInstance.hostname,
+                localCertPath: qrsInstance.localCertPath
+            }
+        }
+        qrsCalls.qrsAppList(options)
+            .then(function (result) {
+                response.send(result.body)
+            });
+    })
 
 module.exports = router;

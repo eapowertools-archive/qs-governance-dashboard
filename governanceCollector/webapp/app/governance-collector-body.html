@@ -29,8 +29,12 @@
                             </select>
                         </div>
                         <div tooltips tooltip-template="{{model.textGenMetaData}}" tooltip-side="right" tooltip-class="toolies">
-                            <button id="genMetadata" class="lui-button leftButtons" ng-click="model.genMetadata()" ng-class=" model.buttonsEnabled ? (model.boolGenMetadata ? 'lui-button lui-button--success' : 'lui-button') : 'lui-button lui-disabled'"
-                                ng-mouseover="model.tipMeta=true" ng-mouseleave="mode.tipMeta=false">Generate App Metadata</button>
+                            <button id="genMetadata" class="lui-button leftButtons" ng-click="model.openAppMetadataCollector()" ng-class=" model.buttonsEnabled ? (model.boolGenMetadata ? 'lui-button lui-button--success' : 'lui-button') : 'lui-button lui-disabled'"
+                                ng-mouseover="model.tipMeta=true" ng-mouseleave="mode.tipMeta=false">Harvest App Metadata</button>
+                        </div>
+                        <div tooltips tooltip-template="{{model.textAccessControlData}}" tooltip-side="right" tooltip-class="toolies">
+                            <button id="genAccessControlData" class="lui-button leftButtons" ng-click="model.openAccessControlCollector()" ng-class=" model.buttonsEnabled ? (model.boolAccessControlData ? 'lui-button lui-button--success' : 'lui-button') : 'lui-button lui-disabled'"
+                                ng-mouseover="model.tipMeta=true" ng-mouseleave="mode.tipMeta=false">Harvest Access Control Metadata</button>
                         </div>
                         <div tooltips tooltip-template="{{model.textParseLoadScripts}}" tooltip-side="right" tooltip-class="toolies">
                             <button id="parseLoadScripts" class="lui-button leftButtons" ng-click="model.parseLoadScripts()" ng-class="model.buttonsEnabled ? (model.boolParseLoadScripts ? 'lui-button lui-button--success' : 'lui-button') : 'lui-button lui-disabled'">Parse Load Scripts</button>

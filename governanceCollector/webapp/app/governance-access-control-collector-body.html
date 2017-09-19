@@ -1,0 +1,45 @@
+<div>
+    <form name="form.governanceAccessControlCollectionForm" id="governanceAccessControlCollection" enctype="multipart/form-data"
+        novalidate>
+        <div class="lui-modal-background" style="background:transparent;"></div>
+        <div class="governance-access-control-collector-modal">
+            <div class="lui-dialog" style="width:100%;">
+                <div class="lui-dialog__header">
+                    <div class="lui-dialog__title">Select Resources to Collect Access Control Metadata</div>
+                </div>
+                <div class="lui-dialog__body">
+                    <div id="resourceList" style="display:flex;justify-content:space-around;width:100%;">
+                        <div id="resources">
+                            Resources
+                            <div ng-repeat="resource in model.resources track by $index">
+                                <label class="lui-checkbox">
+                                        <input class="lui-checkbox__input" type="checkbox" aria-label="{{resource}}" id="resourceLabels"/>
+                                    <div class="lui-checkbox__check-wrap">
+                                        <span class="lui-checkbox__check" ></span>
+                                        <span class="lui-checkbox__check-text">{{resource}}</span>
+                                    </div>
+    
+                                </label>
+                            </div>
+                        </div>
+                        <div id="appObjects">App Objects
+                            <div ng-repeat="appObject in model.appObjectList track by $index">
+                                <label class="lui-checkbox">
+                                    <input class="lui-checkbox__input" type="checkbox" aria-label="{{appObject}}" id="resourceLabels"/>
+                                    <div class="lui-checkbox__check-wrap">
+                                        <span class="lui-checkbox__check" ></span>
+                                        <span class="lui-checkbox__check-text">{{appObject}}</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lui-dialog__footer">
+                    <button class="lui-button  lui-dialog__button  close-button" ng-click="model.cancelSettings()">Cancel</button>
+                    <button class="lui-button  lui-dialog__button  close-button" ng-click="model.closeAccessControlCollect()">OK</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

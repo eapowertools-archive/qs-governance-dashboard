@@ -1,6 +1,8 @@
 (function () {
     "use strict";
-    var module = angular.module("QlikSenseGovernance", ["btford.socket-io", "720kb.tooltips", "ngDialog", "ngFileUpload"])
+    var module = angular.module("QlikSenseGovernance", ["btford.socket-io", "720kb.tooltips", "dualmultiselect",
+            "ngDialog", "ngFileUpload"
+        ])
         .factory('mySocket', function (socketFactory) {
             return socketFactory();
         });
@@ -142,6 +144,7 @@
         var model = this;
 
         model.boolGenMetadata = false;
+        model.boolAccessControlData = false;
         model.boolParseLoadScripts = false;
         model.boolGenQVDs = false;
         model.boolRefreshGovernanceApp = false;
@@ -157,9 +160,16 @@
         model.modal = false;
         model.singleApp = false;
         model.appList = [];
+        model.dualmultioptions = {};
+        model.tempAppList = [];
+        model.appObjectList = [];
+        model.resources = [];
+
 
         model.textGenMetaData = "Activating this button will enable the Governance Collector to ";
         model.textGenMetaData += "collect Qlik Sense application metadata and store it into xml files";
+
+        model.textAccessControlData = "Click this button to collect user access audit information from the selected Qlik Sense site.";
 
         model.textParseLoadScripts = "Activating the Parse Load Scripts button will program the Governance Collector to ";
         model.textParseLoadScripts += "review the load script logs of applications and derive lineage information.";
@@ -169,10 +179,13 @@
 
         model.textRefreshGovernanceApp = "Or you can click this button and have the qvds loaded into the Governance Dashboard supplied with the installer.";
 
+
+
         model.$onInit = function () {
             console.log("Hello World");
             model.popServers();
-
+            model.appObjectList = ["sheet", "story", "embeddedsnapshot", "dimension", "measure", "masterobject", "bookmark"];
+            model.resources = ["App", "DataConnection", "ContentLibrary", "Stream"];
         }
 
         mySocket.on("governanceCollector", function (msg) {
@@ -186,7 +199,13 @@
 
         model.genMetadata = function () {
             model.boolGenMetadata = (model.boolGenMetadata) ? false : true;
+            //model.openAppMetadataCollector();
             console.log(model.boolGenMetadata);
+        }
+
+        model.genUserAccessControlData = function () {
+            model.boolAccessControlData = (model.boolAccessControlData) ? false : true;
+            console.log(model.boolAccessControlData);
         }
 
         model.parseLoadScripts = function () {
@@ -237,6 +256,54 @@
         }
         model.hw = "Hello World";
 
+        model.openAppMetadataCollector = function () {
+
+            model.tempAppList = [{
+                    name: "foo",
+                    id: "x123",
+                    filesize: 12345
+                },
+                {
+                    name: "bar",
+                    id: "45678",
+                    filesize: 14,
+                },
+                {
+                    name: "yay",
+                    id: "910203",
+                    filesize: 4592,
+                }
+            ]
+
+            model.dualmultioptions = {
+                title: "Application list for " + model.hostname,
+                filterPlaceHolder: "Search by name, guid, custom property, or filesize.",
+                labelAll: "All Items",
+                labelSelected: "Selected Items",
+                helpMessage: "Click items to transfer them between fields.",
+                orderProperty: "name",
+                items: model.dualmultioptions.items != undefined ? model.dualmultioptions.items : model.tempAppList,
+                selectedItems: model.dualmultioptions.selectedItems != undefined ? model.dualmultioptions.selectedItems : []
+            }
+
+            ngDialog.open({
+                template: "app/governance-app-collector-body.html",
+                className: "governance-app-collector",
+                showClose: false,
+                controller: governanceCollectorBodyController,
+                scope: $scope
+            })
+        };
+
+        model.openAccessControlCollector = function () {
+            ngDialog.open({
+                template: "app/governance-access-control-collector-body.html",
+                className: "governance-access-control-collector",
+                showClose: false,
+                controller: governanceCollectorBodyController,
+                scope: $scope
+            })
+        };
 
         model.openConfig = function () {
             $("#settings-save-alert").hide();
@@ -460,6 +527,17 @@
             model.currentServer = model.serverList[0];
             model.popServers();
             ngDialog.closeAll();
+        }
+
+        model.closeAppMetadataCollect = function () {
+            ngDialog.closeAll();
+            (model.dualmultioptions.selectedItems.length > 0) ?
+            model.boolGenMetadata = true: model.boolGenMetadata = false
+        }
+
+        model.closeAccessControlCollect = function () {
+            ngDialog.closeAll();
+            (model.accessControlResources.length > 0 || model.accessControlAppObjectResources.length > 0) ? model.boolAccessControlData = true: model.boolAccessControlData = false;
         }
 
         model.cancelSettings = function () {

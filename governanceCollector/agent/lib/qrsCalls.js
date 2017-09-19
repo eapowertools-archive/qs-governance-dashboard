@@ -78,7 +78,7 @@ var qrsCalls = {
 
                             obj = {
                                 "id": item[0],
-                                "createdDate" : item[1],
+                                "createdDate": item[1],
                                 "modifiedDate": item[2],
                                 "modifiedByUserName": item[3],
                                 "name": item[4],
@@ -432,7 +432,7 @@ var qrsCalls = {
 
         var qrs = new qrsInteract(qrsInstance);
         return new Promise(function (resolve, reject) {
-            reloadApp.reloadApp(qrs, taskname)
+            return reloadApp.reloadApp(qrs, taskname)
                 .then(function (result) {
                     logMessage(result);
                     resolve(result)

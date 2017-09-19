@@ -1,0 +1,13 @@
+.governance-access-control-collector .governance-access-control-collector-modal {
+    position: relative;
+    border: none;
+    background: transparent;
+    overflow: hidden;
+    border-radius: 3px;
+    outline: none;
+    padding: 0px;
+    width: 720px;
+    margin-top: 16.6667vh;
+    height: 54.1667vh;
+    margin-left: 20%;
+}
