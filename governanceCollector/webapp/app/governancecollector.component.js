@@ -1,8 +1,8 @@
 (function () {
     "use strict";
     var module = angular.module("QlikSenseGovernance", ["btford.socket-io", "720kb.tooltips", "dualmultiselect",
-        "ngDialog", "ngFileUpload"
-    ])
+            "ngDialog", "ngFileUpload"
+        ])
         .factory('mySocket', function (socketFactory) {
             return socketFactory();
         });
@@ -76,6 +76,14 @@
             }, function (somethingElse) {
                 return somethingElse;
             });
+    }
+
+    function getVersion($http) {
+        return $http.get("./version")
+            .then(function (response) {
+                console.log(response)
+                return response.data;
+            })
     }
 
     function loadSettings($http) {
@@ -187,6 +195,7 @@
         model.appObjectSelected = false;
         model.boolCheckAllResources = true;
         model.boolCheckAllAppObjects = true;
+        model.version = "";
 
         model.textGenMetaData = "Activating this button will enable the Governance Collector to ";
         model.textGenMetaData += "collect Qlik Sense application metadata and store it into xml files";
@@ -210,6 +219,10 @@
             model.resources = qmcResources;
             model.selectedResources = setSelectedResources();
             model.selectedAppObjects = setSelectedAppObjects();
+            getVersion($http)
+                .then(function (response) {
+                    model.version = response;
+                });
         }
 
         mySocket.on("governanceCollector", function (msg) {
@@ -345,31 +358,25 @@
             console.log(model.selectedResources);
         }
 
-        model.checkAllResources = function()
-        {
-            
+        model.checkAllResources = function () {
+
             console.log(model.boolCheckAllResources)
-            if(model.boolCheckAllResources)
-                {
-                    model.resources.forEach(function(item, index)
-                    {
-                        $("#" + item.name).prop("checked",false)
-                        model.resources[index].checked= false;
-                    })
-                    model.selectedResources = [];
-                }
-                else
-                {
-                    model.selectedResources = [];
-                    model.resources.forEach(function(item, index)
-                    {
-                       $("#" + item.name).prop("checked",true)
-                        model.resources[index].checked= true;
-                        model.selectedResources.push(item.name);
-                    })
-                }
-                model.boolCheckAllResources= model.boolCheckAllResources ? false : true;
-                console.log(model.selectedResources);
+            if (model.boolCheckAllResources) {
+                model.resources.forEach(function (item, index) {
+                    $("#" + item.name).prop("checked", false)
+                    model.resources[index].checked = false;
+                })
+                model.selectedResources = [];
+            } else {
+                model.selectedResources = [];
+                model.resources.forEach(function (item, index) {
+                    $("#" + item.name).prop("checked", true)
+                    model.resources[index].checked = true;
+                    model.selectedResources.push(item.name);
+                })
+            }
+            model.boolCheckAllResources = model.boolCheckAllResources ? false : true;
+            console.log(model.selectedResources);
         }
 
         model.checkedAppObjects = function (value) {
@@ -394,31 +401,25 @@
             console.log(model.selectedAppObjects);
         }
 
-model.checkAllAppObjects = function()
-        {
-            
+        model.checkAllAppObjects = function () {
+
             console.log(model.boolCheckAllAppObjects)
-            if(model.boolCheckAllAppObjects)
-                {
-                    model.appObjectList.forEach(function(item, index)
-                    {
-                        $("#" + item.name).prop("checked",false)
-                        model.appObjectList[index].checked= false;
-                    })
-                    model.selectedAppObjects = [];
-                }
-                else
-                {
-                    model.selectedAppObjects = [];
-                    model.appObjectList.forEach(function(item, index)
-                    {
-                       $("#" + item.name).prop("checked",true)
-                        model.appObjectList[index].checked= true;
-                        model.selectedAppObjects.push(item.name);
-                    })
-                }
-                model.boolCheckAllAppObjects= model.boolCheckAllAppObjects ? false : true;
-                console.log(model.selectedAppObjects);
+            if (model.boolCheckAllAppObjects) {
+                model.appObjectList.forEach(function (item, index) {
+                    $("#" + item.name).prop("checked", false)
+                    model.appObjectList[index].checked = false;
+                })
+                model.selectedAppObjects = [];
+            } else {
+                model.selectedAppObjects = [];
+                model.appObjectList.forEach(function (item, index) {
+                    $("#" + item.name).prop("checked", true)
+                    model.appObjectList[index].checked = true;
+                    model.selectedAppObjects.push(item.name);
+                })
+            }
+            model.boolCheckAllAppObjects = model.boolCheckAllAppObjects ? false : true;
+            console.log(model.selectedAppObjects);
         }
 
         model.openConfig = function () {
@@ -705,18 +706,18 @@ const qmcResources = [{
 }];
 
 const tempAppList = [{
-    name: "foo",
-    id: "x123",
-    filesize: 12345
-},
-{
-    name: "bar",
-    id: "45678",
-    filesize: 14,
-},
-{
-    name: "yay",
-    id: "910203",
-    filesize: 4592,
-}
+        name: "foo",
+        id: "x123",
+        filesize: 12345
+    },
+    {
+        name: "bar",
+        id: "45678",
+        filesize: 14,
+    },
+    {
+        name: "yay",
+        id: "910203",
+        filesize: 4592,
+    }
 ];
