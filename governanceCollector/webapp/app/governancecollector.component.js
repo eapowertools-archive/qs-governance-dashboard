@@ -1,8 +1,8 @@
 (function () {
     "use strict";
     var module = angular.module("QlikSenseGovernance", ["btford.socket-io", "720kb.tooltips", "dualmultiselect",
-            "ngDialog", "ngFileUpload"
-        ])
+        "ngDialog", "ngFileUpload"
+    ])
         .factory('mySocket', function (socketFactory) {
             return socketFactory();
         });
@@ -140,6 +140,24 @@
         }
     }
 
+    function setSelectedResources() {
+        var resultArray = [];
+        qmcResources.forEach(function (resource) {
+            resultArray.push(resource.name);
+        })
+
+        return resultArray;
+    }
+
+    function setSelectedAppObjects() {
+        var resultArray = [];
+        appObjectList.forEach(function (appObject) {
+            resultArray.push(appObject.name);
+        })
+
+        return resultArray;
+    }
+
     function governanceCollectorBodyController($scope, $http, mySocket, ngDialog, Upload) {
         var model = this;
 
@@ -167,6 +185,8 @@
         model.selectedAppObjects = [];
         model.resourceSelected = false;
         model.appObjectSelected = false;
+        model.boolCheckAllResources = true;
+        model.boolCheckAllAppObjects = true;
 
         model.textGenMetaData = "Activating this button will enable the Governance Collector to ";
         model.textGenMetaData += "collect Qlik Sense application metadata and store it into xml files";
@@ -188,6 +208,8 @@
             model.popServers();
             model.appObjectList = appObjectList;
             model.resources = qmcResources;
+            model.selectedResources = setSelectedResources();
+            model.selectedAppObjects = setSelectedAppObjects();
         }
 
         mySocket.on("governanceCollector", function (msg) {
@@ -251,11 +273,12 @@
             doGovernance($http, body, model)
                 .then(function (result) {
                     model.boolGenMetadata = false;
+                    model.boolAccessControlData = false;
                     model.boolParseLoadScripts = false;
                     model.boolGenQVDs = false;
                     model.boolRefreshGovernanceApp = false;
                     model.statusOutput = result.data + "\n";
-                    model.dualmultioptions.items = model.appList;
+                    model.dualmultioptions.items = undefined;
                     model.dualmultioptions.selectedItems = [];
                     model.selectedResources = [];
                     model.selectedAppObjects = [];
@@ -322,6 +345,33 @@
             console.log(model.selectedResources);
         }
 
+        model.checkAllResources = function()
+        {
+            
+            console.log(model.boolCheckAllResources)
+            if(model.boolCheckAllResources)
+                {
+                    model.resources.forEach(function(item, index)
+                    {
+                        $("#" + item.name).prop("checked",false)
+                        model.resources[index].checked= false;
+                    })
+                    model.selectedResources = [];
+                }
+                else
+                {
+                    model.selectedResources = [];
+                    model.resources.forEach(function(item, index)
+                    {
+                       $("#" + item.name).prop("checked",true)
+                        model.resources[index].checked= true;
+                        model.selectedResources.push(item.name);
+                    })
+                }
+                model.boolCheckAllResources= model.boolCheckAllResources ? false : true;
+                console.log(model.selectedResources);
+        }
+
         model.checkedAppObjects = function (value) {
             var rawIndex;
             rawIndex = model.appObjectList.findIndex(function (appObject, i) {
@@ -342,6 +392,33 @@
                 model.appObjectSelected = false;
             }
             console.log(model.selectedAppObjects);
+        }
+
+model.checkAllAppObjects = function()
+        {
+            
+            console.log(model.boolCheckAllAppObjects)
+            if(model.boolCheckAllAppObjects)
+                {
+                    model.appObjectList.forEach(function(item, index)
+                    {
+                        $("#" + item.name).prop("checked",false)
+                        model.appObjectList[index].checked= false;
+                    })
+                    model.selectedAppObjects = [];
+                }
+                else
+                {
+                    model.selectedAppObjects = [];
+                    model.appObjectList.forEach(function(item, index)
+                    {
+                       $("#" + item.name).prop("checked",true)
+                        model.appObjectList[index].checked= true;
+                        model.selectedAppObjects.push(item.name);
+                    })
+                }
+                model.boolCheckAllAppObjects= model.boolCheckAllAppObjects ? false : true;
+                console.log(model.selectedAppObjects);
         }
 
         model.openConfig = function () {
@@ -392,6 +469,7 @@
                 model.popApps()
                     .then(function () {
                         model.buttonsEnabled = true;
+
                     });
             }
         }
@@ -405,7 +483,9 @@
             return loadApps($http, body)
                 .then(function (result) {
                     model.appList = result;
+                    console.log(model.appList);
                 })
+
         }
 
         model.popSettings = function () {
@@ -589,54 +669,54 @@
 
 const appObjectList = [{
     name: "sheet",
-    checked: false
+    checked: true
 }, {
     name: "story",
-    checked: false
+    checked: true
 }, {
     name: "embeddedsnapshot",
-    checked: false
+    checked: true
 }, {
     name: "dimension",
-    checked: false
+    checked: true
 }, {
     name: "measure",
-    checked: false
+    checked: true
 }, {
     name: "masterobject",
-    checked: false
+    checked: true
 }, {
     name: "bookmark",
-    checked: false
+    checked: true
 }];
 
 const qmcResources = [{
     name: "App",
-    checked: false
+    checked: true
 }, {
     name: "DataConnection",
-    checked: false
+    checked: true
 }, {
     name: "ContentLibrary",
-    checked: false
+    checked: true
 }, {
     name: "Stream",
-    checked: false
+    checked: true
 }];
 
 const tempAppList = [{
-        name: "foo",
-        id: "x123",
-        filesize: 12345
-    },
-    {
-        name: "bar",
-        id: "45678",
-        filesize: 14,
-    },
-    {
-        name: "yay",
-        id: "910203",
-        filesize: 4592,
-    }
+    name: "foo",
+    id: "x123",
+    filesize: 12345
+},
+{
+    name: "bar",
+    id: "45678",
+    filesize: 14,
+},
+{
+    name: "yay",
+    id: "910203",
+    filesize: 4592,
+}
 ];

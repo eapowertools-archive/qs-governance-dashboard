@@ -53,27 +53,41 @@ let harvester = {
             });
     },
     getUserAccessControl: function (config, options, userList) {
-        if (userList != null || userList != undefined) {
-            //run access control collection on provided list of users.
-            return userAccessControl.userAccessControl(config, options, userList)
-                .then(function (result) {
-                    return Promise.all(appObjectAccessControl(config, options, userList))
-                });
-        } else {
-            //get a list of users and run collection process.
-            Promise.try(function () {
-                if (config.agent.accessControlAllUsers) {
-                    return qrsCalls.qrsUserList(config);
-                } else {
-                    return qrsCalls.qrsAllocatedUserList(config);
-                }
-            }).then(function (userList) {
+        return new Promise(function (resolve, reject) {
+            if (userList != null || userList != undefined) {
+                //run access control collection on provided list of users.
                 return userAccessControl.userAccessControl(config, options, userList)
                     .then(function (result) {
                         return Promise.all(appObjectAccessControl(config, options, userList))
+                    })
+                    .then(function (resultArray) {
+                        resolve(resultArray)
+                    })
+                    .catch(function (error) {
+                        reject(error);
                     });
-            })
-        }
+            } else {
+                //get a list of users and run collection process.
+                Promise.try(function () {
+                    if (config.agent.accessControlAllUsers) {
+                        return qrsCalls.qrsUserList(config);
+                    } else {
+                        return qrsCalls.qrsAllocatedUserList(config);
+                    }
+                }).then(function (userList) {
+                    return userAccessControl.userAccessControl(config, options, userList)
+                        .then(function (result) {
+                            return Promise.all(appObjectAccessControl(config, options, userList))
+                        })
+                        .then(function (resultArray) {
+                            resolve(resultArray)
+                        })
+                        .catch(function (error) {
+                            reject(error);
+                        });
+                })
+            }
+        })
     },
     getParsedScriptInfo: function (config) {
         logMessage("info", "Parsing load script logs for lineage information");
@@ -85,19 +99,19 @@ let harvester = {
                 session.open()
                     .then(function (global) {
                         return Promise.all(docList.map(function (doc) {
-                                return backupApp(config, doc.qDocId, config.agent)
+                                return backupApp(config, doc.id, config.agent)
                                     .then(function (result) {
                                         return result;
                                     })
                                     .catch(function (error) {
-                                        logMessage("error", "Backup process failed for appid " + doc.qDocId + " with name " + doc.qName + ". " + JSON.stringify(error));
+                                        logMessage("error", "Backup process failed for appid " + doc.id + " with name " + doc.name + ". " + JSON.stringify(error));
                                         return error;
                                     });
                             }))
                             .then(function (resultArray) {
                                 logMessage("info", "Qlik Sense Governance run against " + resultArray.length + " applications complete.");
                                 logger.info("Qlik Sense Governance run against all applications complete.", loggerObject);
-                                resolve("metadata collection complete");
+                                resolve(resultArray);
                             });
 
                     })

@@ -2,21 +2,19 @@ var fs = require("fs");
 var path = require("path");
 var _ = require("lodash")
 
-
-//var folder = path.join(process.env.programdata, "qlik/sense/log/script");
-
-
-//console.log(getNewestFiles(folder));
-
 function getNewestFiles(folder) {
     var resultArray = [];
     var fileList = fs.readdirSync(folder);
 
     //parse the first part of the file that doesn't include data infomration.
     fileList = fileList.filter(function (f) {
-        return fs.statSync(path.join(folder, f)).isFile();
+        return fs.statSync(path.join(folder, f)).isFile() && path.extname(path.join(folder, f)).toLowerCase() == ".log";
     })
-    
+
+    if (fileList.length == 0) {
+        return [];
+    }
+
     var fileNames = fileList.map(function (f) {
         return f.split(".")[0];
     })
@@ -36,7 +34,11 @@ function getNewestFiles(folder) {
             return fs.statSync(path.join(folder, f)).mtime
         })
 
-        resultArray.push({ "fileName": newestFile, "fullName": path.join(folder, newestFile) });
+        resultArray.push({
+            "parentFolder": folder,
+            "fileName": newestFile,
+            "fullName": path.join(folder, newestFile)
+        });
     })
 
     return resultArray;

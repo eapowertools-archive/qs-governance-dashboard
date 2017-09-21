@@ -13,13 +13,16 @@
                             Resources
                             <div ng-repeat="resource in model.resources track by $index">
                                 <label class="lui-checkbox">
-                                        <input class="lui-checkbox__input" type="checkbox" aria-label="{{resource.name}}" id="{{resource.name}}" ng-click="model.checkedResources(resource.name)" value="{{resource}}" ng-checked="{{resource.checked}}"/>
+                                        <input class="lui-checkbox__input" type="checkbox" aria-label="{{resource.name}}" id="{{resource.name}}" ng-click="model.checkedResources(resource.name)" value="{{resource}}" ng-checked="{{resource.checked}}" />
                                     <div class="lui-checkbox__check-wrap">
                                         <span class="lui-checkbox__check" ></span>
                                         <span class="lui-checkbox__check-text">{{resource.name}}</span>
                                     </div>
     
                                 </label>
+                            </div>
+                            <div>
+                                <button class="lui-button" type="button" ng-click="model.checkAllResources()">Toggle All</button>
                             </div>
                         </div>
                         <div id="appObjects">App Objects
@@ -31,6 +34,9 @@
                                         <span class="lui-checkbox__check-text">{{appObject.name}}</span>
                                     </div>
                                 </label>
+                            </div>
+                            <div>
+                                <button class="lui-button" type="button" ng-click="model.checkAllAppObjects()">Toggle All</button>
                             </div>
                         </div>
                     </div>

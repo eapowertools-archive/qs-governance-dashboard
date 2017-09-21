@@ -33,32 +33,36 @@ function parse(logFilesDirectoryFullPaths, outputPath, logFilesFilter, logFilesF
 
                         var dirs = fs.readdirSync(filePath)
 
+                        return Promise.all(dirs.map(function (dirItem) {
+                                if (dirItem.toLowerCase() == "script") {
+                                    return newestFileList(path.join(filePath, dirItem))
+                                } else if (fs.statSync(path.join(filePath, dirItem)).isDirectory() && fs.existsSync(path.join(filePath, dirItem, "script"))) {
+                                    return newestFileList(path.join(filePath, dirItem, "script"))
+                                } else {
+                                    return []; //dirItem + " not a valid dir";
+                                }
+                            }))
+                            .then(function (filesArray) {
+                                var finalArray = [];
+                                filesArray.forEach(function (arrayItem) {
+                                    if (arrayItem.length > 0) {
+                                        finalArray = finalArray.concat(arrayItem);
+                                    }
+                                })
+
+                                return finalArray;
+                            })
+
+                    }))
+                    .then(function (fileArrays) {
+                        //console.log(files);
                         var files = [];
-                        dirs.forEach(function (dirItem) {
-                            logMessage("debug", "Checking " + dirItem);
-                            if (fs.statSync(path.join(filePath, dirItem)).isDirectory()) {
-                                files = files.concat(newestFileList(path.join(filePath, dirItem, "script")))
-                            } else {
-                                logMessage("debug", dirItem + " not considered a directory");
+                        fileArrays.forEach(function (arrayItem) {
+                            if (arrayItem.length > 0) {
+                                files = files.concat(arrayItem);
                             }
                         })
 
-                        files = files.concat(newestFileList(filePath));
-
-                        logMessage("info", files.length + " files to process")
-                        // var resultArray = [];
-                        // files.forEach(function (file) {
-                        //     resultArray.push({
-                        //         fileName: file,
-                        //         fullName: path.join(filePath, file)
-                        //     });
-                        // })
-                        // return resultArray;
-                        return files;
-
-                    }))
-                    .then(function (files) {
-                        //console.log(files);
                         return Promise.all([
 
                             parser,

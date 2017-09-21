@@ -87,6 +87,7 @@ var userAccessControl = {
     userAccessControl: function (config, options, userList) {
         return new Promise(function (resolve, reject) {
             var selectionBasis = list(userList);
+            console.log(userList);
             logMessage("info", "Obtaining access control information from the repository");
             return Promise.all(selectionBasis.map(function (listItem) {
                     return qrsCalls.qrsPost(config, "selection", listItem)
@@ -111,7 +112,6 @@ var userAccessControl = {
                                     });
                                     return qrsCalls.qrsAuditMatrix(config, auditObject)
                                         .then(function (result) {
-                                            console.log(result.matrix.length);
                                             result.matrix.forEach(function (item, index) {
                                                 result.matrix[index].name = result.resources[result.matrix[index].resourceId].resourceProperties.name;
                                                 result.matrix[index].userId = result.subjects[result.matrix[index].subjectId].subjectProperties.userid;
@@ -167,23 +167,12 @@ function convertActionBin(val) {
 }
 
 
-var resources = [{
-        resourceRef: "App",
-        resourcePath: "app"
-    },
-    {
-        resourceRef: "DataConnection",
-        resourcePath: "dataconnection"
-    },
-    {
-        resourceRef: "ContentLibrary",
-        resourcePath: "contentlibrary"
-    },
-    {
-        resourceRef: "Stream",
-        resourcePath: "stream"
-    }
-];
+// var resources = [
+//     { resourceRef: "App", resourcePath: "app" },
+//     { resourceRef: "DataConnection", resourcePath: "dataconnection" },
+//     { resourceRef: "ContentLibrary", resourcePath: "contentlibrary" },
+//     { resourceRef: "Stream", resourcePath: "stream" }
+// ];
 
 
 function createTable(resource) {
@@ -296,3 +285,62 @@ function findDateDiff(date1, date2) {
 
     return days + ' days, ' + hours + ' hours, ' + minutes + ' minutes, and ' + seconds + ' seconds';
 }
+
+// userAccessControl: function (config, userList) {
+//     return new Promise(function (resolve, reject) {
+//         var selectionBasis = list(userList);
+//         logMessage("info", "Obtaining access control information from the repository");
+//         return Promise.all(selectionBasis.map(function (listItem) {
+//             return qrsCalls.qrsPost(config, "selection", listItem)
+//                 .then(function (selection) {
+//                     return selection.id;
+//                 })
+//         }))
+//             .then(function (resultArray) {
+//                 return Promise.all(resources.map(function (resource) {
+//                     var resourceTable = createTable(resource.resourceRef);
+//                     console.log(resource.resourceRef);
+//                     return qrsCalls.qrsPost(config, resource.resourcePath + "/table", resourceTable)
+//                         .then(function (table) {
+//                             console.log(table.rows.length);
+//                             return table.rows;
+//                         })
+//                         .then(function (tableRows) {
+//                             return Promise.map(resultArray, function (selectionItem) {
+//                                 return qrsCalls.qrsAuditMatrix(config, resource.resourceRef, selectionItem)
+//                                     .then(function (result) {
+//                                         console.log(result.matrix.length);
+//                                         result.matrix.forEach(function (item, index) {
+//                                             var matchedObject = tableRows.find(findRowMatch, [result.matrix[index].resourceId]);
+
+//                                             result.matrix[index].name = matchedObject[1];
+//                                             result.matrix[index].engineObjectId = matchedObject[2];
+//                                             result.matrix[index].objectType = matchedObject[3];
+//                                             result.matrix[index].audit.access = convertActionBin(item.audit.access);
+//                                             result.matrix[index].audit.disabled = convertActionBin(item.audit.disabled);
+//                                         });
+//                                         return result;
+//                                     })
+//                                     .then(function (result) {
+//                                         //fs.writeFileSync(path.join(config.agent.metadataPath,"userAccess","testResult_" + selectionItem + ".json"), JSON.stringify(result));
+//                                         console.log(result.matrix.length)
+//                                         writeToXML("qrsAccessControlMatrix", resource.resourceRef, result, selectionItem, undefined, "userAccess");
+//                                         return result;
+//                                     });
+//                             }, { concurrency: 2 })
+//                         })
+//                         .then(function (resultarray) {
+//                             return resultArray;
+//                         });
+//                 }))
+//             })
+//             .then(function (resultArray) {
+//                 console.log("hello world");
+//                 //writeToXML("qrsAccessControlMatrix", "qrsAccessControlMatrix", resultArray);
+//                 resolve("Access Control Information Obtained");
+//             })
+//             .catch(function (error) {
+//                 reject(error);
+//             });
+//     });
+// }
