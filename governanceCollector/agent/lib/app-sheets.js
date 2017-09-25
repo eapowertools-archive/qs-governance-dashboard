@@ -15,10 +15,6 @@ function logMessage(level, msg) {
     logger.log(level, msg, loggerObject);
 }
 
-var start_time;
-var end_time;
-
-
 var x = {};
 
 function getSheets(app, appId, options) {
@@ -49,16 +45,15 @@ function getSheets(app, appId, options) {
                     .then(function (layout) {
                         return Promise.all(layout.qAppObjectList.qItems.map(function (d) {
                                 x = {};
-                                start_time = Date.now();
                                 return app.getObject(d.qInfo.qId)
                                     .then(function (sheet) {
-                                        return getSheetLayout(sheet, start_time)
+                                        return getSheetLayout(sheet)
                                             .then(function (layout) {
                                                 sheetLayoutArray.push(layout);
                                                 return x.sheetLayout = layout;
                                             })
                                             .then(function () {
-                                                return getObjectLayouts(sheet, start_time, parse)
+                                                return getObjectLayouts(sheet, parse)
                                                     .then(function (objectLayouts) {
                                                         objectLayoutArray.push(objectLayouts);
                                                         return x.objectLayouts = objectLayouts;
@@ -95,9 +90,11 @@ function getSheets(app, appId, options) {
 module.exports = getSheets;
 
 
-function getSheetLayout(sheet, start_time) {
+function getSheetLayout(sheet) {
     var end_time;
+    var start_time;
     return new Promise(function (resolve, reject) {
+        start_time = Date.now();
         sheet.getLayout()
             .then(function (layout) {
                 end_time = Date.now();
@@ -115,18 +112,21 @@ function getSheetLayout(sheet, start_time) {
 
 }
 
-function getObjectLayouts(sheet, start_time, parse) {
+function getObjectLayouts(sheet, parse) {
     var end_time;
+    var start_time;
     return new Promise(function (resolve, reject) {
         sheet.getLayout()
             .then(function (sheetLayout) {
                 return sheet.getChildInfos()
                     .then(function (childInfos) {
                         return Promise.all(childInfos.map(function (child) {
+
                                 return sheet.getChild(child.qId)
                                     .then(function (object) {
+                                        start_time = Date.now();
                                         if (object.genericType.toLowerCase() == "filterpane") {
-                                            return getObjectLayouts(object, start_time, parse);
+                                            return getObjectLayouts(object, parse);
                                         }
                                         return object.getFullPropertyTree()
                                             .then(function (objectProps) {
