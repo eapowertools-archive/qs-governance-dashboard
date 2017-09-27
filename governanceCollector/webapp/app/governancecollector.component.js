@@ -86,6 +86,14 @@
             })
     }
 
+    function loadSavedSelections($http, body) {
+        var url = "http://" + body.hostname + ":" + body.port + "/governance/loadsavedselections";
+        return $http.get(url)
+            .then(function (response) {
+                return response.data;
+            })
+    }
+
     function loadSettings($http) {
         return $http.get("./loadsettings")
             .then(function (response) {
@@ -100,11 +108,39 @@
             })
     }
 
+    function postSaveSelection($http, body) {
+        var url = "http://" + body.hostname + ":" + body.port + "/governance/saveselection";
+        console.log(url);
+        return $http.post(url, body)
+            .then(function (result) {
+                return result;
+            }, function (error) {
+                return {
+                    msg: "ERROR",
+                    error: error
+                };
+            })
+    }
+
     function deleteSetting($http, body) {
         return $http.post("./deletesetting", body)
             .then(function (result) {
                 return result.data;
             });
+    }
+
+    function deleteSaveSelection($http, body) {
+        var url = "http://" + body.hostname + ":" + body.port + "/governance/deletesaveselection";
+        console.log(url);
+        return $http.post(url, body)
+            .then(function (result) {
+                return result;
+            }, function (error) {
+                return {
+                    msg: "ERROR",
+                    error: error
+                };
+            })
     }
 
     function showAlert() {
@@ -151,7 +187,7 @@
     function setSelectedResources() {
         var resultArray = [];
         qmcResources.forEach(function (resource) {
-            resultArray.push(resource.name);
+            resultArray.push(resource);
         })
 
         return resultArray;
@@ -160,7 +196,7 @@
     function setSelectedAppObjects() {
         var resultArray = [];
         appObjectList.forEach(function (appObject) {
-            resultArray.push(appObject.name);
+            resultArray.push(appObject);
         })
 
         return resultArray;
@@ -184,7 +220,6 @@
         model.buttonsEnabled = false;
         model.settingsSaved = false;
         model.modal = false;
-        model.singleApp = false;
         model.appList = [];
         model.dualmultioptions = {};
         model.appObjectList = [];
@@ -195,7 +230,10 @@
         model.appObjectSelected = false;
         model.boolCheckAllResources = true;
         model.boolCheckAllAppObjects = true;
+        model.savedSelectionList = [];
         model.version = "";
+        model.uuid = "";
+
 
         model.textGenMetaData = "Activating this button will enable the Governance Collector to ";
         model.textGenMetaData += "collect Qlik Sense application metadata and store it into xml files";
@@ -217,8 +255,8 @@
             model.popServers();
             model.appObjectList = appObjectList;
             model.resources = qmcResources;
-            model.selectedResources = setSelectedResources();
-            model.selectedAppObjects = setSelectedAppObjects();
+            //model.selectedResources = setSelectedResources();
+            //model.selectedAppObjects = setSelectedAppObjects();
             getVersion($http)
                 .then(function (response) {
                     model.version = response;
@@ -277,9 +315,15 @@
             }
 
             if (model.boolAccessControlData) {
+                let trueResources = model.selectedResources.filter(function (resource) {
+                    return resource.checked == true;
+                })
+                let trueAppObjects = model.selectedAppObjects.filter(function (appObject) {
+                    return appObject.checked == true;
+                })
                 body.accessControl = {
-                    resources: model.selectedResources,
-                    appObjects: model.selectedAppObjects
+                    resources: trueResources,
+                    appObjects: trueAppObjects
                 }
             }
 
@@ -297,6 +341,12 @@
                     model.selectedAppObjects = [];
                     model.resources = qmcResources;
                     model.appObjectList = appObjectList;
+                    model.currentSavedSelection = model.savedSelectionList[0];
+                    model.selectSavedSelection();
+                    model.boolCheckAllAppObjects = false;
+                    model.boolCheckAllResources = false;
+                    model.checkAllResources();
+                    model.checkAllAppObjects();
                 })
         }
         model.hw = "Hello World";
@@ -324,6 +374,8 @@
         };
 
         model.openAccessControlCollector = function () {
+            model.checkResources();
+            model.checkAppObjects();
 
             ngDialog.open({
                 template: "app/governance-access-control-collector-body.html",
@@ -335,27 +387,23 @@
 
         };
 
-        model.checkedResources = function (value) {
-            var rawIndex;
-            rawIndex = model.resources.findIndex(function (resource, i) {
-                return resource.name === value;
+        model.checkResources = function () {
+            model.resources.forEach(function (item, index) {
+                $("#" + item.name).prop("checked", item.checked)
             })
+        }
 
-            if (document.getElementById(value).checked === true) {
-                model.selectedResources.push(value);
-                model.resources[rawIndex].checked = true;
-            } else {
-                var indexx = model.selectedResources.indexOf(value);
-                model.selectedResources.splice(indexx, 1);
-                model.resources[rawIndex].checked = false;
-            }
-
-            if (model.selectedResources.length > 0) {
-                model.resourceSelected = true;
-            } else {
-                model.resourceSelected = false;
-            }
-            console.log(model.selectedResources);
+        model.checkedResources = function (value) {
+            model.resources.forEach(function (item, index) {
+                if (value.name == item.name) {
+                    if (document.getElementById(value.name).checked === true) {
+                        model.resources[index].checked = true;
+                    }
+                    else {
+                        model.resources[index].checked = false;
+                    }
+                }
+            })
         }
 
         model.checkAllResources = function () {
@@ -366,39 +414,36 @@
                     $("#" + item.name).prop("checked", false)
                     model.resources[index].checked = false;
                 })
-                model.selectedResources = [];
+
             } else {
-                model.selectedResources = [];
                 model.resources.forEach(function (item, index) {
                     $("#" + item.name).prop("checked", true)
                     model.resources[index].checked = true;
-                    model.selectedResources.push(item.name);
                 })
             }
             model.boolCheckAllResources = model.boolCheckAllResources ? false : true;
-            console.log(model.selectedResources);
+            console.log(model.resources);
+        }
+
+        model.checkAppObjects = function () {
+            model.appObjectList.forEach(function (item, index) {
+                $("#" + item.name).prop("checked", item.checked)
+            })
         }
 
         model.checkedAppObjects = function (value) {
-            var rawIndex;
-            rawIndex = model.appObjectList.findIndex(function (appObject, i) {
-                return appObject.name === value;
+            model.appObjectList.forEach(function (item, index) {
+                if (value.name == item.name) {
+                    if (document.getElementById(value.name).checked === true) {
+                        model.appObjectList[index].checked = true;
+                    }
+                    else {
+                        model.appObjectList[index].checked = false;
+                    }
+                }
             })
-            if (document.getElementById(value).checked === true) {
-                model.selectedAppObjects.push(value);
-                model.appObjectList[rawIndex].checked = true;
-            } else {
-                var indexx = model.selectedAppObjects.indexOf(value);
-                model.selectedAppObjects.splice(indexx, 1);
-                model.appObjectList[rawIndex].checked = false;
-            }
 
-            if (model.selectedAppObjects.length > 0) {
-                model.appObjectSelected = true;
-            } else {
-                model.appObjectSelected = false;
-            }
-            console.log(model.selectedAppObjects);
+            console.log(model.appObjectList);
         }
 
         model.checkAllAppObjects = function () {
@@ -409,17 +454,14 @@
                     $("#" + item.name).prop("checked", false)
                     model.appObjectList[index].checked = false;
                 })
-                model.selectedAppObjects = [];
             } else {
-                model.selectedAppObjects = [];
                 model.appObjectList.forEach(function (item, index) {
                     $("#" + item.name).prop("checked", true)
                     model.appObjectList[index].checked = true;
-                    model.selectedAppObjects.push(item.name);
                 })
             }
             model.boolCheckAllAppObjects = model.boolCheckAllAppObjects ? false : true;
-            console.log(model.selectedAppObjects);
+            console.log(model.appObjectList);
         }
 
         model.openConfig = function () {
@@ -437,6 +479,15 @@
 
         };
 
+        model.openConfigSavedSelections = function () {
+            ngDialog.open({
+                template: "app/governance-save-selection-body.html",
+                classname: "governance-save-selection",
+                showClose: false,
+                controller: governanceCollectorBodyController,
+                scope: $scope
+            });
+        }
 
         model.selectSetting = function () {
             console.log(model.settingsList);
@@ -470,8 +521,51 @@
                 model.popApps()
                     .then(function () {
                         model.buttonsEnabled = true;
-
+                        model.popSavedSelections();
                     });
+            }
+        }
+
+        model.selectSavedSelection = function () {
+            console.log("I'm the current saved selection");
+            console.log(model.currentSavedSelection);
+            if (model.currentSavedSelection.name == model.savedSelectionList[0].name) {
+                model.buttonsEnabled = true;
+                model.dualmultioptions.items = undefined;
+                model.dualmultioptions.selectedItems = [];
+                model.boolGenMetadata = false;
+                model.boolAccessControlData = false;
+                model.boolParseLoadScripts = false;
+                model.boolGenQVDs = false;
+                model.boolRefreshGovernanceApp = false;
+                model.selectedResources = model.resources;
+                model.selectedAppObjects = model.appObjectList;
+                model.savedSelectionName = "";
+
+            } else {
+                model.savedSelectionName = model.currentSavedSelection.name;
+                model.uuid = model.currentSavedSelection.id;
+                //populate available items and selected items.
+                model.boolGenMetadata = model.currentSavedSelection.metadataCollection.boolGenMetadata;
+                if (model.currentSavedSelection.metadataCollection.boolGenMetadata) {
+                    console.log(model.currentSavedSelection.metadataCollection.applications)
+                    let appArrays = parseAppLists(model.appList, model.currentSavedSelection.metadataCollection.applications);
+                    console.log(appArrays);
+                    model.dualmultioptions.items = appArrays.appList;
+                    model.dualmultioptions.selectedItems = appArrays.selectedItems;
+                }
+
+                model.boolAccessControlData = model.currentSavedSelection.accessControlCollection.boolAccessControlData;
+                if (model.currentSavedSelection.accessControlCollection.boolAccessControlData) {
+                    model.resources = model.currentSavedSelection.accessControlCollection.resources;
+                    model.appObjectList = model.currentSavedSelection.accessControlCollection.appObjects;
+                    model.checkResources
+                }
+
+                model.boolParseLoadScripts = model.currentSavedSelection.parseScriptLogs.boolParseLoadScripts;
+                model.boolGenQVDs = model.currentSavedSelection.generateQVDs.boolGenQVDs;
+                model.boolRefreshGovernanceApp = model.currentSavedSelection.refreshGovernanceApp.boolRefreshGovernanceApp;
+
             }
         }
 
@@ -521,6 +615,27 @@
                     model.serverList = result;
                     console.log(model.serverList);
                     model.currentServer = model.serverList[0];
+                })
+        }
+
+        model.popSavedSelections = function () {
+            model.savedSelectionName = "";
+
+            var body =
+                {
+                    "hostname": model.hostname,
+                    "port": model.port
+                }
+
+            loadSavedSelections($http, body)
+                .then(function (result) {
+                    result.unshift({
+                        "name": "Please select a package or build your own below."
+                    });
+                    model.savedSelectionList = result;
+                    console.log(model.savedSelectionList);
+                    model.currentSavedSelection = model.savedSelectionList[0];
+                    model.selectSavedSelection();
                 })
         }
 
@@ -651,7 +766,90 @@
 
         model.closeAccessControlCollect = function () {
             ngDialog.closeAll();
-            model.boolAccessControlData = (model.selectedResources.length > 0 || model.selectedAppObjects.length > 0) ? true : false;
+            let trueCount1 = 0;
+            let trueCount2 = 0;
+
+            model.resources.forEach(function (resource) {
+                if (resource.checked) {
+                    trueCount1 += 1;
+                }
+            })
+
+            model.appObjectList.forEach(function (appObject) {
+                if (appObject.checked) {
+                    trueCount2 += 1;
+                }
+            })
+
+            model.boolAccessControlData = (trueCount1 > 0 || trueCount2 > 0) ? true : false;
+        }
+
+        model.commitSavedSelection = function () {
+            ngDialog.closeAll();
+            var d = new Date();
+
+            if (model.savedSelectionName !== model.currentSavedSelection.name) {
+                model.uuid = generateUUID();
+            }
+
+
+            if (model.uuid == "") {
+                model.uuid = generateUUID();
+            }
+
+            var body = {
+                "name": model.savedSelectionName,
+                "id": model.uuid,
+                "lastModifiedDate": d.toUTCString(),
+                "hostname": model.hostname,
+                "port": model.port,
+                "metadataCollection": {
+                    "boolGenMetadata": model.boolGenMetadata,
+                    "applications": prepSavedSelections(model.dualmultioptions.selectedItems)
+                },
+                "accessControlCollection": {
+                    "boolAccessControlData": model.boolAccessControlData,
+                    "resources": model.selectedResources,
+                    "appObjects": model.selectedAppObjects,
+                },
+                "parseScriptLogs": {
+                    "boolParseLoadScripts": model.boolParseLoadScripts,
+                },
+                "generateQVDs": {
+                    "boolGenQVDs": model.boolGenQVDs
+                },
+                "refreshGovernanceApp": {
+                    "boolRefreshGovernanceApp": model.boolRefreshGovernanceApp
+                }
+            };
+
+            console.log(body);
+            postSaveSelection($http, body)
+                .then(function (response) {
+                    console.log(response);
+                    model.popSavedSelections();
+                    //model.selectSavedSelection();
+                })
+        }
+
+        model.removeSavedSelection = function () {
+            var body = {
+                "hostname": model.hostname,
+                "port": model.port,
+                "name": model.saveSelectionName,
+                "id": model.uuid
+            }
+
+            if (model.uuid == "") {
+                console.log("Can't remove an unknown saved selection.")
+            } else {
+                deleteSaveSelection($http, body)
+                    .then(function (result) {
+                        console.log(result);
+                        console.log(model.saveSelectionName + " removed from saved Selections list");
+                    });
+            }
+
         }
 
         model.cancelSettings = function () {
@@ -721,3 +919,54 @@ const tempAppList = [{
         filesize: 4592,
     }
 ];
+
+function generateUUID() {
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = (d + Math.random() * 16) % 16 | 0;
+        d = Math.floor(d / 16);
+        return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    return uuid;
+};
+
+function prepSavedSelections(appList) {
+    let resultArray = [];
+    appList.forEach(function (app) {
+        resultArray.push({
+            "id": app.id,
+            "name": app.name,
+            "fileSize": app.fileSize
+        })
+
+    })
+    return resultArray;
+}
+
+function parseAppLists(appList, savedAppList) {
+    let array1 = appList;
+    let array2 = [];
+
+    //console.log(savedAppList)
+
+
+    for (let i = 0; i < appList.length; i++) {
+        let appItem = appList[i];
+        for (let j = 0; j < savedAppList.length; j++) {
+            let savedItem = savedAppList[j];
+            if (savedItem.id == appItem.id) {
+                array2.push(savedItem);
+                array1.splice(i, 1);
+            }
+        }
+    }
+
+    console.log(array1);
+    console.log(array2);
+
+    return {
+        "appList": array1,
+        "selectedItems": array2
+    }
+
+}

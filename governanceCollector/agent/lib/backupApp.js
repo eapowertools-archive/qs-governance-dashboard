@@ -38,6 +38,14 @@ function backupApp(config, appId, options) {
                                         //app.session.close();
                                         resolve(appData);
                                     })
+                                    .catch(function (error) {
+                                        logMessage("error", error);
+                                        reject(error)
+                                    })
+                            })
+                            .catch(function (error) {
+                                logMessage("error", error);
+                                reject(error)
                             });
                     })
                     .catch(function (error) {

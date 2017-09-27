@@ -128,4 +128,58 @@ router.route("/applistfull")
             });
     })
 
+router.route("/loadsavedselections")
+    .get(function (request, response) {
+        var savedSelectionsFile = fs.readFileSync(path.join(__dirname, "config/savedSelections.json"));
+        response.send(JSON.parse(savedSelectionsFile));
+    })
+
+router.route("/saveselection")
+    .post(function (request, response) {
+        let savedSelectionsFile = path.join(__dirname, "config/savedSelections.json");
+        let savedSelectionsArray = JSON.parse(fs.readFileSync(savedSelectionsFile));
+        let selectionToSave = request.body;
+        let resultMessage = null;
+        let settingIndex = null;
+
+        let selectionExists = savedSelectionsArray.filter(function (item) {
+            return item.id == selectionToSave.id;
+        })
+
+        if (selectionExists.length == 0) {
+            savedSelectionsArray.push(selectionToSave);
+            resultMessage = "Saved Selection " + selectionToSave.name + " added.";
+            settingIndex = savedSelectionsArray.length;
+        }
+        else {
+            settingIndex = _.findIndex(savedSelectionsArray, function (item) {
+                return item.id == selectionToSave.id;
+            })
+            savedSelectionsArray[settingIndex] = selectionToSave;
+            resultMessage = "Saved Selection " + selectionToSave.name + " updated.";
+            settingIndex = settingIndex + 1
+        }
+
+        fs.writeFileSync(savedSelectionsFile, JSON.stringify(savedSelectionsArray, null, 4));
+        response.send({
+            "message": resultMessage,
+            "savedSelections": savedSelectionsArray,
+            "index": settingIndex
+        })
+
+    })
+
+router.route("/deletesaveselection")
+    .post(function (request, response) {
+        let savedSelectionsFile = path.join(__dirname, "config/savedSelections.json");
+        let savedSelectionsArray = JSON.parse(fs.readFileSync(savedSelectionsFile));
+
+        savedSelectionsArray = _.remove(savedSelectionsArray, function (item) {
+            return item.id !== request.body.id;
+        })
+
+        fs.writeFileSync(savedSelectionsFile, JSON.stringify(savedSelectionsArray, null, 4));
+        response.send(savedSelectionsArray);
+    })
+
 module.exports = router;

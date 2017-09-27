@@ -102,14 +102,10 @@ var userAccessControl = {
                 .then(function (resultArray) {
                     return Promise.map(resultArray, function (selectionItem) {
                         return Promise.all(options.accessControl.resources.map(function (resource) {
-                            return qrsCalls.qrsAuditCountResources(config, resource, "")
+                            return qrsCalls.qrsAuditCountResources(config, resource.name, "")
                                 .then(function (count) {
-                                    logMessage("info", "Found " + count + " resource of type " + resource);
-                                    var auditObject = createAuditObject(resource, count * userList.length, {
-                                        "resourceFilter": ""
-                                    }, {
-                                        "selection": selectionItem
-                                    });
+                                    logMessage("info", "Found " + count + " resource of type " + resource.name);
+                                    var auditObject = createAuditObject(resource.name, count * userList.length, { "resourceFilter": "" }, { "selection": selectionItem });
                                     return qrsCalls.qrsAuditMatrix(config, auditObject)
                                         .then(function (result) {
                                             result.matrix.forEach(function (item, index) {
@@ -124,7 +120,7 @@ var userAccessControl = {
                                         .then(function (result) {
                                             //fs.writeFileSync(path.join(config.agent.metadataPath,"userAccess","testResult_" + selectionItem + ".json"), JSON.stringify(result));
                                             console.log(result.matrix.length)
-                                            writeToXML("qrsAccessControlMatrix", resource, result.matrix, selectionItem, undefined, "userAccess");
+                                            writeToXML("qrsAccessControlMatrix", resource.name, result.matrix, selectionItem, undefined, "userAccess");
                                             return result;
                                         })
                                         .catch(function (error) {

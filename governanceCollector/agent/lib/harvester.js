@@ -136,7 +136,7 @@ function appObjectAccessControl(config, options, userList) {
     var resultArray = []
     var appObjects = options.accessControl.appObjects;
     appObjects.forEach(function (appObject) {
-        resultArray.push(userAccessControl.userAppObjectAccessControl(config, userList, appObject));
+        resultArray.push(userAccessControl.userAppObjectAccessControl(config, userList, appObject.name));
     })
     return resultArray;
 }

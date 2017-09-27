@@ -1,0 +1,45 @@
+[{
+        "name": "MyFirstPackage",
+        "lastModifiedDate": "DateStamp",
+        "metadataCollection": {
+            "boolGenMetadata": true,
+            "applications": [{
+                "id": "GUID",
+                "name": "ApplicationName"
+            }]
+        },
+        "accessControlCollection": {
+            "boolAccessControlData": true,
+            "resources": [],
+            "appObjects": []
+        },
+        "parseLoadScriptLogs": {
+            "boolParseLoadScripts": true
+        },
+        "generateQVDs": {
+            "boolGenQVDs": true
+        },
+        "refreshGovernanceApp": {
+            "boolRefreshGovernanceApp": true
+        }
+    },
+    {
+        "name": "MySecondPackage",
+        "lastModifiedDate": "DateStamp",
+        "metadataCollection": {
+            "boolGenMetadata": false,
+            "applications": []
+        },
+        "accessControlCollection": {
+            "boolAccessControlData": true,
+            "resources": ["apps", "streams"],
+            "appObjects": []
+        },
+        "generateQVDs": {
+            "boolGenQVDs": false
+        },
+        "refreshGovernanceApp": {
+            "boolRefreshGovernanceApp": false
+        }
+    }
+]

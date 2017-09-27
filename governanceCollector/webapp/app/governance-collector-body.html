@@ -16,16 +16,18 @@
                 </div>
                 <div id="left">
                     <div id="btnArea" class="govSelectButtons">
-                        <div id="selectArea">
+                        <div id="selectArea" class="drop-and-button">
                             <select name="avail-servers" id="availServers" ng-change="model.selectServer()" ng-model="model.currentServer" ng-init="model.initSelectServer()"
                                 class="lui-select" ng-options="server.hostname for server in model.serverList track by server.hostname"
                                 style="width:80%;">
                             </select>
-                            <button class="lui-button" ng-click="model.openConfig()">Add</button>
+                            <button class="lui-button std-button" ng-click="model.openConfig()">Add</button>
                         </div>
-                        <div id="singleCollectionApp" ng-show="model.singleApp">
-                            <select name="avail-apps" id="availApps" ng-change="model.selectApps()" ng-model="model.currentApp" ng-init="model.initSelectApp()"
-                                class="lui-select" ng-options="app.name for app in model.appList track by app.name" style="width:80%">
+
+                        <div id="savedSelections">
+                            <select name="saved-selections" id="savedSelections" ng-change="model.selectSavedSelection()" ng-model="model.currentSavedSelection"
+                                ng-init="model.initSelectSavedSelection()" class="lui-select" ng-options="selection.name for selection in model.savedSelectionList track by selection.name"
+                                style="width:100%">
                             </select>
                         </div>
                         <div tooltips tooltip-template="{{model.textGenMetaData}}" tooltip-side="right" tooltip-class="toolies">
@@ -44,6 +46,10 @@
                         </div>
                         <div tooltips tooltip-template="{{model.textRefreshGovernanceApp}}" tooltip-side="right" tooltip-class="toolies">
                             <button id="refreshGovernanceApp" class="lui-button leftButtons" ng-click="model.refreshGovernanceApp()" ng-class="model.buttonsEnabled ? (model.boolRefreshGovernanceApp ? 'lui-button lui-button--success' : 'lui-button') : 'lui-button lui-disabled'">Refresh Governance App</button>
+                        </div>
+                        <div id="savePackageArea">
+                            <button class="lui-button lui-button--info leftButtons" ng-click="model.openConfigSavedSelections()" ng-class="((model.boolGenMetadata || model.boolAccessControlData ||model.boolParseLoadScripts || model.boolGenQVDs || model.boolRefreshGovernanceApp)) ? 'lui-button lui-button--info' : 'lui-button lui-disabled'">Click here to save selections as a package</button>
+                            <!--  -->
                         </div>
                     </div>
                 </div>
