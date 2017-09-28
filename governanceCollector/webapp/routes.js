@@ -38,6 +38,12 @@ router.route("/ui")
         });
     })
 
+router.route("/getsavedselections")
+    .get(function (request, response) {
+        var savedSelectionsFile = fs.readFileSync(path.join(__dirname, "config/savedSelections.json"));
+        response.send(JSON.parse(savedSelectionsFile));
+    })
+
 router.route("/loadsettings")
     .get(function (request, response) {
         var settingsFile = fs.readFileSync(path.join(__dirname, "config/settings.json"))

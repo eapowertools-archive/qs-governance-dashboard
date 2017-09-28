@@ -1,0 +1,22 @@
+<div>
+    <form name="form.governanceAppMetadataCollectionForm" id="governanceAppMetadataCollection" enctype="multipart/form-data"
+        novalidate>
+        <div class="lui-modal-background" style="background:transparent;"></div>
+        <div class="governance-app-collector-modal">
+            <div class="lui-dialog" style="width:100%;">
+                <div class="lui-dialog__header">
+                    <div class="lui-dialog__title">Select Apps to Collect Metadata</div>
+                </div>
+                <div class="lui-dialog__body">
+                    <div id="appList" style="display:flex;justify-content:center;width:100%;">
+                        <dualmultiselect options="model.dualmultioptions"></dualmultiselect>
+                    </div>
+                </div>
+                <div class="lui-dialog__footer">
+                    <button class="lui-button  lui-dialog__button  close-button" ng-click="model.cancelSettings()">Cancel</button>
+                    <button class="lui-button  lui-dialog__button  close-button" ng-click="model.closeAppMetadataCollect()">OK</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

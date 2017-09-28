@@ -1,0 +1,13 @@
+{
+  "name": "angular-dual-multiselect-directive",
+  "homepage": "https://github.com/brunowego/angular-dual-multiselect-directive",
+  "description": "A simple dual multiselect directive with filtering. Uses Angular and Bootstrap.",
+  "main": [
+    "dualmultiselect.css",
+    "dualmultiselect.js"
+  ],
+  "license": "WTFPL",
+  "ignore": [
+    "**/.*"
+  ]
+}

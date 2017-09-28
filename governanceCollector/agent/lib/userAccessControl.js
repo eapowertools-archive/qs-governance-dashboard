@@ -30,32 +30,38 @@ var userAccessControl = {
                 .then(function (count) {
                     logMessage("info", "Found " + count + " object of type " + objectType);
                     return Promise.map(userList, function (userInfo, index, length) {
-                        logMessage("info", "Processing user " + index + " of " + length + " " + objectType + "s.  User is " + userInfo.userDirectory + "\\" + userInfo.userId);
-                        var auditObject = createAuditObject("App.Object", count, { "resourceFilter": "objectType eq '" + objectType + "'" }, { "resourceFilter": "id eq " + userInfo.id });
-                        return qrsCalls.qrsAuditMatrix(config, auditObject)
-                            .then(function (result) {
-                                result.matrix.forEach(function (item, index) {
-                                    result.matrix[index].name = result.resources[result.matrix[index].resourceId].resourceProperties.name;
-                                    result.matrix[index].engineObjectId = result.resources[result.matrix[index].resourceId].resourceProperties.engineobjectid;
-                                    result.matrix[index].objectType = result.resources[result.matrix[index].resourceId].resourceProperties.objecttype;
-                                    result.matrix[index].userId = result.subjects[result.matrix[index].subjectId].subjectProperties.userid;
-                                    result.matrix[index].userDirectory = result.subjects[result.matrix[index].subjectId].subjectProperties.userdirectory;
-                                    result.matrix[index].audit.access = convertActionBin(item.audit.access);
-                                    result.matrix[index].audit.disabled = convertActionBin(item.audit.disabled);
-                                });
-                                return result;
-                            })
-                            .then(function (result) {
-                                //fs.writeFileSync(path.join(config.agent.metadataPath,"userAccess",objectType, userInfo.id + "_" + objectType + ".json"), JSON.stringify(result));
-                                //console.log(result.matrix.length)
-                                //writeToXML("qrsAccessControlMatrix", "AppObject", result.matrix, userInfo.id + "_" + objectType, undefined, "userAccess");
-                                return result.matrix;
-                            })
-                            .catch(function (error) {
-                                logMessage("error", error);
-                                return error;
+                            logMessage("info", "Processing user " + index + " of " + length + " " + objectType + "s.  User is " + userInfo.userDirectory + "\\" + userInfo.userId);
+                            var auditObject = createAuditObject("App.Object", count, {
+                                "resourceFilter": "objectType eq '" + objectType + "'"
+                            }, {
+                                "resourceFilter": "id eq " + userInfo.id
                             });
-                    }, { concurrency: 5 })
+                            return qrsCalls.qrsAuditMatrix(config, auditObject)
+                                .then(function (result) {
+                                    result.matrix.forEach(function (item, index) {
+                                        result.matrix[index].name = result.resources[result.matrix[index].resourceId].resourceProperties.name;
+                                        result.matrix[index].engineObjectId = result.resources[result.matrix[index].resourceId].resourceProperties.engineobjectid;
+                                        result.matrix[index].objectType = result.resources[result.matrix[index].resourceId].resourceProperties.objecttype;
+                                        result.matrix[index].userId = result.subjects[result.matrix[index].subjectId].subjectProperties.userid;
+                                        result.matrix[index].userDirectory = result.subjects[result.matrix[index].subjectId].subjectProperties.userdirectory;
+                                        result.matrix[index].audit.access = convertActionBin(item.audit.access);
+                                        result.matrix[index].audit.disabled = convertActionBin(item.audit.disabled);
+                                    });
+                                    return result;
+                                })
+                                .then(function (result) {
+                                    //fs.writeFileSync(path.join(config.agent.metadataPath,"userAccess",objectType, userInfo.id + "_" + objectType + ".json"), JSON.stringify(result));
+                                    //console.log(result.matrix.length)
+                                    //writeToXML("qrsAccessControlMatrix", "AppObject", result.matrix, userInfo.id + "_" + objectType, undefined, "userAccess");
+                                    return result.matrix;
+                                })
+                                .catch(function (error) {
+                                    logMessage("error", error);
+                                    return error;
+                                });
+                        }, {
+                            concurrency: 5
+                        })
                         .then(function (resultArray) {
                             console.log(resultArray.length);
                             return createOutput(resultArray, config, objectType)
@@ -78,30 +84,30 @@ var userAccessControl = {
                 })
         })
     },
-    userAccessControl: function (config, userList) {
+    userAccessControl: function (config, options, userList) {
         return new Promise(function (resolve, reject) {
             var selectionBasis = list(userList);
+            console.log(userList);
             logMessage("info", "Obtaining access control information from the repository");
             return Promise.all(selectionBasis.map(function (listItem) {
-                return qrsCalls.qrsPost(config, "selection", listItem)
-                    .then(function (selection) {
-                        return selection.id;
-                    })
-                    .catch(function (error) {
-                        logMessage("error", error)
-                        reject(error);
-                    })
-            }))
+                    return qrsCalls.qrsPost(config, "selection", listItem)
+                        .then(function (selection) {
+                            return selection.id;
+                        })
+                        .catch(function (error) {
+                            logMessage("error", error)
+                            reject(error);
+                        })
+                }))
                 .then(function (resultArray) {
                     return Promise.map(resultArray, function (selectionItem) {
-                        return Promise.all(resources.map(function (resource) {
-                            return qrsCalls.qrsAuditCountResources(config, resource.resourceRef, "")
+                        return Promise.all(options.accessControl.resources.map(function (resource) {
+                            return qrsCalls.qrsAuditCountResources(config, resource.name, "")
                                 .then(function (count) {
-                                    logMessage("info", "Found " + count + " resource of type " + resource.resourceRef);
-                                    var auditObject = createAuditObject(resource.resourceRef, count * userList.length, {"resourceFilter": ""}, { "selection": selectionItem });
+                                    logMessage("info", "Found " + count + " resource of type " + resource.name);
+                                    var auditObject = createAuditObject(resource.name, count * userList.length, { "resourceFilter": "" }, { "selection": selectionItem });
                                     return qrsCalls.qrsAuditMatrix(config, auditObject)
                                         .then(function (result) {
-                                            console.log(result.matrix.length);
                                             result.matrix.forEach(function (item, index) {
                                                 result.matrix[index].name = result.resources[result.matrix[index].resourceId].resourceProperties.name;
                                                 result.matrix[index].userId = result.subjects[result.matrix[index].subjectId].subjectProperties.userid;
@@ -114,7 +120,7 @@ var userAccessControl = {
                                         .then(function (result) {
                                             //fs.writeFileSync(path.join(config.agent.metadataPath,"userAccess","testResult_" + selectionItem + ".json"), JSON.stringify(result));
                                             console.log(result.matrix.length)
-                                            writeToXML("qrsAccessControlMatrix", resource.resourceRef, result.matrix, selectionItem, undefined, "userAccess");
+                                            writeToXML("qrsAccessControlMatrix", resource.name, result.matrix, selectionItem, undefined, "userAccess");
                                             return result;
                                         })
                                         .catch(function (error) {
@@ -123,7 +129,9 @@ var userAccessControl = {
                                         });
                                 });
                         }))
-                    }, { concurrency: 2 })
+                    }, {
+                        concurrency: 2
+                    })
                 })
                 .then(function (resultArray) {
                     console.log("hello world");
@@ -155,23 +163,12 @@ function convertActionBin(val) {
 }
 
 
-var resources = [{
-        resourceRef: "App",
-        resourcePath: "app"
-    },
-    {
-        resourceRef: "DataConnection",
-        resourcePath: "dataconnection"
-    },
-    {
-        resourceRef: "ContentLibrary",
-        resourcePath: "contentlibrary"
-    },
-    {
-        resourceRef: "Stream",
-        resourcePath: "stream"
-    }
-];
+// var resources = [
+//     { resourceRef: "App", resourcePath: "app" },
+//     { resourceRef: "DataConnection", resourcePath: "dataconnection" },
+//     { resourceRef: "ContentLibrary", resourcePath: "contentlibrary" },
+//     { resourceRef: "Stream", resourcePath: "stream" }
+// ];
 
 
 function createTable(resource) {
@@ -236,11 +233,12 @@ function list(userList) {
                 "objectID": userList[i].id
             };
             every1kArray.push(object);
-            mainArray.push({ "items": every1kArray });
+            mainArray.push({
+                "items": every1kArray
+            });
             every1kArray = [];
             j = 0;
-        }
-        else {
+        } else {
             let object = {
                 "type": "user",
                 "objectID": userList[i].id
@@ -261,6 +259,7 @@ function createAuditObject(type, count, resourceRefFilter, subjectRefFilter) {
     }
     return auditObject;
 }
+
 function findDateDiff(date1, date2) {
     //Get 1 day in milliseconds
     var one_day = 1000 * 60 * 60 * 24;
@@ -282,3 +281,62 @@ function findDateDiff(date1, date2) {
 
     return days + ' days, ' + hours + ' hours, ' + minutes + ' minutes, and ' + seconds + ' seconds';
 }
+
+// userAccessControl: function (config, userList) {
+//     return new Promise(function (resolve, reject) {
+//         var selectionBasis = list(userList);
+//         logMessage("info", "Obtaining access control information from the repository");
+//         return Promise.all(selectionBasis.map(function (listItem) {
+//             return qrsCalls.qrsPost(config, "selection", listItem)
+//                 .then(function (selection) {
+//                     return selection.id;
+//                 })
+//         }))
+//             .then(function (resultArray) {
+//                 return Promise.all(resources.map(function (resource) {
+//                     var resourceTable = createTable(resource.resourceRef);
+//                     console.log(resource.resourceRef);
+//                     return qrsCalls.qrsPost(config, resource.resourcePath + "/table", resourceTable)
+//                         .then(function (table) {
+//                             console.log(table.rows.length);
+//                             return table.rows;
+//                         })
+//                         .then(function (tableRows) {
+//                             return Promise.map(resultArray, function (selectionItem) {
+//                                 return qrsCalls.qrsAuditMatrix(config, resource.resourceRef, selectionItem)
+//                                     .then(function (result) {
+//                                         console.log(result.matrix.length);
+//                                         result.matrix.forEach(function (item, index) {
+//                                             var matchedObject = tableRows.find(findRowMatch, [result.matrix[index].resourceId]);
+
+//                                             result.matrix[index].name = matchedObject[1];
+//                                             result.matrix[index].engineObjectId = matchedObject[2];
+//                                             result.matrix[index].objectType = matchedObject[3];
+//                                             result.matrix[index].audit.access = convertActionBin(item.audit.access);
+//                                             result.matrix[index].audit.disabled = convertActionBin(item.audit.disabled);
+//                                         });
+//                                         return result;
+//                                     })
+//                                     .then(function (result) {
+//                                         //fs.writeFileSync(path.join(config.agent.metadataPath,"userAccess","testResult_" + selectionItem + ".json"), JSON.stringify(result));
+//                                         console.log(result.matrix.length)
+//                                         writeToXML("qrsAccessControlMatrix", resource.resourceRef, result, selectionItem, undefined, "userAccess");
+//                                         return result;
+//                                     });
+//                             }, { concurrency: 2 })
+//                         })
+//                         .then(function (resultarray) {
+//                             return resultArray;
+//                         });
+//                 }))
+//             })
+//             .then(function (resultArray) {
+//                 console.log("hello world");
+//                 //writeToXML("qrsAccessControlMatrix", "qrsAccessControlMatrix", resultArray);
+//                 resolve("Access Control Information Obtained");
+//             })
+//             .catch(function (error) {
+//                 reject(error);
+//             });
+//     });
+// }

@@ -7,7 +7,7 @@ var fs = require('fs');
 var Promise = require('bluebird');
 var qrsInteract = require('qrs-interact');
 var _ = require("lodash");
-var doGovernance = require("./lib/createGovernanceOutput");
+//var doGovernance = require("./lib/createGovernanceOutput");
 var socketHelper = require("./lib/socketHelper");
 var logger = require("./lib/logger");
 var uploadApps = require("./lib/uploadApps");
@@ -15,6 +15,8 @@ var createTasks = require("./lib/createTasks");
 var importExtensions = require("./lib/importExtensions");
 var createDataConnections = require("./lib/createDataConnections");
 const checkIp = require("./lib/ipChecker");
+const qrsCalls = require("./lib/qrsCalls");
+const queueItUp = require("./lib/queueItUp");
 
 var loggerObject = {
     jsFile: "routes.js"
@@ -60,10 +62,10 @@ router.route("/dogovernance")
     .post(function (request, response) {
         var options = request.body;
         console.log(options);
-        doGovernance(config, options)
-            .then(function (result) {
-                logMessage('info', 'I have collected governance!');
-            });
+        queueItUp(config, options);
+        // .then(function (result) {
+        //     logMessage('info', 'I have collected governance!');
+        // });
         response.send("Governance collection will run on the server and request will not await a response");
     })
 
@@ -111,5 +113,73 @@ router.route("/applist")
                 response.send(result.body);
             });
     });
+
+router.route("/applistfull")
+    .get(function (request, response) {
+        let options = {
+            qrs: {
+                hostname: qrsInstance.hostname,
+                localCertPath: qrsInstance.localCertPath
+            }
+        }
+        qrsCalls.qrsAppList(options)
+            .then(function (result) {
+                response.send(result)
+            });
+    })
+
+router.route("/loadsavedselections")
+    .get(function (request, response) {
+        var savedSelectionsFile = fs.readFileSync(path.join(__dirname, "config/savedSelections.json"));
+        response.send(JSON.parse(savedSelectionsFile));
+    })
+
+router.route("/saveselection")
+    .post(function (request, response) {
+        let savedSelectionsFile = path.join(__dirname, "config/savedSelections.json");
+        let savedSelectionsArray = JSON.parse(fs.readFileSync(savedSelectionsFile));
+        let selectionToSave = request.body;
+        let resultMessage = null;
+        let settingIndex = null;
+
+        let selectionExists = savedSelectionsArray.filter(function (item) {
+            return item.id == selectionToSave.id;
+        })
+
+        if (selectionExists.length == 0) {
+            savedSelectionsArray.push(selectionToSave);
+            resultMessage = "Saved Selection " + selectionToSave.name + " added.";
+            settingIndex = savedSelectionsArray.length;
+        }
+        else {
+            settingIndex = _.findIndex(savedSelectionsArray, function (item) {
+                return item.id == selectionToSave.id;
+            })
+            savedSelectionsArray[settingIndex] = selectionToSave;
+            resultMessage = "Saved Selection " + selectionToSave.name + " updated.";
+            settingIndex = settingIndex + 1
+        }
+
+        fs.writeFileSync(savedSelectionsFile, JSON.stringify(savedSelectionsArray, null, 4));
+        response.send({
+            "message": resultMessage,
+            "savedSelections": savedSelectionsArray,
+            "index": settingIndex
+        })
+
+    })
+
+router.route("/deletesaveselection")
+    .post(function (request, response) {
+        let savedSelectionsFile = path.join(__dirname, "config/savedSelections.json");
+        let savedSelectionsArray = JSON.parse(fs.readFileSync(savedSelectionsFile));
+
+        savedSelectionsArray = _.remove(savedSelectionsArray, function (item) {
+            return item.id !== request.body.id;
+        })
+
+        fs.writeFileSync(savedSelectionsFile, JSON.stringify(savedSelectionsArray, null, 4));
+        response.send(savedSelectionsArray);
+    })
 
 module.exports = router;

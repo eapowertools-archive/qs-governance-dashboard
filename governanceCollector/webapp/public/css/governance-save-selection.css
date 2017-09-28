@@ -1,0 +1,53 @@
+.governance-save-selection {
+    height: 650px;
+    width: 720px;
+}
+
+.ngdialog.ngdialog-theme-default .ngdialog-content {
+    width: 720px;
+}
+
+.governance-save-selection .governance-save-selection-modal {
+    position: relative;
+    border: none;
+    background: transparent;
+    overflow: hidden;
+    border-radius: 3px;
+    outline: none;
+    padding: 0px;
+    width: 720px;
+    /* top: 16.6667vh; */
+    height: 650px;
+    margin: 0 auto;
+}
+
+.governance-save-selection .metaList {
+    border: 1px solid #999;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 5px;
+    height: 150px;
+    width: 280px;
+    overflow-y: scroll;
+}
+
+.governance-save-selection .side-check {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin-top: 25px;
+    width: 90px;
+    padding-right: 10px;
+}
+
+.governance-save-selection .info-entry {
+    display: flex;
+}
+
+.governance-save-selection .info-label {
+    padding-right: 10px;
+}
+
+.governance-save-selection #saveSelectionName {
+    margin: 4px 0;
+}
