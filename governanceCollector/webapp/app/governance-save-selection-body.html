@@ -15,7 +15,11 @@
                             <input style="margin-left:5px;margin-right:5px;width:50%;" class="lui-input" type="text" placeholder="Enter a name for the Saved Selection"
                                 id="saveSelectionName" name="hostname" ng-model="model.savedSelectionName">
                         </div>
-
+                        <div class="info-entry">
+                            <div class="side-check"></div>
+                            <button type="button" class="lui-button lui-button--info" ng-click "model.showGuid()"></button>
+                            <label class="lui-label" ng-show="model.boolShowGuid">{{model.uuid}}</label>
+                        </div>
                     </div>
                     <div id="serverInfo" style="display:flex;">
                         <div class="info-entry">

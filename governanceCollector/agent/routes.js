@@ -62,11 +62,37 @@ router.route("/dogovernance")
     .post(function (request, response) {
         var options = request.body;
         console.log(options);
-        queueItUp(config, options);
+        let guid = generateUUID();
+        queueItUp(config, options, guid);
         // .then(function (result) {
         //     logMessage('info', 'I have collected governance!');
         // });
         response.send("Governance collection will run on the server and request will not await a response");
+    })
+
+router.route("/runsavedselection")
+    .post(function (request, response) {
+        let selectionsFile = JSON.parse(fs.readFileSync(path.join(__dirname, "config/savedSelections.json")));
+        let body = request.body;
+
+        if (body.hasOwnProperty("name") || body.hasOwnProperty("id")) {
+            //do something
+            let item = selectionsFile.filter(function (selection) {
+                return selection.name === body.name || selection.id === body.id;
+            })
+
+            if (item.length > 0) {
+                let guid = generateUUID();
+                queueItUp(config, options, guid);
+                response.send("Governance collection request submitted");
+            } else {
+                response.status(400).send("Name or id in body does not return a known saved selection.")
+            }
+
+        } else {
+            response.status(400).send("No name or id property sent in json body.");
+        }
+
     })
 
 router.route("/getconfig")
@@ -150,8 +176,7 @@ router.route("/saveselection")
             savedSelectionsArray.push(selectionToSave);
             resultMessage = "Saved Selection " + selectionToSave.name + " added.";
             settingIndex = savedSelectionsArray.length;
-        }
-        else {
+        } else {
             settingIndex = _.findIndex(savedSelectionsArray, function (item) {
                 return item.id == selectionToSave.id;
             })
@@ -183,3 +208,13 @@ router.route("/deletesaveselection")
     })
 
 module.exports = router;
+
+function generateUUID() {
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = (d + Math.random() * 16) % 16 | 0;
+        d = Math.floor(d / 16);
+        return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    return uuid;
+};
