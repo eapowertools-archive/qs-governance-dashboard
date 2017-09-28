@@ -7,6 +7,7 @@ const bluebird = require("bluebird");
 const logger = require("./logger");
 const socketHelper = require("./socketHelper");
 const winston = require("winston");
+const config = require("../config/config");
 
 var loggerObject = {
     jsFile: "userAccessControl.js"
@@ -21,14 +22,14 @@ function logMessage(level, msg) {
 
 var q = queue();
 q.concurrency = 1;
-q.timeout = 60 * 1000 * 60;
+q.timeout = config.queueTimeouts;
 var results = [];
 
-function queueSetUp(config, options) {
-    let logQueueName = "newQueue";
+function queueSetUp(config, options, queueId) {
+    let logQueueName = queueId;
     let d = new Date();
     let dateToUse = d.getMonth() + "_" + d.getDay() + "_" + d.getFullYear() + "_" + d.getUTCHours() + "_" + d.getUTCMinutes();
-    let filePath = path.join(config.logging.logPath, config.logging.logName + "_" + dateToUse + ".log");
+    let filePath = path.join(config.logging.logPath, config.logging.logName + "_" + dateToUse + "_" + queueId + ".log");
     logger.add(winston.transports.File, {
         name: logQueueName,
         filename: filePath,
@@ -41,6 +42,7 @@ function queueSetUp(config, options) {
             return new Promise(function (resolve) {
                 deleteFiles(config.agent.metadataPath);
                 //console.log('files deleted');
+                logMessage("info", "Clean up before metadata collection complete for queue id " + queueId);
                 resolve('files deleted');
             })
         })
@@ -48,10 +50,11 @@ function queueSetUp(config, options) {
             return new Promise(function (resolve, reject) {
                 return harvester.getQrsInfos(config)
                     .then(function (result) {
+                        logMessage("info", "Collected information from the qrs used for harvesting metadata from apps " + queueId);
                         resolve("qrsInfos complete");
                     })
                     .catch(function (error) {
-                        console.log(error)
+                        logMessage("error", JSON.stringify(error) + " " + queueId);
                         reject(error);
                     })
             })
@@ -60,10 +63,11 @@ function queueSetUp(config, options) {
             return new Promise(function (resolve, reject) {
                 return harvester.getApplicationMetadata(config, options.appMetadata.appArray)
                     .then(function (result) {
+                        logMessage("info", "Application metadata collection complete " + queueId);
                         resolve("metadata harvest complete");
                     })
                     .catch(function (error) {
-                        console.log(error);
+                        logMessage("error", JSON.stringify(error) + " " + queueId);
                         reject(error);
                     })
             })
@@ -75,10 +79,11 @@ function queueSetUp(config, options) {
             return new Promise(function (resolve, reject) {
                 return harvester.getUserAccessControl(config, options)
                     .then(function (result) {
+                        logMessage("info", "Access Control metadata collection complete" + queueId);
                         resolve("Access Control Begotten");
                     })
                     .catch(function (error) {
-                        console.log(error);
+                        logMessage("error", JSON.stringify(error) + " " + queueId);
                         reject(error);
                     })
             })
@@ -90,11 +95,11 @@ function queueSetUp(config, options) {
             return new Promise(function (resolve, reject) {
                 return harvester.getParsedScriptInfo(config)
                     .then(function (result) {
-                        console.log("script parsing complete");
+                        logMessage("info", "Script Parsing complete" + queueId);
                         resolve("script parsing complete");
                     })
                     .catch(function (error) {
-                        console.log(error)
+                        logMessage("error", JSON.stringify(error) + " " + queueId);
                         reject(error);
                     });
             })
@@ -106,11 +111,11 @@ function queueSetUp(config, options) {
             return new Promise(function (resolve, reject) {
                 return refresher.reloadApp(config, "qsgc-Generate-Governance-QVDs")
                     .then(function (result) {
-                        console.log("Generated QVDs for Governance Dashboarding")
+                        logMessage("info", "Generated QVDs for Governance Dashboarding " + queueId);
                         resolve("Generated QVDs for Governance Dashboarding")
                     })
                     .catch(function (error) {
-                        console.log(error);
+                        logMessage("error", JSON.stringify(error) + " " + queueId);
                         reject(error);
                     })
             })
@@ -122,22 +127,20 @@ function queueSetUp(config, options) {
             return new Promise(function (resolve, reject) {
                 return refresher.reloadApp(config, "qsgc-Refresh-Governance-Dashboard")
                     .then(function (result) {
-                        console.log("Governance Dashboard Refreshed")
+                        logMessage("info", "Governance Dashboard Refreshed " + queueId);
                         resolve("Governance Dashboard Refreshed")
                     })
                     .catch(function (error) {
-                        console.log(error);
+                        logMessage("error", JSON.stringify(error) + " " + queueId);
                         reject(error);
                     })
             })
         })
     }
 
-    console.log(q.length);
     q.on("success", function (result, job) {
-        console.log("The result is:");
-        console.log(job.toString().substring(9, job.toString().indexOf("(")));
-        console.log(result)
+
+        logMessage("info", job.toString().substring(9, job.toString().indexOf("(")) + "::" + result + "::" + queueId)
     })
 
     q.on("error", function (err, job) {
@@ -146,9 +149,11 @@ function queueSetUp(config, options) {
     })
 
     q.on("end", function (end) {
+        logMessage("info", "queue " + queueId + " finished.");
         logger.remove(logQueueName);
     })
     q.start(function (foo) {
+        logMessage("info", "queue " + queueId + " finished.");
         logMessage("debug", "Queue has been emptied.");
     });
 }
