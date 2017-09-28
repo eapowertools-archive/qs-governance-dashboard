@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "bluebird": "^3.5.0",
+    "cli-spinner": "^0.2.6",
     "colors": "^1.1.2",
     "fs-extra": "^4.0.2",
     "inquirer": "^3.1.1",

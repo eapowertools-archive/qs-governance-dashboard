@@ -9,6 +9,7 @@ var spawnIt = require("child_process").execSync;
 var tarball = require("tarball-extract");
 var confOps = require("./lib/services.conf");
 var serviceCluster = require("./lib/qrsCluster")
+var Spinner = require("cli-spinner").Spinner;
 
 var pathPattern = /^[a-zA-Z]:((\\|\/)[a-zA-Z0-9\s_@\-^!#$%&+={}\[\]]+)+$/;
 var uncPattern = /^((\\\\|\\|\/)[a-zA-Z0-9\s_@\-^!#$%&+={}\[\]]+)+$/;
@@ -288,7 +289,8 @@ function installText() {
 
 function installWebApp(options, boolWebApp) {
     return new Promise(function (resolve) {
-        console.log(colors.yellow("Unpacking web app files"));
+        let spinner = new Spinner(colors.yellow("Unpacking web app files"));
+        spinner.start();
         return tarball.extractTarball(path.join(__dirname, 'src/webapp.tar.gz'), path.join(__dirname, "../"), function (err) {
 
             if (err) {
@@ -296,6 +298,7 @@ function installWebApp(options, boolWebApp) {
                 resolve(false);
             }
 
+            spinner.stop(true);
             console.log(colors.green("web app files unpacked and installed."));
             setTimeout(function () {
                 return;
@@ -335,7 +338,8 @@ function installWebApp(options, boolWebApp) {
 
 function installAgent(options, boolAgent) {
     return new Promise(function (resolve) {
-        console.log(colors.yellow("Unpacking agent files"));
+        let spinner = new Spinner(colors.yellow("Unpacking agent files"));
+        spinner.start();
         return tarball.extractTarball(path.join(__dirname, 'src/agent.tar.gz'), path.join(__dirname, "../"), function (err) {
 
             if (err) {
@@ -343,6 +347,7 @@ function installAgent(options, boolAgent) {
                 resolve(false);
             }
 
+            spinner.stop(true);
             console.log(colors.green("agent files unpacked and installed."));
             setTimeout(function () {
                 return;
