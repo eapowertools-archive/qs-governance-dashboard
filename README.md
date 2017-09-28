@@ -22,6 +22,7 @@ the Governance Dashboard for Qlik Sense included with qsgc provides a comprehens
 
 ## Getting Started
 
+### [Latest release](https://github.com/eapowertools/qs-governance-collector/releases/latest)
 For detailed instructions, please navigate to the **[wiki](https://github.com/eapowertools/qs-governance-collector/wiki)**.
 
 ### What is the qsgc?
