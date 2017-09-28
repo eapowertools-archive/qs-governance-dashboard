@@ -233,6 +233,7 @@
         model.savedSelectionList = [];
         model.version = "";
         model.uuid = "";
+        model.boolShowGuid = false;
 
 
         model.textGenMetaData = "Activating this button will enable the Governance Collector to ";
@@ -295,6 +296,9 @@
             model.boolRefreshGovernanceApp = (model.boolRefreshGovernanceApp) ? false : true;
         }
 
+        model.showGuid = function () {
+            model.boolShowGuid = (model.boolShowGuid) ? true : false;
+        }
 
         model.gogoGovernance = function () {
             var body = {
@@ -398,8 +402,7 @@
                 if (value.name == item.name) {
                     if (document.getElementById(value.name).checked === true) {
                         model.resources[index].checked = true;
-                    }
-                    else {
+                    } else {
                         model.resources[index].checked = false;
                     }
                 }
@@ -436,8 +439,7 @@
                 if (value.name == item.name) {
                     if (document.getElementById(value.name).checked === true) {
                         model.appObjectList[index].checked = true;
-                    }
-                    else {
+                    } else {
                         model.appObjectList[index].checked = false;
                     }
                 }
@@ -546,25 +548,25 @@
                 model.savedSelectionName = model.currentSavedSelection.name;
                 model.uuid = model.currentSavedSelection.id;
                 //populate available items and selected items.
-                model.boolGenMetadata = model.currentSavedSelection.metadataCollection.boolGenMetadata;
-                if (model.currentSavedSelection.metadataCollection.boolGenMetadata) {
-                    console.log(model.currentSavedSelection.metadataCollection.applications)
-                    let appArrays = parseAppLists(model.appList, model.currentSavedSelection.metadataCollection.applications);
+                model.boolGenMetadata = model.currentSavedSelection.boolGenMetadata;
+                if (model.currentSavedSelection.boolGenMetadata) {
+                    console.log(model.currentSavedSelection.appMetadata.appArray)
+                    let appArrays = parseAppLists(model.appList, model.currentSavedSelection.appMetadata.appArray);
                     console.log(appArrays);
                     model.dualmultioptions.items = appArrays.appList;
                     model.dualmultioptions.selectedItems = appArrays.selectedItems;
                 }
 
-                model.boolAccessControlData = model.currentSavedSelection.accessControlCollection.boolAccessControlData;
-                if (model.currentSavedSelection.accessControlCollection.boolAccessControlData) {
-                    model.resources = model.currentSavedSelection.accessControlCollection.resources;
-                    model.appObjectList = model.currentSavedSelection.accessControlCollection.appObjects;
-                    model.checkResources
+                model.boolAccessControlData = model.currentSavedSelection.boolAccessControlData;
+                if (model.currentSavedSelection.boolAccessControlData) {
+                    model.resources = model.currentSavedSelection.accessControl.resources;
+                    model.appObjectList = model.currentSavedSelection.accessControl.appObjects;
+
                 }
 
-                model.boolParseLoadScripts = model.currentSavedSelection.parseScriptLogs.boolParseLoadScripts;
-                model.boolGenQVDs = model.currentSavedSelection.generateQVDs.boolGenQVDs;
-                model.boolRefreshGovernanceApp = model.currentSavedSelection.refreshGovernanceApp.boolRefreshGovernanceApp;
+                model.boolParseLoadScripts = model.currentSavedSelection.boolParseLoadScripts;
+                model.boolGenQVDs = model.currentSavedSelection.boolGenQVDs;
+                model.boolRefreshGovernanceApp = model.currentSavedSelection.boolRefreshGovernanceApp;
 
             }
         }
@@ -621,11 +623,10 @@
         model.popSavedSelections = function () {
             model.savedSelectionName = "";
 
-            var body =
-                {
-                    "hostname": model.hostname,
-                    "port": model.port
-                }
+            var body = {
+                "hostname": model.hostname,
+                "port": model.port
+            }
 
             loadSavedSelections($http, body)
                 .then(function (result) {
@@ -803,23 +804,17 @@
                 "lastModifiedDate": d.toUTCString(),
                 "hostname": model.hostname,
                 "port": model.port,
-                "metadataCollection": {
-                    "boolGenMetadata": model.boolGenMetadata,
-                    "applications": prepSavedSelections(model.dualmultioptions.selectedItems)
+                "boolGenMetadata": model.boolGenMetadata,
+                "boolAccessControlData": model.boolAccessControlData,
+                "boolParseLoadScripts": model.boolParseLoadScripts,
+                "boolGenQVDs": model.boolGenQVDs,
+                "boolRefreshGovernanceApp": model.boolRefreshGovernanceApp,
+                "appMetadata": {
+                    "appArray": prepSavedSelections(model.dualmultioptions.selectedItems)
                 },
-                "accessControlCollection": {
-                    "boolAccessControlData": model.boolAccessControlData,
+                "accessControl": {
                     "resources": model.selectedResources,
                     "appObjects": model.selectedAppObjects,
-                },
-                "parseScriptLogs": {
-                    "boolParseLoadScripts": model.boolParseLoadScripts,
-                },
-                "generateQVDs": {
-                    "boolGenQVDs": model.boolGenQVDs
-                },
-                "refreshGovernanceApp": {
-                    "boolRefreshGovernanceApp": model.boolRefreshGovernanceApp
                 }
             };
 
