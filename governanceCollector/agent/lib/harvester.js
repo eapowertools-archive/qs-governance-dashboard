@@ -126,6 +126,22 @@ let harvester = {
                 logMessage("error", JSON.stringify(err));
                 resolve(err);
             });
+    },
+    getRunOptions: function (config, options) {
+        return new Promise(function (resolve) {
+            let run_options = {
+                hostname: config.engine.hostname,
+                no_data: config.agent.noData,
+                start_timestamp: start_time.toISOString(),
+                end_time: end_time.toISOString(),
+                single_app: config.agent.single_app,
+                parse_loadScripts: config.agent.parseLoadScriptLogs,
+                options: options
+            };
+            logMessage("info", "Governance collection process complete at " + end_time);
+            writeToXML("run_options", "RunOptions", run_options);
+            resolve(run_options)
+        })
     }
 }
 

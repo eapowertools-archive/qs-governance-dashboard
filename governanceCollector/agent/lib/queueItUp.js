@@ -138,6 +138,15 @@ function queueSetUp(config, options, queueId) {
         })
     }
 
+    q.push(function CallrunOptions() {
+        return new Promise(function (resolve) {
+            return harvester.getRunOptions(config, options)
+                .then(function (result) {
+                    resolve("Run options catalogued");
+                })
+        })
+    })
+
     q.on("success", function (result, job) {
 
         logMessage("info", job.toString().substring(9, job.toString().indexOf("(")) + "::" + result + "::" + queueId)
