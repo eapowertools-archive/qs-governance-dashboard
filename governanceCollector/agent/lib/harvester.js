@@ -98,7 +98,7 @@ let harvester = {
                 var session = enigma.create(enigmaInstance(config, "docList"))
                 session.open()
                     .then(function (global) {
-                        return Promise.all(docList.map(function (doc) {
+                        return Promise.map(docList, function (doc) {
                                 return backupApp(config, doc.id, config.agent)
                                     .then(function (result) {
                                         return result;
@@ -107,7 +107,9 @@ let harvester = {
                                         logMessage("error", "Backup process failed for appid " + doc.id + " with name " + doc.name + ". " + JSON.stringify(error));
                                         return error;
                                     });
-                            }))
+                            }, {
+                                concurrency: 1
+                            })
                             .then(function (resultArray) {
                                 logMessage("info", "Qlik Sense Governance run against " + resultArray.length + " applications complete.");
                                 logger.info("Qlik Sense Governance run against all applications complete.", loggerObject);

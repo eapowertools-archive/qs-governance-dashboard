@@ -61,6 +61,10 @@ function getSheets(app, appId, options) {
                                             })
                                             .then(function () {
                                                 return x;
+                                            })
+                                            .catch(function (error) {
+                                                logMessage("error", JSON.stringify(error));
+                                                return error;
                                             });
                                     });
                             }))
@@ -72,13 +76,17 @@ function getSheets(app, appId, options) {
                                 writeToXML("sheetObject", "sheetObject", {
                                     str_layout: objectLayoutArray
                                 }, appId);
-                                resolve("sheet export complete")
+                                resolve("sheet export complete on appId: " + appId)
                             })
                             .catch(function (error) {
-                                logMessage("error", "Error during sheet and sheet object metadata collection");
+                                logMessage("error", "Error during sheet and sheet object metadata collection on appId: " + appId);
                                 logMessage("error", JSON.stringify(error));
                                 reject(error);
                             });
+                    })
+                    .catch(function (error) {
+                        logMessage("error", "caught on line 89");
+                        reject(error)
                     })
             })
             .catch(function (error) {

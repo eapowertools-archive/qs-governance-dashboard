@@ -3,7 +3,7 @@ const ipaddr = require("ipaddr.js");
 function checkIp(entry) {
     const addr = ipaddr.parse(entry);
 
-    if (entry == "::1") {
+    if (entry == "::1" || entry.split(":")[0].toLowerCase() == "fe80") {
         return "127.0.0.1";
     }
 
