@@ -36,22 +36,30 @@ function backupApp(config, appId, options) {
                                     .then(function () {
                                         logMessage("info", "Application metadata complete for app " + appId);
                                         //app.session.close();
-                                        resolve(appData);
+                                        reject(appData);
                                     })
                                     .catch(function (error) {
-                                        logMessage("error", error);
-                                        reject(error)
+                                        return session.close()
+                                            .then(function () {
+                                                logMessage("error", "Error during backup process for app " + appId);
+                                                logMessage("error", JSON.stringify(error));
+                                                reject(error);
+                                            })
                                     })
                             })
                             .catch(function (error) {
-                                logMessage("error", error);
-                                reject(error)
+                                return session.close()
+                                    .then(function () {
+                                        logMessage("error", "Error during backup process for app " + appId);
+                                        logMessage("error", JSON.stringify(error));
+                                        reject(error);
+                                    })
                             });
                     })
                     .catch(function (error) {
-                        session.close()
+                        return session.close()
                             .then(function () {
-                                logMessage("error", "Error during backup process");
+                                logMessage("error", "Error during backup process for app " + appId);
                                 logMessage("error", JSON.stringify(error));
                                 reject(error);
                             })
@@ -59,7 +67,7 @@ function backupApp(config, appId, options) {
                     });
             })
             .catch(function (error) {
-                session.close()
+                return session.close()
                     .then(function () {
                         logMessage("error", "Error during backup process");
                         logMessage("error", JSON.stringify(error));
