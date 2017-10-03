@@ -25,7 +25,10 @@ q.concurrency = 1;
 q.timeout = config.queueTimeouts;
 var results = [];
 
+var start_time, end_time;
+
 function queueSetUp(config, options, queueId) {
+    start_time = new Date();
     let logQueueName = queueId;
     let d = new Date();
     let dateToUse = d.getMonth() + "_" + d.getDay() + "_" + d.getFullYear() + "_" + d.getUTCHours() + "_" + d.getUTCMinutes();
@@ -140,7 +143,16 @@ function queueSetUp(config, options, queueId) {
 
     q.push(function CallrunOptions() {
         return new Promise(function (resolve) {
-            return harvester.getRunOptions(config, options)
+            end_time = new Date();
+            let queueInfos = {
+                queueId: logQueueName,
+                filePath: filePath,
+                times: {
+                    start_time: start_time,
+                    end_time: end_time
+                }
+            };
+            return harvester.getRunOptions(config, options, queueInfos)
                 .then(function (result) {
                     resolve("Run options catalogued");
                 })

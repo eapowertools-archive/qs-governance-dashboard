@@ -8,7 +8,17 @@
                     <div class="lui-dialog__title">Select Apps to Collect Metadata</div>
                 </div>
                 <div class="lui-dialog__body">
-                    <div id="appList" style="display:flex;justify-content:center;width:100%;">
+                    <div>
+                        <label class="lui-checkbox">
+                                        <input class="lui-checkbox__input" type="checkbox" aria-label="Harvest from all apps on server" id="appMode" ng-click="model.setAppMode(model.boolAppMode)" value="{{model.boolAppMode}}" ng-checked="{{model.boolAppMode}}" />
+                                    <div class="lui-checkbox__check-wrap">
+                                        <span class="lui-checkbox__check" ></span>
+                                        <span class="lui-checkbox__check-text">Harvest from all apps on server</span>
+                                    </div>
+    
+                                </label>
+                    </div>
+                    <div id="appList" style="display:flex;justify-content:center;width:100%;" ng-hide="model.boolAppMode">
                         <dualmultiselect options="model.dualmultioptions"></dualmultiselect>
                     </div>
                 </div>

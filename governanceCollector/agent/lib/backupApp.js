@@ -36,7 +36,7 @@ function backupApp(config, appId, options) {
                                     .then(function () {
                                         logMessage("info", "Application metadata complete for app " + appId);
                                         //app.session.close();
-                                        reject(appData);
+                                        resolve(appData);
                                     })
                                     .catch(function (error) {
                                         return session.close()

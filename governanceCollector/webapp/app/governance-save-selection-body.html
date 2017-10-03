@@ -11,14 +11,15 @@
                         <div class="info-entry">
                             <div class="side-check"></div>
                             <label for="saveSelectionName" class="lui-label info-label">Saved Selection Name:
-                                    </label>
+                                        </label>
                             <input style="margin-left:5px;margin-right:5px;width:50%;" class="lui-input" type="text" placeholder="Enter a name for the Saved Selection"
-                                id="saveSelectionName" name="hostname" ng-model="model.savedSelectionName">
+                                id="saveSelectionName" name="hostname" ng-model="model.savedSelectionName" ng-change="model.validateSavedSelectionName()">
+                            <div ng-show="!model.validSavedSelectionName" class="alert alert-danger" id="invalid">Please enter a name for the saved selection</div>
                         </div>
                         <div class="info-entry">
                             <div class="side-check"></div>
-                            <button type="button" class="lui-button lui-button--info" ng-click "model.showGuid()"></button>
-                            <label class="lui-label" ng-show="model.boolShowGuid">{{model.uuid}}</label>
+                            <button type="button" class="lui-button lui-button--info" ng-click="model.showGuid()">Show Guid</button>
+                            <label class="lui-label" ng-show="model.boolShowGuid" style="padding-left: 10px;">{{model.uuid}}</label>
                         </div>
                     </div>
                     <div id="serverInfo" style="display:flex;">
@@ -31,35 +32,47 @@
                     <div id="genMeta" style="display:flex">
                         <div id="metaCheck" class="side-check">
                             <label class="lui-checkbox">
-                                <input class="lui-checkbox__input" type="checkbox" id="boolGenMetadata" ng-checked="{{model.boolGenMetadata}}" />
-                                <div class="lui-checkbox__check-wrap">
-                                    <span class="lui-checkbox__check">
-                                    </span>
-                                    <span class="lui-checkbox__check-text">Application Metadata</span>
-                                </div>
-                            </label>
+                                    <input class="lui-checkbox__input" type="checkbox" id="boolGenMetadata" ng-checked="{{model.boolGenMetadata}}" />
+                                    <div class="lui-checkbox__check-wrap">
+                                        <span class="lui-checkbox__check">
+                                        </span>
+                                        <span class="lui-checkbox__check-text">Application Metadata</span>
+                                    </div>
+                                </label>
                         </div>
-                        <div style="display:flex;flex-direction:column;">
-                            <label class="lui-label">Selected Applications</label>
-                            <div class="metaList" style="width:570px;">
-                                <ul class="lui-list">
-                                    <li class="lui-list__item" ng-repeat="selectedApp in model.dualmultioptions.selectedItems">
-                                        <span class="lui-list__text">{{selectedApp.name}}</span>
-                                    </li>
-                                </ul>
+                        <div style="display:flex;justify-content:center;align-items:center;width:570px;">
+                            <div ng-show="model.boolAppMode" id="allAppsCheckBox" style="display:flex;justify-content:center;width:570px;">
+                                <label class="lui-checkbox">
+                                    <input class="lui-checkbox__input" type="checkbox" id="boolAppMode" ng-checked="{{model.boolAppMode}}" />
+                                    <div class="lui-checkbox__check-wrap">
+                                        <span class="lui-checkbox__check">
+                                        </span>
+                                        <span class="lui-checkbox__check-text">Harvest all apps on server</span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div ng-hide="model.boolAppMode" style="display:flex;flex-direction:column;justify-content:center;margin-left:7px;">
+                                <label class="lui-label">Selected Applications</label>
+                                <div class="metaList" style="width:570px;">
+                                    <ul class="lui-list">
+                                        <li class="lui-list__item" ng-repeat="selectedApp in model.dualmultioptions.selectedItems">
+                                            <span class="lui-list__text">{{selectedApp.name}}</span>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div id="genAccessControl" style="display:flex;justify-content:space-between">
                         <div id="accessControlCheck" class="side-check">
                             <label class="lui-checkbox">
-                                        <input class="lui-checkbox__input" type="checkbox" id="boolGenAccessControl" ng-checked="{{model.boolAccessControlData}}"/>
-                                        <div class="lui-checkbox__check-wrap">
-                                            <span class="lui-checkbox__check">
-                                            </span>
-                                            <span class="lui-checkbox__check-text">Access Control Collection</span>
-                                        </div>
-                                    </label>
+                                            <input class="lui-checkbox__input" type="checkbox" id="boolGenAccessControl" ng-checked="{{model.boolAccessControlData}}"/>
+                                            <div class="lui-checkbox__check-wrap">
+                                                <span class="lui-checkbox__check">
+                                                </span>
+                                                <span class="lui-checkbox__check-text">Access Control Collection</span>
+                                            </div>
+                                        </label>
                         </div>
                         <div style="display:flex;flex-direction:column;">
                             <label class="lui-label">Selected Resources</label>
@@ -85,33 +98,33 @@
                     <div id="boolRemainingItems" style="display:flex;justify-content:space-between;padding-top:10px;">
                         <div id="parseScriptsCheck">
                             <label class="lui-checkbox">
-                                <input class="lui-checkbox__input" type="checkbox" id="boolParseLoadScripts" ng-checked="{{model.boolParseLoadScripts}}"/>
-                                <div class="lui-checkbox__check-wrap">
-                                    <span class="lui-checkbox__check">
-                                    </span>
-                                    <span class="lui-checkbox__check-text">Parse Load Scripts</span>
-                                </div>
-                            </label>
+                                    <input class="lui-checkbox__input" type="checkbox" id="boolParseLoadScripts" ng-checked="{{model.boolParseLoadScripts}}"/>
+                                    <div class="lui-checkbox__check-wrap">
+                                        <span class="lui-checkbox__check">
+                                        </span>
+                                        <span class="lui-checkbox__check-text">Parse Load Scripts</span>
+                                    </div>
+                                </label>
                         </div>
                         <div id="genQVDsCheck">
                             <label class="lui-checkbox">
-                                    <input class="lui-checkbox__input" type="checkbox" id="boolGenQVDs" ng-checked="{{model.boolGenQVDs}}"/>
-                                    <div class="lui-checkbox__check-wrap">
-                                        <span class="lui-checkbox__check">
-                                        </span>
-                                        <span class="lui-checkbox__check-text">Generate QVDs</span>
-                                    </div>
-                                </label>
+                                        <input class="lui-checkbox__input" type="checkbox" id="boolGenQVDs" ng-checked="{{model.boolGenQVDs}}"/>
+                                        <div class="lui-checkbox__check-wrap">
+                                            <span class="lui-checkbox__check">
+                                            </span>
+                                            <span class="lui-checkbox__check-text">Generate QVDs</span>
+                                        </div>
+                                    </label>
                         </div>
                         <div id="refreshDashboardCheck">
                             <label class="lui-checkbox">
-                                    <input class="lui-checkbox__input" type="checkbox" id="boolRefreshGovernanceApp" ng-checked="{{model.boolRefreshGovernanceApp}}"/>
-                                    <div class="lui-checkbox__check-wrap">
-                                        <span class="lui-checkbox__check">
-                                        </span>
-                                        <span class="lui-checkbox__check-text">Refresh Governance Dashboard</span>
-                                    </div>
-                                </label>
+                                        <input class="lui-checkbox__input" type="checkbox" id="boolRefreshGovernanceApp" ng-checked="{{model.boolRefreshGovernanceApp}}"/>
+                                        <div class="lui-checkbox__check-wrap">
+                                            <span class="lui-checkbox__check">
+                                            </span>
+                                            <span class="lui-checkbox__check-text">Refresh Governance Dashboard</span>
+                                        </div>
+                                    </label>
                         </div>
                     </div>
                 </div>

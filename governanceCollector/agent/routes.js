@@ -61,13 +61,34 @@ router.route("/dogovernance")
     })
     .post(function (request, response) {
         var options = request.body;
-        console.log(options);
-        let guid = generateUUID();
-        queueItUp(config, options, guid);
-        // .then(function (result) {
-        //     logMessage('info', 'I have collected governance!');
-        // });
-        response.send("Governance collection will run on the server and request will not await a response");
+        getApps()
+            .then(function (result) {
+                if (options.boolGenMetadata && options.appMetadata.mode) {
+                    options.appMetadata.appArray = result;
+                    //console.log(options.appMetadata.appArray);
+                }
+                console.log("I should happen after the application list");
+                let guid = generateUUID();
+                queueItUp(config, options, guid);
+                // .then(function (result) {
+                //     logMessage('info', 'I have collected governance!');
+                // });
+                response.send("Governance collection will run on the server and request will not await a response");
+            })
+    })
+
+router.route("/dogovernancemock")
+    .post(function (request, response) {
+        var options = request.body;
+        getApps()
+            .then(function (result) {
+                if (options.boolGenMetadata && options.appMetadata.mode) {
+                    options.appMetadata.appArray = result;
+                    //console.log(options.appMetadata.appArray);
+                }
+                console.log("I should happen after the application list");
+                response.send("I'm mocking doing governance for testing purposes.");
+            })
     })
 
 router.route("/runsavedselection")
@@ -82,8 +103,11 @@ router.route("/runsavedselection")
             })
 
             if (item.length > 0) {
+                if (item.boolGenMetadata && item.appMetadata.mode) {
+                    item.appMetadata.appArray = getApps();
+                }
                 let guid = generateUUID();
-                queueItUp(config, options, guid);
+                queueItUp(config, item, guid);
                 response.send("Governance collection request submitted");
             } else {
                 response.status(400).send("Name or id in body does not return a known saved selection.")
@@ -218,3 +242,16 @@ function generateUUID() {
     });
     return uuid;
 };
+
+function getApps() {
+    let options = {
+        qrs: {
+            hostname: qrsInstance.hostname,
+            localCertPath: qrsInstance.localCertPath
+        }
+    }
+    return qrsCalls.qrsAppList(options)
+        .then(function (result) {
+            return result;
+        });
+}
