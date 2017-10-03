@@ -129,18 +129,20 @@ let harvester = {
                 resolve(err);
             });
     },
-    getRunOptions: function (config, options) {
+    getRunOptions: function (config, options, queueInfos) {
         return new Promise(function (resolve) {
             let run_options = {
                 hostname: config.engine.hostname,
                 no_data: config.agent.noData,
-                start_timestamp: start_time.toISOString(),
-                end_time: end_time.toISOString(),
+                start_timestamp: queueInfos.times.start_time.toISOString(),
+                end_time: queueInfos.times.end_time.toISOString(),
+                queueId: queueInfos.queueId,
+                filePath: queueInfos.filePath,
                 single_app: config.agent.single_app,
                 parse_loadScripts: config.agent.parseLoadScriptLogs,
                 options: options
             };
-            logMessage("info", "Governance collection process complete at " + end_time);
+            logMessage("info", "Governance collection process complete at " + queueInfos.times.end_time.toISOString());
             writeToXML("run_options", "RunOptions", run_options);
             resolve(run_options)
         })
