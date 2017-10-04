@@ -1,10 +1,10 @@
 .governance-save-selection {
-    height: 650px;
-    width: 720px;
+    height: 670px;
+    width: 740px;
 }
 
 .ngdialog.ngdialog-theme-default .ngdialog-content {
-    width: 720px;
+    width: 740px;
 }
 
 .governance-save-selection .governance-save-selection-modal {
@@ -15,9 +15,9 @@
     border-radius: 3px;
     outline: none;
     padding: 0px;
-    width: 720px;
+    width: 740px;
     /* top: 16.6667vh; */
-    height: 650px;
+    height: 670px;
     margin: 0 auto;
 }
 
@@ -38,6 +38,13 @@
     margin-top: 25px;
     width: 90px;
     padding-right: 10px;
+}
+
+.governance-save-selection .right-side-check {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin-top: 25px;
 }
 
 .governance-save-selection .info-entry {

@@ -221,10 +221,10 @@
         model.boolParseLoadScripts = false;
         model.boolGenQVDs = false;
         model.boolRefreshGovernanceApp = false;
-        model.boolCheckAllAppObjects = false;
-        model.boolCheckAllResources = false;
+
         model.boolShowGuid = false;
         model.boolAppMode = false;
+        model.boolDataMode = false;
         model.validSavedSelectionName
         model.dualmultioptions.items = undefined;
         model.dualmultioptions.selectedItems = [];
@@ -236,6 +236,8 @@
         model.popServers();
         model.appObjectList = appObjectList;
         model.resources = qmcResources;
+        model.boolCheckAllAppObjects = false;
+        model.boolCheckAllResources = false;
         model.checkAllResources();
         model.checkAllAppObjects();
 
@@ -269,13 +271,14 @@
         model.selectedAppObjects = [];
         model.resourceSelected = false;
         model.appObjectSelected = false;
-        model.boolCheckAllResources = true;
-        model.boolCheckAllAppObjects = true;
+        model.boolCheckAllResources = false;
+        model.boolCheckAllAppObjects = false;
         model.savedSelectionList = [];
         model.version = "";
         model.uuid = "";
         model.boolShowGuid = false;
         model.boolAppMode = false;
+        model.boolDataMode = false;
         model.validSavedSelectionName = false;
 
 
@@ -299,6 +302,8 @@
             model.popServers();
             model.appObjectList = appObjectList;
             model.resources = qmcResources;
+            model.checkAllResources();
+            model.checkAllAppObjects();
 
             getVersion($http)
                 .then(function (response) {
@@ -357,7 +362,8 @@
             //Add sections to the body for the different items to be queued and run.
             if (model.boolGenMetadata) {
                 body.appMetadata = {
-                    mode: model.boolAppMode,
+                    appMode: model.boolAppMode,
+                    dataMode: model.boolDataMode,
                     appArray: model.dualmultioptions.selectedItems
                 }
             }
@@ -418,6 +424,10 @@
             console.log(model.boolAppMode)
         }
 
+        model.setDataMode = function (boolDataMode) {
+            model.boolDataMode = model.boolDataMode ? false : true;
+        }
+
         model.openAccessControlCollector = function () {
             model.checkResources();
             model.checkAppObjects();
@@ -451,22 +461,13 @@
         }
 
         model.checkAllResources = function () {
-
-            console.log(model.boolCheckAllResources)
-            if (model.boolCheckAllResources) {
-                model.resources.forEach(function (item, index) {
-                    $("#" + item.name).prop("checked", false)
-                    model.resources[index].checked = false;
-                })
-
-            } else {
-                model.resources.forEach(function (item, index) {
-                    $("#" + item.name).prop("checked", true)
-                    model.resources[index].checked = true;
-                })
-            }
             model.boolCheckAllResources = model.boolCheckAllResources ? false : true;
-            console.log(model.resources);
+            console.log(model.boolCheckAllResources)
+            model.resources.forEach(function (item, index) {
+                $("#" + item.name).prop("checked", model.boolCheckAllResources)
+                model.resources[index].checked = model.boolCheckAllResources;
+            })
+
         }
 
         model.checkAppObjects = function () {
@@ -490,20 +491,24 @@
         }
 
         model.checkAllAppObjects = function () {
-
-            console.log(model.boolCheckAllAppObjects)
-            if (model.boolCheckAllAppObjects) {
-                model.appObjectList.forEach(function (item, index) {
-                    $("#" + item.name).prop("checked", false)
-                    model.appObjectList[index].checked = false;
-                })
-            } else {
-                model.appObjectList.forEach(function (item, index) {
-                    $("#" + item.name).prop("checked", true)
-                    model.appObjectList[index].checked = true;
-                })
-            }
             model.boolCheckAllAppObjects = model.boolCheckAllAppObjects ? false : true;
+            model.appObjectList.forEach(function (item, index) {
+                $("#" + item.name).prop("checked", model.boolCheckAllAppObjects)
+                model.appObjectList[index].checked = model.boolCheckAllAppObjects;
+            })
+
+            // console.log(model.boolCheckAllAppObjects)
+            // if (model.boolCheckAllAppObjects) {
+            //     model.appObjectList.forEach(function (item, index) {
+            //         $("#" + item.name).prop("checked", false)
+            //         model.appObjectList[index].checked = false;
+            //     })
+            // } else {
+            //     model.appObjectList.forEach(function (item, index) {
+            //         $("#" + item.name).prop("checked", true)
+            //         model.appObjectList[index].checked = true;
+            //     })
+            // }
             console.log(model.appObjectList);
         }
 
@@ -584,6 +589,7 @@
                 model.selectedAppObjects = model.appObjectList;
                 model.savedSelectionName = "";
                 model.boolAppMode = false;
+                model.boolDataMode = false;
                 model.uuid = ""
                 model.validSavedSelectionName = false;
 
@@ -594,15 +600,23 @@
                 //populate available items and selected items.
                 model.boolGenMetadata = model.currentSavedSelection.boolGenMetadata;
                 if (model.currentSavedSelection.boolGenMetadata) {
-                    if (model.currentSavedSelection.appMetadata.mode == "ALL") {
+                    if (model.currentSavedSelection.appMetadata.dataMode) {
+                        model.boolDataMode = true;
+                    } else {
+                        model.boolDataMode = false;
+                    }
+                    if (model.currentSavedSelection.appMetadata.appMode) {
                         //console.log(model.currentSavedSelection.appMetadata.appArray)
                         model.boolAppMode = true;
                     } else {
-                        console.log(model.currentSavedSelection.appMetadata.mode);
-                        let appArrays = parseAppLists(model.appList, model.currentSavedSelection.appMetadata.appArray);
-                        //console.log(appArrays);
-                        model.dualmultioptions.items = appArrays.appList;
-                        model.dualmultioptions.selectedItems = appArrays.selectedItems;
+                        console.log(model.currentSavedSelection.appMetadata.appMode);
+                        model.popApps()
+                            .then(function () {
+                                let appArrays = parseAppLists(model.appList, model.currentSavedSelection.appMetadata.appArray);
+                                //console.log(appArrays);
+                                model.dualmultioptions.items = appArrays.appList;
+                                model.dualmultioptions.selectedItems = appArrays.selectedItems;
+                            })
                     }
                 }
 
@@ -611,6 +625,11 @@
                     model.resources = model.currentSavedSelection.accessControl.resources;
                     model.appObjectList = model.currentSavedSelection.accessControl.appObjects;
 
+                } else {
+                    model.boolCheckAllResources = true;
+                    model.checkAllResources();
+                    model.boolCheckAllAppObjects = true;
+                    model.checkAllAppObjects();
                 }
 
                 model.boolParseLoadScripts = model.currentSavedSelection.boolParseLoadScripts;
@@ -872,7 +891,8 @@
                     "boolGenQVDs": model.boolGenQVDs,
                     "boolRefreshGovernanceApp": model.boolRefreshGovernanceApp,
                     "appMetadata": {
-                        "mode": model.boolAppMode,
+                        "appMode": model.boolAppMode,
+                        "dataMode": model.boolDataMode,
                         "appArray": prepSavedSelections(model.dualmultioptions.selectedItems)
                     },
                     "accessControl": {

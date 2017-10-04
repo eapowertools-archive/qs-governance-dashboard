@@ -64,7 +64,7 @@ function queueSetUp(config, options, queueId) {
         })
         q.push(function CallgetApplicationMetadata() {
             return new Promise(function (resolve, reject) {
-                return harvester.getApplicationMetadata(config, options.appMetadata.appArray)
+                return harvester.getApplicationMetadata(config, options.appMetadata.appArray, options.appMetadata.dataMode)
                     .then(function (result) {
                         logMessage("info", "Application metadata collection complete " + queueId);
                         resolve("metadata harvest complete");

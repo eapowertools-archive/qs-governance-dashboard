@@ -73,7 +73,7 @@ var config = {
         timer_mode: false,
         parseLoadScriptLogs: false,
         queueTimeout: 3600, //in seconds, will be converted to milliseconds
-        version: "2.1.0.0"
+        version: "2.1.1.0"
     },
     logging: {
         logPath: logPath,
