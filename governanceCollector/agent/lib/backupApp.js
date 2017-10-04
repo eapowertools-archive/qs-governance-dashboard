@@ -18,7 +18,7 @@ function logMessage(level, msg) {
 
 var start_time, end_time, load_time;
 
-function backupApp(config, appId, options) {
+function backupApp(config, appId, options, boolDataMode) {
     return new Promise(function (resolve, reject) {
         var x = {};
         start_time = Date.now();
@@ -26,7 +26,7 @@ function backupApp(config, appId, options) {
         var session = enigma.create(enigmaInstance(config, appId));
         session.open()
             .then(function (global) {
-                return global.openDoc(appId, '', '', '', options.noData)
+                return global.openDoc(appId, '', '', '', boolDataMode)
                     .then(function (app) {
                         end_time = Date.now();
                         load_time = end_time - start_time;

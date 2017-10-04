@@ -93,13 +93,13 @@ let harvester = {
         logMessage("info", "Parsing load script logs for lineage information");
         return parseScriptLogs(config.agent.loadScriptParsing.loadScriptLogPath, config.agent.loadScriptParsing.parsedScriptLogPath, [], []);
     },
-    getApplicationMetadata: function (config, docList) {
+    getApplicationMetadata: function (config, docList, boolDataMode) {
         return new Promise(function (resolve) {
                 var session = enigma.create(enigmaInstance(config, "docList"))
                 session.open()
                     .then(function (global) {
                         return Promise.map(docList, function (doc) {
-                                return backupApp(config, doc.id, config.agent)
+                                return backupApp(config, doc.id, config.agent, boolDataMode)
                                     .then(function (result) {
                                         return result;
                                     })

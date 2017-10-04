@@ -63,7 +63,7 @@ router.route("/dogovernance")
         var options = request.body;
         getApps()
             .then(function (result) {
-                if (options.boolGenMetadata && options.appMetadata.mode) {
+                if (options.boolGenMetadata && options.appMetadata.appMode) {
                     options.appMetadata.appArray = result;
                     //console.log(options.appMetadata.appArray);
                 }
@@ -82,7 +82,7 @@ router.route("/dogovernancemock")
         var options = request.body;
         getApps()
             .then(function (result) {
-                if (options.boolGenMetadata && options.appMetadata.mode) {
+                if (options.boolGenMetadata && options.appMetadata.appMode) {
                     options.appMetadata.appArray = result;
                     //console.log(options.appMetadata.appArray);
                 }
@@ -103,12 +103,15 @@ router.route("/runsavedselection")
             })
 
             if (item.length > 0) {
-                if (item.boolGenMetadata && item.appMetadata.mode) {
-                    item.appMetadata.appArray = getApps();
-                }
-                let guid = generateUUID();
-                queueItUp(config, item, guid);
-                response.send("Governance collection request submitted");
+                getApps()
+                    .then(function (result) {
+                        if (item.boolGenMetadata && item.appMetadata.appMode) {
+                            item.appMetadata.appArray = result;
+                        }
+                        let guid = generateUUID();
+                        queueItUp(config, item, guid);
+                        response.send("Governance collection request submitted");
+                    });
             } else {
                 response.status(400).send("Name or id in body does not return a known saved selection.")
             }
