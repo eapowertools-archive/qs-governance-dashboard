@@ -22,7 +22,7 @@ function backupApp(config, appId, options, boolDataMode) {
     return new Promise(function (resolve, reject) {
         var x = {};
         start_time = Date.now();
-        logMessage("info", "Collecting application metadata for app " + appId);
+        logMessage("debug", "Collecting application metadata for app " + appId);
         var session = enigma.create(enigmaInstance(config, appId));
         session.open()
             .then(function (global) {
@@ -34,7 +34,7 @@ function backupApp(config, appId, options, boolDataMode) {
                             .then(function (appData) {
                                 return session.close()
                                     .then(function () {
-                                        logMessage("info", "Application metadata complete for app " + appId);
+                                        logMessage("debug", "Application metadata complete for app " + appId);
                                         //app.session.close();
                                         resolve(appData);
                                     })

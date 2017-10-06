@@ -94,10 +94,10 @@ function doTaskStuff() {
                                 })
 
                                 if (result.length == 0) {
-                                    logMessage("info", "The task " + item.taskName + " does not exist in the repository, therefore, it will be created.");
+                                    logMessage("debug", "The task " + item.taskName + " does not exist in the repository, therefore, it will be created.");
                                     finalFinalArray.push(createTask(item))
                                 } else {
-                                    logMessage("info", "The task " + item.taskName + " exists in the repository, therefore, it will not be created.");
+                                    logMessage("debug", "The task " + item.taskName + " exists in the repository, therefore, it will not be created.");
                                 }
                             });
                             if (finalFinalArray.length > 0) {
@@ -135,7 +135,7 @@ function createTask(task) {
         var taskToCreate = taskTemplate(task.taskName, task.id, task.name);
         return qrs.Post("ReloadTask/create", taskToCreate, 'json')
             .then(function (taskCreateResult) {
-                logMessage("info", "Task created: " + taskCreateResult.body.name + " created " + taskCreateResult.body.createdDate + " with id=" + taskCreateResult.body.id)
+                logMessage("debug", "Task created: " + taskCreateResult.body.name + " created " + taskCreateResult.body.createdDate + " with id=" + taskCreateResult.body.id)
                 resolve(true);
             })
             .catch(function (error) {

@@ -23,7 +23,7 @@ function getMeasures(app, appId, options) {
     //Creating the promise for the Applications Library Measures
     //Root admin privileges should allow him to access to all available applications. Otherwise check your environment's security rules for the designed user.
     return new Promise(function (resolve, reject) {
-        logMessage("info", "Collecting Measure metadata.")
+        logMessage("debug", "Collecting Measure metadata.")
         var parse = !options.noData;
         app.createSessionObject({
                 qMeasureListDef: {

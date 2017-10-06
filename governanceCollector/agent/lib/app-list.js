@@ -18,7 +18,7 @@ function logMessage(level, msg) {
 module.exports = {
     getAppList: function (qix, options) {
         return new Promise(function (resolve, reject) {
-            logMessage("info", "Collecting application list");
+            logMessage("debug", "Collecting application list");
             var start_time = Date.now();
             return qix.global.getDocList()
                 .then(function (documents) {
@@ -31,7 +31,7 @@ module.exports = {
                         qsLoadingTime: loading_time
                     }
 
-                    logMessage("info", "Application list collection complete.");
+                    logMessage("debug", "Application list collection complete.");
                     writeToXML("documentList", "DocumentsList", data, appId);
                     resolve("Checkpoint: Applications List is loaded");
 

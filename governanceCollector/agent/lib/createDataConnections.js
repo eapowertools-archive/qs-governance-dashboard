@@ -56,10 +56,10 @@ function createDataConnections() {
                                                 return conn.qName == item.qName;
                                             })
                                             if (foo.length == 0) {
-                                                logMessage("info", item.qName + " does not exist in the QMC. Let's create it!");
+                                                logMessage("debug", item.qName + " does not exist in the QMC. Let's create it!");
                                                 createArray.push(doc.createConnection(item));
                                             } else {
-                                                logMessage("info", item.qName + " exists in the QMC, therefore, it will not be created.");
+                                                logMessage("debug", item.qName + " exists in the QMC, therefore, it will not be created.");
                                             }
                                         })
                                         if (createArray.length > 0) {
@@ -69,17 +69,17 @@ function createDataConnections() {
                                         }
                                     })
                                     .then(function (result) {
-                                        logMessage("info", result)
+                                        logMessage("debug", result)
                                         return global.deleteApp(app.qAppId);
                                     })
                                     .then(function (result) {
-                                        logMessage("info", "app deleted");
+                                        logMessage("debug", "app deleted");
                                         return;
                                     })
                                     .then(function () {
                                         return session.close()
                                             .then(function () {
-                                                logMessage("info", "Data connections created.");
+                                                logMessage("debug", "Data connections created.");
                                                 resolve(true);
                                             })
                                     })

@@ -19,7 +19,7 @@ function getAppConnections(app, appId, options) {
     //Creating the promise for the Connections List
     //Root admin privileges should allow him to access to all available connections. Otherwise check your environment's security rules for the designed user.
     return new Promise(function (resolve, reject) {
-        logMessage("info", "Collecting data connections for app " + appId);
+        logMessage("debug", "Collecting data connections for app " + appId);
         console.log();
         console.log("*****************************************************");
         console.log("             Loading the Connections List            ");
@@ -40,7 +40,7 @@ function getAppConnections(app, appId, options) {
                     qsLoadingTime: loading_time
                 };
 
-                logMessage("info", "Data connection collection complete for app " + appId);
+                logMessage("debug", "Data connection collection complete for app " + appId);
                 writeToXML("documentConnections", "DocumentsConnections", data, appId);
                 resolve("Checkpoint: Connections List is loaded");
             })

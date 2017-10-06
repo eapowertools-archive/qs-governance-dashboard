@@ -22,7 +22,7 @@ function getStories(app, appId, options) {
     return new Promise(function (resolve, reject) {
         //Creating the promise for the Applications Stories
         //Root admin privileges should allow him to access to all available applications. Otherwise check your environment's security rules for the designed user.      
-        logMessage("info", "Collecting story metadata for appId: " + appId);
+        logMessage("debug", "Collecting story metadata for appId: " + appId);
         var x = {};
         var storyLayoutArray = [];
         var slideLayoutArray = [];
@@ -79,7 +79,7 @@ function getStories(app, appId, options) {
                                     })
                             }))
                             .then(function (resultArray) {
-                                logMessage("info", "Story metadata collection complete for appId: " + appId);
+                                logMessage("debug", "Story metadata collection complete for appId: " + appId);
                                 writeToXML("storySheets", "StorySlide", slideLayoutArray, appId);
                                 writeToXML("story", "Story", {
                                     str_layout: storyLayoutArray

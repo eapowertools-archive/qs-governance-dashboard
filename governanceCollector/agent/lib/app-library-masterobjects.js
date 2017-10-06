@@ -26,7 +26,7 @@ function getLibObjects(app, appId, options) {
     return new Promise(function (resolve, reject) {
         //Creating the promise for the Applications Library Master Objects
         //Root admin privileges should allow him to access to all available applications. Otherwise check your environment's security rules for the designed user.      
-        logMessage("info", "Collecting Master Library Visualization metadata from app " + appId);
+        logMessage("debug", "Collecting Master Library Visualization metadata from app " + appId);
         var parse = !options.noData;
         app.createSessionObject({
                 qAppObjectListDef: {

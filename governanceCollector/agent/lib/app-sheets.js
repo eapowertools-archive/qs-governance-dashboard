@@ -24,7 +24,7 @@ function getSheets(app, appId, options) {
         var sheetLayoutArray = [];
         var objectLayoutArray = [];
 
-        logMessage("info", "Collecting application sheets and sheet objects for appId: " + appId);
+        logMessage("debug", "Collecting application sheets and sheet objects for appId: " + appId);
         var parse = !options.noData;
         app.createSessionObject({
                 qAppObjectListDef: {
@@ -69,7 +69,7 @@ function getSheets(app, appId, options) {
                                     });
                             }))
                             .then(function (resultArray) {
-                                logMessage("info", "Sheet and sheet object collection completed on appId: " + appId)
+                                logMessage("debug", "Sheet and sheet object collection completed on appId: " + appId)
                                 writeToXML("sheet", "Sheet", {
                                     sht_layout: sheetLayoutArray
                                 }, appId);

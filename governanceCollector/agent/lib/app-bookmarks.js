@@ -22,7 +22,7 @@ function getBookmarks(app, appId, options) {
     return new Promise(function (resolve, reject) {
         //Creating the promise for the Applications Bookmarks
         //Root admin privileges should allow him to access to all available applications. Otherwise check your environment's security rules for the designed user.      
-        logMessage("info", "Collecting bookmark information from app " + appId);
+        logMessage("debug", "Collecting bookmark information from app " + appId);
         var parse = options.noData ? false : true;
         app.createSessionObject({
                 qBookmarkListDef: {

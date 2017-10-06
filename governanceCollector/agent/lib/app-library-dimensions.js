@@ -28,7 +28,7 @@ function getDimensions(app, appId, options) {
     //Creating the promise for the Applications Library Dimensions
     //Root admin privileges should allow him to access to all available applications. Otherwise check your environment's security rules for the designed user.
     return new Promise(function (resolve, reject) {
-        logMessage("info", "Collecting dimension metadata from app " + appId);
+        logMessage("debug", "Collecting dimension metadata from app " + appId);
         var parse = !options.noData;
         app.createSessionObject({
                 qDimensionListDef: {

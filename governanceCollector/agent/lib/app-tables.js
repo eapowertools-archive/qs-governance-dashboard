@@ -21,7 +21,7 @@ function getAppTables(app, appId, options) {
     //Creating the promise for the Applications Tables
     //Root admin privileges should allow him to access to all available applications. Otherwise check your environment's security rules for the designed user.
     return new Promise(function (resolve) {
-        logMessage("info", "Collecting list of tables in the application data model for app " + appId);
+        logMessage("debug", "Collecting list of tables in the application data model for app " + appId);
         var params = {
             "qWindowSize": {
                 "qcx": 0,
@@ -50,7 +50,7 @@ function getAppTables(app, appId, options) {
                 return data;
             })
             .then(function (data) {
-                logMessage("info", "Table metadata collection complete for appid: " + appId);
+                logMessage("debug", "Table metadata collection complete for appid: " + appId);
                 writeToXML("documentsKeyTables", "KeyTables", data, appId);
                 resolve("Checkpoint: Applications Tables are loaded");
             })

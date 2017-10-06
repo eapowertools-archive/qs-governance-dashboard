@@ -98,9 +98,11 @@ let harvester = {
                 var session = enigma.create(enigmaInstance(config, "docList"))
                 session.open()
                     .then(function (global) {
-                        return Promise.map(docList, function (doc) {
+                        let docListLength = docList.length;
+                        return Promise.map(docList, function (doc, index) {
                                 return backupApp(config, doc.id, config.agent, boolDataMode)
                                     .then(function (result) {
+                                        logMessage("info", "Processed " + index + " of " + docListLength + " apps.")
                                         return result;
                                     })
                                     .catch(function (error) {

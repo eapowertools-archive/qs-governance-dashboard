@@ -29,9 +29,9 @@ function doGovernance(config, options) {
     return new Promise(function (resolve, reject) {
         Promise.resolve(function () {
                 start_time = new Date(Date.now());
-                logMessage("info", "Governance collection process started at " + start_time);
+                logMessage("debug", "Governance collection process started at " + start_time);
                 if (options.boolGenMetadata) {
-                    logMessage("info", "Deleting Metadata XML files")
+                    logMessage("debug", "Deleting Metadata XML files")
                     deleteFiles(config.agent.metadataPath);
                     deleteFiles(path.join(config.agent.metadataPath, "userAccess"));
                     config.agent.appObjectsAccessControlList.forEach(function (appObject) {
@@ -48,7 +48,7 @@ function doGovernance(config, options) {
             .then(function (foo) {
                 console.log("checking if parsing load scripts");
                 if (options.boolParseLoadScripts) {
-                    logMessage("info", "Parsing load script logs for lineage information");
+                    logMessage("debug", "Parsing load script logs for lineage information");
                     return parseScriptLogs(config.agent.loadScriptParsing.loadScriptLogPath, config.agent.loadScriptParsing.parsedScriptLogPath, [], []);
                 }
                 return;
@@ -78,7 +78,7 @@ function doGovernance(config, options) {
                     single_app: config.agent.single_app,
                     parse_loadScripts: config.agent.parseLoadScriptLogs
                 };
-                logMessage("info", "Governance collection process complete at " + end_time);
+                logMessage("debug", "Governance collection process complete at " + end_time);
                 writeToXML("run_options", "RunOptions", run_options);
                 resolve("DONE!!!")
             })
@@ -104,7 +104,7 @@ function createGovernanceOutput(config, options) {
                                 return result;
                             })
                             .then(function (qrsResult) {
-                                logMessage("info", "doc lists, data connections, and user list collected from repository");
+                                logMessage("debug", "doc lists, data connections, and user list collected from repository");
                                 writeToXML("documentList", "DocumentsList", {
                                     doc: docList
                                 });
@@ -132,10 +132,10 @@ function createGovernanceOutput(config, options) {
                             } else {
                                 singleAppId = options.singleApp.appId
                             }
-                            logMessage("info", "Single App output generation selected for app: " + singleAppId);
+                            logMessage("debug", "Single App output generation selected for app: " + singleAppId);
                             return backupApp(config, singleAppId, config.agent)
                                 .then(function (result) {
-                                    logMessage("info", "Qlik Sense Governance run against " + singleAppId + "complete.");
+                                    logMessage("debug", "Qlik Sense Governance run against " + singleAppId + "complete.");
                                     return result;
                                 })
                                 .catch(function (error) {
@@ -143,7 +143,7 @@ function createGovernanceOutput(config, options) {
                                     return error;
                                 });
                         } else {
-                            logMessage("info", "Generating output for the entire Qlik Sense site");
+                            logMessage("debug", "Generating output for the entire Qlik Sense site");
                             return Promise.all(docList.map(function (doc) {
                                     return backupApp(config, doc.qDocId, config.agent)
                                         .then(function (result) {
@@ -155,7 +155,7 @@ function createGovernanceOutput(config, options) {
                                         });
                                 }))
                                 .then(function (resultArray) {
-                                    logMessage("info", "Qlik Sense Governance run against " + resultArray.length + " applications complete.");
+                                    logMessage("debug", "Qlik Sense Governance run against " + resultArray.length + " applications complete.");
                                     logger.info("Qlik Sense Governance run against all applications complete.", loggerObject);
                                     return;
                                 });
@@ -168,7 +168,7 @@ function createGovernanceOutput(config, options) {
                         } else {
                             userList = x.qrsResult[3];
                         }
-                        logMessage("info", "Performing access control checks");
+                        logMessage("debug", "Performing access control checks");
                         return userAccessControl.userAccessControl(config, userList)
                             .then(function (result) {
                                 return Promise.all(appObjectAccessControl(config, userList))
@@ -194,7 +194,7 @@ function reloadApp(config, taskname) {
     return new Promise(function (resolve, reject) {
         qrsCalls.qrsReloadTask(config, taskname)
             .then(function (result) {
-                logMessage("info", result);
+                logMessage("debug", result);
                 resolve(result);
             })
             .catch(function (error) {
