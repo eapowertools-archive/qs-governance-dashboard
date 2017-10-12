@@ -54,8 +54,7 @@ let harvester = {
     },
     getUserAccessControl: function (config, options, userList) {
         return new Promise(function (resolve, reject) {
-            //rvr
-            var snapshot_time = new Date();// rvr
+            var snapshot_time = new Date();
             snapshot_time_formated =  snapshot_time.getFullYear()+'-'
                     + ("0" + (snapshot_time.getMonth() + 1)).slice(-2)+'-'
                     +("0" + snapshot_time.getDate()).slice(-2)+'T'
@@ -66,9 +65,9 @@ let harvester = {
 
             if (userList != null || userList != undefined) {
                 //run access control collection on provided list of users.
-                return userAccessControl.userAccessControl(config, options, userList, snapshot_time_formated) //rvr
+                return userAccessControl.userAccessControl(config, options, userList, snapshot_time_formated)
                     .then(function (result) {
-                        return Promise.all(appObjectAccessControl(config, options, userList, snapshot_time_formated)) //rvr
+                        return Promise.all(appObjectAccessControl(config, options, userList, snapshot_time_formated))
                     })
                     .then(function (resultArray) {
                         resolve(resultArray)
