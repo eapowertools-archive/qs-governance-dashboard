@@ -54,11 +54,21 @@ let harvester = {
     },
     getUserAccessControl: function (config, options, userList) {
         return new Promise(function (resolve, reject) {
+            //rvr
+            var snapshot_time = new Date();// rvr
+            snapshot_time_formated =  snapshot_time.getFullYear()+'-'
+                    + ("0" + (snapshot_time.getMonth() + 1)).slice(-2)+'-'
+                    +("0" + snapshot_time.getDate()).slice(-2)+'T'
+                    +snapshot_time.getHours(00).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})+':'
+                    +snapshot_time.getMinutes(00).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})+':'
+                    +snapshot_time.getSeconds(00).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})+'.'
+                    +snapshot_time.getMilliseconds(000).toLocaleString('en-US', {minimumIntegerDigits: 3, useGrouping:false})+'Z';
+
             if (userList != null || userList != undefined) {
                 //run access control collection on provided list of users.
-                return userAccessControl.userAccessControl(config, options, userList)
+                return userAccessControl.userAccessControl(config, options, userList, snapshot_time_formated) //rvr
                     .then(function (result) {
-                        return Promise.all(appObjectAccessControl(config, options, userList))
+                        return Promise.all(appObjectAccessControl(config, options, userList, snapshot_time_formated)) //rvr
                     })
                     .then(function (resultArray) {
                         resolve(resultArray)
@@ -75,9 +85,9 @@ let harvester = {
                         return qrsCalls.qrsAllocatedUserList(config);
                     }
                 }).then(function (userList) {
-                    return userAccessControl.userAccessControl(config, options, userList)
+                    return userAccessControl.userAccessControl(config, options, userList, snapshot_time_formated)
                         .then(function (result) {
-                            return Promise.all(appObjectAccessControl(config, options, userList))
+                            return Promise.all(appObjectAccessControl(config, options, userList, snapshot_time_formated))
                         })
                         .then(function (resultArray) {
                             resolve(resultArray)
@@ -152,11 +162,11 @@ let harvester = {
 
 module.exports = harvester;
 
-function appObjectAccessControl(config, options, userList) {
+function appObjectAccessControl(config, options, userList, snapshot_time_formated) {
     var resultArray = []
     var appObjects = options.accessControl.appObjects;
     appObjects.forEach(function (appObject) {
-        resultArray.push(userAccessControl.userAppObjectAccessControl(config, userList, appObject.name));
+        resultArray.push(userAccessControl.userAppObjectAccessControl(config, userList, appObject.name, snapshot_time_formated));
     })
     return resultArray;
 }
