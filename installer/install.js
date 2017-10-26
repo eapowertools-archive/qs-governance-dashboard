@@ -235,7 +235,10 @@ serviceCluster()
                                     }
                                     if (boolAgent) {
                                         fs.ensureDirSync(path.join(__dirname, "../settings-backup/agent"))
-                                        fs.copySync(path.join(__dirname, "../agent/config/savedSelections.json"), path.join(__dirname, "../settings-backup/agent/savedSelections.json"));
+                                        if(fs.existsSync(path.join(__dirname, "../agent/config/savedSelections.json")))
+                                        {
+                                            fs.copySync(path.join(__dirname, "../agent/config/savedSelections.json"), path.join(__dirname, "../settings-backup/agent/savedSelections.json"));
+                                        }
                                         fs.copySync(path.join(__dirname, "../agent/config/installConfig.json"), path.join(__dirname, "../settings-backup/webapp/installConfig.json"));
                                     }
                                     //perform upgrade.
@@ -354,8 +357,11 @@ function installAgent(options, boolAgent) {
             }, 3000);
 
             if (boolAgent) {
-                fs.copySync(path.join(__dirname, "../settings-backup/agent/savedSelections.json"), path.join(__dirname, "../agent/config/savedSelections.json"));
-                fs.copySync(path.join(__dirname, "../settings-backup/webapp/installConfig.json"), path.join(__dirname, "../agent/config/installConfig.json"));
+                if(fs.existsSync(path.join(__dirname, "../settings-backup/agent/savedSelections.json")))
+                {
+                    fs.copySync(path.join(__dirname, "../settings-backup/agent/savedSelections.json"), path.join(__dirname, "../agent/config/savedSelections.json"));
+                }
+                fs.copySync(path.join(__dirname, "../settings-backup/agent/installConfig.json"), path.join(__dirname, "../agent/config/installConfig.json"));
 
             } else {
                 console.log(colors.yellow("creating log directory"));
