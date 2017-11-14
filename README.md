@@ -1,4 +1,4 @@
-# Qlik Sense Governance Collector (qs-governance-collector)
+# Governance Dashboard for Qlik Sense (qs-governance-dashboard)
 
 The Qlik Sense Governance Collector (**qsgc**) is a web application that collects metadata from Qlik Sense applications, parses script logs for lineage, and generates qvds for use with governance applications.  You can choose to use the included Governance Dashboard for Qlik Sense or build your own governance application with the generated qvds full of rich metadata.
 
