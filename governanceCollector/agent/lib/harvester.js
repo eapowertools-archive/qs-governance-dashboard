@@ -54,14 +54,15 @@ let harvester = {
     },
     getUserAccessControl: function (config, options, userList) {
         return new Promise(function (resolve, reject) {
-            var snapshot_time = new Date();
-            snapshot_time_formated =  snapshot_time.getFullYear()+'-'
-                    + ("0" + (snapshot_time.getMonth() + 1)).slice(-2)+'-'
-                    +("0" + snapshot_time.getDate()).slice(-2)+'T'
-                    +snapshot_time.getHours(00).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})+':'
-                    +snapshot_time.getMinutes(00).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})+':'
-                    +snapshot_time.getSeconds(00).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})+'.'
-                    +snapshot_time.getMilliseconds(000).toLocaleString('en-US', {minimumIntegerDigits: 3, useGrouping:false})+'Z';
+            snapshot_time_formated =  getSnapshotTime();
+            // var snapshot_time = new Date();
+            // snapshot_time_formated =  snapshot_time.getFullYear()+'-'
+            //         + ("0" + (snapshot_time.getMonth() + 1)).slice(-2)+'-'
+            //         +("0" + snapshot_time.getDate()).slice(-2)+'T'
+            //         +snapshot_time.getHours(00).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})+':'
+            //         +snapshot_time.getMinutes(00).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})+':'
+            //         +snapshot_time.getSeconds(00).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})+'.'
+            //         +snapshot_time.getMilliseconds(000).toLocaleString('en-US', {minimumIntegerDigits: 3, useGrouping:false})+'Z';
 
             if (userList != null || userList != undefined) {
                 //run access control collection on provided list of users.
@@ -168,4 +169,17 @@ function appObjectAccessControl(config, options, userList, snapshot_time_formate
         resultArray.push(userAccessControl.userAppObjectAccessControl(config, userList, appObject.name, snapshot_time_formated));
     })
     return resultArray;
+}
+
+//all the code for getting a new date and then 
+//formatting the snapshottime.
+function getSnapshotTime(){
+    var snapshot_time = new Date();
+    return  snapshot_time.getFullYear()+'-'
+            + ("0" + (snapshot_time.getMonth() + 1)).slice(-2)+'-'
+            +("0" + snapshot_time.getDate()).slice(-2)+'T'
+            +snapshot_time.getHours(00).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})+':'
+            +snapshot_time.getMinutes(00).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})+':'
+            +snapshot_time.getSeconds(00).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})+'.'
+            +snapshot_time.getMilliseconds(000).toLocaleString('en-US', {minimumIntegerDigits: 3, useGrouping:false})+'Z';
 }
