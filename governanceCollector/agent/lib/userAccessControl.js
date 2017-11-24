@@ -20,7 +20,7 @@ function logMessage(level, msg) {
 var start_time, end_time;
 
 var userAccessControl = {
-    userAppObjectAccessControl: function (config, userList, objectType) {
+    userAppObjectAccessControl: function (config, userList, objectType, snapshot_time_formated) {
         start_time = new Date(Date.now());
         logMessage("info", objectType + " access control collection started at " + start_time);
         return new Promise(function (resolve, reject) {
@@ -46,6 +46,7 @@ var userAccessControl = {
                                         result.matrix[index].userDirectory = result.subjects[result.matrix[index].subjectId].subjectProperties.userdirectory;
                                         result.matrix[index].audit.access = convertActionBin(item.audit.access);
                                         result.matrix[index].audit.disabled = convertActionBin(item.audit.disabled);
+                                        result.matrix[index].snapshotTime = snapshot_time_formated;
                                     });
                                     return result;
                                 })
@@ -64,7 +65,7 @@ var userAccessControl = {
                         })
                         .then(function (resultArray) {
                             console.log(resultArray.length);
-                            return createOutput(resultArray, config, objectType)
+                            return createOutput(resultArray, config, objectType, snapshot_time_formated)
                                 .then(function (foobar) {
 
                                     end_time = new Date(Date.now());
@@ -84,11 +85,12 @@ var userAccessControl = {
                 })
         })
     },
-    userAccessControl: function (config, options, userList) {
+    userAccessControl: function (config, options, userList, snapshot_time_formated) {
         return new Promise(function (resolve, reject) {
             var selectionBasis = list(userList);
             console.log(userList);
             logMessage("info", "Obtaining access control information from the repository");
+
             return Promise.all(selectionBasis.map(function (listItem) {
                     return qrsCalls.qrsPost(config, "selection", listItem)
                         .then(function (selection) {
@@ -114,6 +116,7 @@ var userAccessControl = {
                                                 result.matrix[index].userDirectory = result.subjects[result.matrix[index].subjectId].subjectProperties.userdirectory;
                                                 result.matrix[index].audit.access = convertActionBin(item.audit.access);
                                                 result.matrix[index].audit.disabled = convertActionBin(item.audit.disabled);
+                                                result.matrix[index].snapshotTime = snapshot_time_formated;
                                             });
                                             return result;
                                         })
@@ -206,12 +209,12 @@ function findRowMatch(row) {
     }
 }
 
-function createOutput(resultArray, config, objectType) {
+function createOutput(resultArray, config, objectType, snapshot_time_formated) {
     return new Promise(function (resolve) {
         let maxCount = resultArray.length
         console.log(maxCount);
-
         fs.writeFileSync(path.join(config.agent.metadataPath, "userAccess", objectType, objectType + ".json"), JSON.stringify(resultArray, null, 4));
+        writeToXML("qrsAccessControlMatrix", snapshot_time_formated.replace(/:/g, "-").slice(0, -5) +"_"+ objectType, resultArray, undefined, undefined, "userAccess/" + objectType);
         resultArray.forEach(function (result, index) {
             writeToXML("qrsAccessControlMatrix", objectType + "_" + index, result, undefined, undefined, "userAccess/" + objectType);
         })
