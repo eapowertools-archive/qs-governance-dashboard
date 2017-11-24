@@ -23,14 +23,14 @@ serviceCluster()
         var firstQuestion = [{
             type: 'confirm',
             name: 'beginInstall',
-            message: 'Welcome to the Governance Collector for Qlik Sense Install.  Ready to begin?',
+            message: 'Welcome to the Governance Dashboard for Qlik Sense Install.  Ready to begin?',
             default: true
         }];
 
         var upgradeQuestion = [{
             type: 'confirm',
             name: 'upgradeCheck',
-            message: 'A previous version of the Governance Collector exists on this system.  Do you wish to upgrade or start fresh?',
+            message: 'A previous version of the Governance Dasboard exists on this system.  Do you wish to upgrade or start fresh?',
             default: true
         }];
 
@@ -235,8 +235,7 @@ serviceCluster()
                                     }
                                     if (boolAgent) {
                                         fs.ensureDirSync(path.join(__dirname, "../settings-backup/agent"))
-                                        if(fs.existsSync(path.join(__dirname, "../agent/config/savedSelections.json")))
-                                        {
+                                        if (fs.existsSync(path.join(__dirname, "../agent/config/savedSelections.json"))) {
                                             fs.copySync(path.join(__dirname, "../agent/config/savedSelections.json"), path.join(__dirname, "../settings-backup/agent/savedSelections.json"));
                                         }
                                         fs.copySync(path.join(__dirname, "../agent/config/installConfig.json"), path.join(__dirname, "../settings-backup/webapp/installConfig.json"));
@@ -357,8 +356,7 @@ function installAgent(options, boolAgent) {
             }, 3000);
 
             if (boolAgent) {
-                if(fs.existsSync(path.join(__dirname, "../settings-backup/agent/savedSelections.json")))
-                {
+                if (fs.existsSync(path.join(__dirname, "../settings-backup/agent/savedSelections.json"))) {
                     fs.copySync(path.join(__dirname, "../settings-backup/agent/savedSelections.json"), path.join(__dirname, "../agent/config/savedSelections.json"));
                 }
                 fs.copySync(path.join(__dirname, "../settings-backup/agent/installConfig.json"), path.join(__dirname, "../agent/config/installConfig.json"));

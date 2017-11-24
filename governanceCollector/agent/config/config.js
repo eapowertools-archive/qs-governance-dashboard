@@ -51,7 +51,7 @@ var config = {
         publicPath: path.join(__dirname, "/../public"),
         nodeModPath: path.join(__dirname, "/../node_modules"),
         appPath: path.join(__dirname, '/../app/'),
-        version: "1.0.1.0"
+        version: "2.1.2.0"
     },
     agent: {
         port: 8592,
@@ -73,7 +73,7 @@ var config = {
         timer_mode: false,
         parseLoadScriptLogs: false,
         queueTimeout: 3600, //in seconds, will be converted to milliseconds
-        version: "2.1.1.0"
+        version: "2.1.2.0"
     },
     logging: {
         logPath: logPath,

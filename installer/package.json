@@ -1,7 +1,7 @@
 {
-  "name": "qs-governance-collector-installer2",
+  "name": "qs-governance-dashboard-installer",
   "version": "1.0.0",
-  "description": "an installer for Qlik Sense Governance Collector",
+  "description": "an installer for Qlik Sense Governance Dashboard",
   "main": "install.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,8 +19,7 @@
     "tarball-extract": "0.0.6"
   },
   "installer": {
-    "apps": [
-      {
+    "apps": [{
         "appName": "Governance Dashboard for Qlik Sense",
         "taskName": "qsgc-Refresh-Governance-Dashboard"
       },

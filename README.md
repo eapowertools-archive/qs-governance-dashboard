@@ -1,29 +1,29 @@
 # Governance Dashboard for Qlik Sense (qs-governance-dashboard)
 
-The Qlik Sense Governance Collector (**qsgc**) is a web application that collects metadata from Qlik Sense applications, parses script logs for lineage, and generates qvds for use with governance applications.  You can choose to use the included Governance Dashboard for Qlik Sense or build your own governance application with the generated qvds full of rich metadata.
+The Qlik Sense Governance Dashboard (**qsgd**) is a Qlik Sense application scaffolded by the Governance Collector, a web application that collects metadata from Qlik Sense applications, parses script logs for lineage, and generates qvds for use with governance applications.  You can choose to use the included Governance Dashboard for Qlik Sense or build your own governance application with the generated qvds full of rich metadata.
 
 ---
 
 ## Featuring the Governance Dashboard for Qlik Sense
 
 From application metrics, 
-![AppFootprint](https://eapowertools.s3.amazonaws.com/governance-collector/img/main/AppFootprint.png)
+![AppFootprint](https://eapowertools.s3.amazonaws.com/governance-dashboard/img/main/AppFootprint.png)
 
 data lineage from source to visualization, 
-![Lineage](https://eapowertools.s3.amazonaws.com/governance-collector/img/main/Lineage.png)
+![Lineage](https://eapowertools.s3.amazonaws.com/governance-dashboard/img/main/Lineage.png)
 
 to auditing user clicks in a site, 
-![Audit](https://eapowertools.s3.amazonaws.com/governance-collector/img/main/Audit.png)
+![Audit](https://eapowertools.s3.amazonaws.com/governance-dashboard/img/main/Audit.png)
 
 
-the Governance Dashboard for Qlik Sense included with qsgc provides a comprehensive view of the application footprint of a Qlik Sense site.
+the Governance Dashboard for Qlik Sense included with qsgd provides a comprehensive view of the application footprint of a Qlik Sense site.
 
 ---
 
 ## Getting Started
 
-### [Latest release](https://github.com/eapowertools/qs-governance-collector/releases/latest)
-For detailed instructions, please navigate to the **[wiki](https://github.com/eapowertools/qs-governance-collector/wiki)**.
+### [Latest release](https://github.com/eapowertools/qs-governance-dashboard/releases/latest)
+For detailed instructions, please navigate to the **[wiki](https://github.com/eapowertools/qs-governance-dashboard/wiki)**.
 
 ### What is the qsgc?
 The qsgc 2 tier application with a web application and an agent.
@@ -31,7 +31,7 @@ The qsgc 2 tier application with a web application and an agent.
 * The agent is a server side REST api web service.  It accepts requests from the web application or another solution you have that will send requests to it.
 
 ### How does it work?
-![process](https://eapowertools.s3.amazonaws.com/governance-collector/img/main/process.png)
+![process](https://eapowertools.s3.amazonaws.com/governance-dashboard/img/main/process.png)
 
 > 1. From the web application, select a server running an agent.
 > 2. Select what processes the agent will run:    
@@ -48,9 +48,9 @@ The qsgc 2 tier application with a web application and an agent.
 
 Before continuing, please reflect on your expertise with node.js applications.
 
-If you are looking for an easy install experience, we highly recommend the **[installer](https://s3.amazonaws.com/eapowertools/governance-collector/bin/qs-governance-collector.exe)**.
+If you are looking for an easy install experience, we highly recommend the **[installer](https://s3.amazonaws.com/eapowertools/governance-dashboard/bin/qs-governance-dashboard.exe)**.
 
-If you fancy yourself a person who turns your nose up at installers, the Governance Collector requires:
+If you fancy yourself a person who turns your nose up at installers, the Governance Dashboard requires:
 
 * Node.js >= 6.11.1
 
@@ -64,17 +64,17 @@ On the server the web application is installed, open a browser and navigate to t
 
 To add a server running an agent, click the add button or the cog in the upper right hand side of the screen. 
 
-![mainscreen](https://eapowertools.s3.amazonaws.com/governance-collector/img/webapp/mainscreen.png)
+![mainscreen](https://eapowertools.s3.amazonaws.com/governance-dashboard/img/webapp/mainscreen.png)
 
 Enter the hostname of the server and the port the agent is running on (default is 8592).
 
 Click the Save button and the server reference is added!
 
-![addserver](https://eapowertools.s3.amazonaws.com/governance-collector/img/webapp/addserver.png)
+![addserver](https://eapowertools.s3.amazonaws.com/governance-dashboard/img/webapp/addserver.png)
 
 If the server running the agent is the central node, click the Import Resources button to upload the apps, create tasks, import extensions, and create data connections.  These resources are required for processing xml to qvds and using the supplied Governance Dashboard application. 
 
-![completeserver](https://eapowertools.s3.amazonaws.com/governance-collector/img/webapp/completeserver.png)
+![completeserver](https://eapowertools.s3.amazonaws.com/governance-dashboard/img/webapp/completeserver.png)
 
 Click the OK or Cancel button to close the dialog.
 
@@ -88,7 +88,7 @@ Click one of the four buttons described in the [How does it work](#how-does-it-w
 
 When at least one of the buttons is selected, the Governance button on the right will turn green.  Click the Governance button to start the selected processes.
 
-![run](https://eapowertools.s3.amazonaws.com/governance-collector/img/webapp/run.png) 
+![run](https://eapowertools.s3.amazonaws.com/governance-dashboard/img/webapp/run.png) 
 
 When the process starts, the log will populate with status messages.  Depending on the environment, a process may take as little as a couple minutes or as long as a few hours.
 

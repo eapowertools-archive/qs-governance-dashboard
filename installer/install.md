@@ -4,7 +4,7 @@
             .oooo.                                               
             .oooo.                                               
     `--.    .oooo.    .--`                                       
-  `:+oo+`   .oooo.   `+oo+:`      Qlik Sense Governance Collector
+  `:+oo+`   .oooo.   `+oo+:`      Qlik Sense Governance Dashboard
  .+ooo+-    .oooo.    -+ooo+.     Presented by:                  
 `+ooo/`     .+oo+.     `/ooo+`    Renato Viera                   
 /ooo+`       -:::-`     `+ooo/    Vincenzo Esposito              
