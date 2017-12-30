@@ -41,11 +41,14 @@ folder.forEach(function (file) {
         return item.appName.toLowerCase() == appName.toLowerCase();
     });
 
-    uploadArray.push({
-        appName: appName,
-        taskName: appInfo[0].taskName,
-        fileStream: appStream
-    });
+    if (appInfo.length > 0) {
+        uploadArray.push({
+            appName: appName,
+            taskName: appInfo[0].taskName,
+            fileStream: appStream
+        });
+    }
+
 })
 
 function importApps() {

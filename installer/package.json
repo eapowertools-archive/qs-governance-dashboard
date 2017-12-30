@@ -26,6 +26,10 @@
       {
         "appName": "Governance QVD Generator for Qlik Sense",
         "taskName": "qsgc-Generate-Governance-QVDs"
+      },
+      {
+        "appName": "Access Audit Dasboard for Qlik Sense",
+        "taskName": "qsgc-Refresh-Access-Audit"
       }
     ]
   }
