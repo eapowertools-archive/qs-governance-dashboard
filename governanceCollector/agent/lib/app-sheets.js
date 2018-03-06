@@ -69,13 +69,21 @@ function getSheets(app, appId, options) {
                                     });
                             }))
                             .then(function (resultArray) {
-                                logMessage("info", "Sheet and sheet object collection completed on appId: " + appId)
-                                writeToXML("sheet", "Sheet", {
-                                    sht_layout: sheetLayoutArray
-                                }, appId);
-                                writeToXML("sheetObject", "sheetObject", {
-                                    str_layout: objectLayoutArray
-                                }, appId);
+                                logMessage("info", "Sheet and sheet object collection completed on appId: " + appId);
+                                try {
+                                    writeToXML("sheet", "Sheet", {
+                                        sht_layout: sheetLayoutArray
+                                    }, appId);
+                                } catch (err) {
+                                    logMessage("info", err + "   |   Failed on app '" + appId + "' writing sheet data xml.");
+                                }
+                                try {
+                                    writeToXML("sheetObject", "sheetObject", {
+                                        str_layout: objectLayoutArray
+                                    }, appId);
+                                } catch (err) {
+                                    logMessage("info", err + "   |   Failed on app '" + appId + "' writing sheet object data xml.");
+                                }
                                 resolve("sheet export complete on appId: " + appId)
                             })
                             .catch(function (error) {
