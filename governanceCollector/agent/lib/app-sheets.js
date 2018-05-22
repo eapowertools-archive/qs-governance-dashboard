@@ -73,7 +73,7 @@ function getSheets(app, appId, options) {
                                 writeToXML("sheet", "Sheet", {
                                     sht_layout: sheetLayoutArray
                                 }, appId);
-                                writeToXML("sheetObject", "sheetObject", {
+                                writeToXML("sheetObject", "SheetObject", {
                                     str_layout: objectLayoutArray
                                 }, appId);
                                 resolve("sheet export complete on appId: " + appId)
@@ -206,6 +206,7 @@ function parseHypercubeDef(qHyperCubeDef) {
                             field: dimension.qDef.qFieldDefs[0]
                         },
                         parsingErrors: 0,
+                        // parsingErrors: dimension.qDef.qFieldDefs[0] != '' ? 0 : 1,
                         parsingErrorsDetails: {
                             parsedFieldErrors: []
                         }
