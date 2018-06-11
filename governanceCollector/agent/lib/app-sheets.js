@@ -73,15 +73,23 @@ function getSheets(app, appId, options) {
                                 writeToXML("sheet", "Sheet", {
                                     sht_layout: sheetLayoutArray
                                 }, appId);
+
                                 writeToXML("sheetObject", "SheetObject", {
-                                    str_layout: objectLayoutArray
+                                    str_layout: objectLayoutArray // rvr change str_ to sht and view impact
                                 }, appId);
-                                resolve("sheet export complete on appId: " + appId)
+
+                                resolve("sheet export complete on appId: " + appId);
                             })
                             .catch(function (error) {
                                 logMessage("error", "Error during sheet and sheet object metadata collection on appId: " + appId);
-                                logMessage("error", JSON.stringify(error));
-                                reject(error);
+
+                                if(JSON.stringify(error) == "{}"){
+                                    logMessage("error", "The error object is null. This is probably a XML parsing issue. Are you using special chars in "+ appId+"?");
+                                    resolve("Warning: Unable to complete sheet export on appId: " + appId + ". Verify xml parsing.");
+                                }else{
+                                    logMessage("error", JSON.stringify(error));
+                                    reject(error); 
+                                }                                
                             });
                     })
                     .catch(function (error) {
@@ -129,7 +137,6 @@ function getObjectLayouts(sheet, parse) {
                 return sheet.getChildInfos()
                     .then(function (childInfos) {
                         return Promise.all(childInfos.map(function (child) {
-
                                 return sheet.getChild(child.qId)
                                     .then(function (object) {
                                         start_time = Date.now();
@@ -139,6 +146,7 @@ function getObjectLayouts(sheet, parse) {
                                         return object.getFullPropertyTree()
                                             .then(function (objectProps) {
                                                 end_time = Date.now();
+
                                                 objectProps = {
                                                     loadTime: end_time - start_time,
                                                     sheet: sheetLayout.qInfo.qId,
@@ -148,11 +156,16 @@ function getObjectLayouts(sheet, parse) {
                                                     visualization: objectProps.qProperty.visualization,
                                                     qHyperCubeDef: parse ? parseHypercubeDef(objectProps.qProperty.qHyperCubeDef) : {}
                                                 }
+
                                                 return objectProps;
                                             })
                                     })
                             }))
                             .then(function (objectLayouts) {
+                                var new_object = {};
+                                if(objectLayouts.length==1 && objectLayouts[0].visualization=="listbox")
+                                    objectLayouts = objectLayouts[0];
+
                                 resolve(objectLayouts);
                             })
                             .catch(function (error) {
