@@ -27,13 +27,18 @@ function parse(logFilesDirectoryFullPaths, outputPath, logFilesFilter, logFilesF
     return new Promise(function (resolve, reject) {
         main.getParser()
             .then(function (parser) {
-                logMessage("info", "begin parsing");
+                logMessage("info", "Script log folder paths: " + logFilesDirectoryFullPaths);
+
                 return Promise.all(logFilesDirectoryFullPaths.map(function (filePath) {
+                        
+
                         logMessage("info", "Identifying files to parse in " + filePath);
 
-                        var dirs = fs.readdirSync(filePath)
+                        try {
+                            var dirs = fs.readdirSync(filePath);
 
-                        return Promise.all(dirs.map(function (dirItem) {
+                            return Promise.all(dirs.map(function (dirItem) {
+
                                 if (dirItem.toLowerCase() == "script") {
                                     return newestFileList(path.join(filePath, dirItem))
                                 } else if (fs.statSync(path.join(filePath, dirItem)).isDirectory() && fs.existsSync(path.join(filePath, dirItem, "script"))) {
@@ -53,9 +58,19 @@ function parse(logFilesDirectoryFullPaths, outputPath, logFilesFilter, logFilesF
                                 return finalArray;
                             })
 
+                        } catch (err) {
+                            if (err.code === 'ENOENT') {
+                                logMessage("info", "Seems that the following folder does not exist: " + filePath);
+                                logMessage("info", "Continuing to next step");
+
+                                return []; //dirItem + " not a valid dir";
+                            } else {
+                                logMessage("error", "Unknown file error, Logging and resuming. " + err);
+                                return [];
+                            }
+                        }
                     }))
                     .then(function (fileArrays) {
-                        //console.log(files);
                         var files = [];
                         fileArrays.forEach(function (arrayItem) {
                             if (arrayItem.length > 0) {
@@ -100,7 +115,6 @@ function parse(logFilesDirectoryFullPaths, outputPath, logFilesFilter, logFilesF
                         resolve(results);
                     })
                     .catch(function (error) {
-                        //console.log("error!")
                         reject(error);
                     });
 
@@ -112,7 +126,6 @@ module.exports = parse;
 
 
 function parseQlikLogFile(parser, file) {
-
     try {
 
         var parsed = parser.parse(file.fileContent);
@@ -136,9 +149,7 @@ function parseQlikLogFile(parser, file) {
         } else {
             throw e;
         }
-
     }
-
 }
 
 Array.prototype.getUnique = function () {
@@ -169,22 +180,22 @@ function getFields(parsedFile) {
         fieldItem.parentId = index;
         fieldItem.fields = entry.block.load.fields;
         fieldArray.push(fieldItem);
-        // entry.block.load.fields.forEach(function(field, fieldIndex) {
-        //     fieldItem = {};
-        //     fieldItem.tableName = findTableNames(entry.block.prefixes);
-        //     fieldItem.field = field;
-        //     fieldItem.parentId = index;
-        //     fieldArray.push(fieldItem);
-        // })
     });
 
     return fieldArray;
 }
 
+function getLibConnectStatements(parsedFile){
+    var loadStatements = parsedFile.result.filter(function (blk) {
+        return blk.blockType == "UNKNOWN";
+    });
+
+    return loadStatements;
+}
+
 
 
 function findTableNames(prefix) {
-    //console.log(prefix);
     if (prefix !== undefined) {
         if (prefix.table) {
             return prefix.table.value
@@ -203,7 +214,6 @@ function getLibConnections(parsedFile) {
     var loadStatementItem = {};
 
     loadStatements.forEach(function (loadStatement, index) {
-        //console.log(loadStatement)
 
         if (loadStatement.block.source != undefined) {
             if (loadStatement.block.source.loadBlockType == "FROM") {
@@ -226,7 +236,6 @@ function getLibConnections(parsedFile) {
         }
     });
 
-    //console.log(loadStatementArray[0])
     return loadStatementArray;
 }
 
@@ -268,9 +277,6 @@ function buildParamStatement(params) {
         return foo;
     }
     return false;
-    // params.forEach(function(param) {
-    //     console.log(typeof param);
-    // })
 }
 
 
@@ -311,13 +317,15 @@ function processFile(parser, file, outputPath) {
                 var libConnections = getLibConnections(parsedFile);
                 var loadStatements = getLoadStatements(parsedFile);
                 var getFieldsData = getFields(parsedFile);
+                var libConnectionStatements = getLibConnectStatements(parsedFile);
+
                 var name = file.fileName.substring(0, 11) == "SessionApp" ? file.fileName.substring(0, 47) : file.fileName.substring(0, 36);
-                writeToXML("foo", "libConnections", libConnections, name);
+                
+                writeToXML("parsedLibraryConnection", "libConnections", libConnections, name);
+                writeToXML("parsedLoadStatement", "loadStatements", loadStatements, name);
+                writeToXML("parsedTable", "fields", getFieldsData, name);
+                writeToXML("parsedLibConnectionStatements", "libConnectStatements", libConnectionStatements, name);
 
-                writeToXML("foo", "loadStatements", loadStatements, name);
-                writeToXML("table", "fields", getFieldsData, name);
-
-                //var stuff = loadStatementArray.getUnique();
                 logMessage("info", "Finishing parsing " + file.fileName)
                 if (!parsedFile.parsed || (
                         parsedFile.result.filter(function (blk) {
@@ -328,16 +336,7 @@ function processFile(parser, file, outputPath) {
                         }).length > 0
                     )) {
 
-                    // var strParsed = util.inspect(parsedFile, {
-                    //     showHidden: false,
-                    //     depth: null,
-                    //     colors: false,
-                    //     maxArrayLength: null
-                    // });
-
-                    // console.log('err', file.fileName);
                     logMessage("error", "An error occured parsing " + file.fileName);
-                    //fs.writeFileSync(path.join(outputPath, 'err-' + file.fileName), strParsed);
 
                     resolve({
                         type: 'err',
@@ -345,12 +344,8 @@ function processFile(parser, file, outputPath) {
                     });
 
                 } else {
-
-                    // console.log('done', file.fileName);
-
-                    //fs.writeFileSync(path.join(outputPath, 'done-' + file.fileName), JSON.stringify(parsedFile));
                     logMessage("info", "completed parsing " + file.fileName);
-                    // return Promise.resolve(arr.concat([{ type: 'done', file: file }]));
+                    
                     resolve({
                         type: "done",
                         file: file.fileName
@@ -360,7 +355,7 @@ function processFile(parser, file, outputPath) {
             })
             .catch(function (error) {
                 logMessage("error", "Error parsing " + file.fileName);
-                resolve("Error parsing " + file.fileName);
+                resolve("Parsed with errors " + file.fileName);
             });
     });
 
