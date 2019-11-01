@@ -13,10 +13,10 @@ From application metrics,
 ![AppFootprint](https://github.com/eapowertools/qs-governance-dashboard/wiki/img/main/AppFootprint.png)
 
 data lineage from source to visualization, 
-![Lineage](https://eapowertools.s3.amazonaws.com/governance-collector/img/main/Lineage.png)
+![Lineage](https://github.com/eapowertools/qs-governance-dashboard/wiki/img/main/Lineage.png)
 
 to auditing user clicks in a site, 
-![Audit](https://eapowertools.s3.amazonaws.com/governance-collector/img/main/Audit.png)
+![Audit](https://github.com/eapowertools/qs-governance-dashboard/wiki/img/main/Audit.png)
 
 
 the Governance Dashboard for Qlik Sense included with qsgc provides a comprehensive view of the application footprint of a Qlik Sense site.
