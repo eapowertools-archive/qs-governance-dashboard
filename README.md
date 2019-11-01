@@ -10,7 +10,7 @@ The Qlik Sense Governance Collector (**qsgc**) is a web application that collect
 ## Featuring the Governance Dashboard for Qlik Sense
 
 From application metrics, 
-![AppFootprint](https://eapowertools.s3.amazonaws.com/governance-collector/img/main/AppFootprint.png)
+![AppFootprint](https://github.com/eapowertools/qs-governance-dashboard/wiki/img/main/AppFootprint.png)
 
 data lineage from source to visualization, 
 ![Lineage](https://eapowertools.s3.amazonaws.com/governance-collector/img/main/Lineage.png)
