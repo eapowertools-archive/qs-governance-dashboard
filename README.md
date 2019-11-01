@@ -34,7 +34,7 @@ The qsgc 2 tier application with a web application and an agent.
 * The agent is a server side REST api web service.  It accepts requests from the web application or another solution you have that will send requests to it.
 
 ### How does it work?
-![process](https://eapowertools.s3.amazonaws.com/governance-collector/img/main/process.png)
+![process](https://github.com/eapowertools/qs-governance-dashboard/wiki/img/main/process.png)
 
 > 1. From the web application, select a server running an agent.
 > 2. Select what processes the agent will run:    
@@ -67,17 +67,17 @@ On the server the web application is installed, open a browser and navigate to t
 
 To add a server running an agent, click the add button or the cog in the upper right hand side of the screen. 
 
-![mainscreen](https://eapowertools.s3.amazonaws.com/governance-collector/img/webapp/mainscreen.png)
+![mainscreen](https://github.com/eapowertools/qs-governance-dashboard/wiki/img/webapp/mainscreen.png)
 
 Enter the hostname of the server and the port the agent is running on (default is 8592).
 
 Click the Save button and the server reference is added!
 
-![addserver](https://eapowertools.s3.amazonaws.com/governance-collector/img/webapp/addserver.png)
+![addserver](https://github.com/eapowertools/qs-governance-dashboard/wiki/img/webapp/addserver.png)
 
 If the server running the agent is the central node, click the Import Resources button to upload the apps, create tasks, import extensions, and create data connections.  These resources are required for processing xml to qvds and using the supplied Governance Dashboard application. 
 
-![completeserver](https://eapowertools.s3.amazonaws.com/governance-collector/img/webapp/completeserver.png)
+![completeserver](https://github.com/eapowertools/qs-governance-dashboard/wiki/img/webapp/completeserver.png)
 
 Click the OK or Cancel button to close the dialog.
 
@@ -91,7 +91,7 @@ Click one of the four buttons described in the [How does it work](#how-does-it-w
 
 When at least one of the buttons is selected, the Governance button on the right will turn green.  Click the Governance button to start the selected processes.
 
-![run](https://eapowertools.s3.amazonaws.com/governance-collector/img/webapp/run.png) 
+![run](https://github.com/eapowertools/qs-governance-dashboard/wiki/img/webapp/run.png) 
 
 When the process starts, the log will populate with status messages.  Depending on the environment, a process may take as little as a couple minutes or as long as a few hours.
 
