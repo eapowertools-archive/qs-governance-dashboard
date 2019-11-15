@@ -257,6 +257,7 @@ blockContent		=
 	/	block:ifBlock			{ return { type: 'IF',			block: block}; }
 	/	block:elseBlock			{ return { type: 'ELSE',		block: block}; }
 	/	block:endBlock			{ return { type: 'END',			block: block}; }
+	/	block:connectBlock		{ return { type: 'CONNECT',		block: block}; }
 	/	block:loadBlock			{ return { type: 'LOAD',		block: block}; }
 	/	block:dropBlock			{ return { type: 'DROP',		block: block}; }
 	/	block:renameBlock		{ return { type: 'RENAME',		block: block}; }
@@ -335,7 +336,7 @@ connectBlock
 
 
 connectBlockItem
-	= c:'CONNECT'i to:(spaces 'TO'i)?	{ return { connect: true, 		loc: location() } }
+	= c:'LIB CONNECT'i to:(spaces 'TO'i)?	{ return { connect: true, 		loc: location() } }
 	/ c:'CUSTOM'i						{ return { connect: true, 		loc: location() } }
 	/ d:'DISCONNECT'i					{ return { connect: false, 		loc: location() } }
 	/ p:'PROVIDER'i						{ return { connect: undefined, 	loc: location() } }

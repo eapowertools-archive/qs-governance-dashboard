@@ -18,11 +18,14 @@ function writeToXML(root, type, data, appId, options, morePath) {
 
     morePath = morePath || "";
 
-    var xmlData = js2xmlparser.parse(root, data, options);
-
+    var new_data = JSON.stringify(data).replace("\"$$", "\"").replace("$$", "").replace("object:","object_");
+    new_data = JSON.parse(new_data);
+  
+    var xmlData = js2xmlparser.parse(root, new_data, options);
 
     fs.writeFileSync(path.join(config.agent.metadataPath, morePath, (appId !== undefined ? appId + "_" : "") + type + ".xml"), xmlData);
     logger.debug("Wrote file: " + path.join(config.agent.metadataPath, morePath, (appId !== undefined ? appId + "_" : "") + type + ".xml"), loggerObject);
+    
     return appId + "_" + type + ".xml file saved";
 }
 

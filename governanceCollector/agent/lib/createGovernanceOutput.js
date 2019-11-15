@@ -15,7 +15,6 @@ var loggerObject = {
     jsFile: "createGovernanceOutput.js"
 }
 
-
 function logMessage(level, msg) {
     if (level == "info" || level == "error") {
         socketHelper.sendMessage("governanceCollector", msg);
@@ -49,7 +48,8 @@ function doGovernance(config, options) {
                 console.log("checking if parsing load scripts");
                 if (options.boolParseLoadScripts) {
                     logMessage("info", "Parsing load script logs for lineage information");
-                    return parseScriptLogs(config.agent.loadScriptParsing.loadScriptLogPath, config.agent.loadScriptParsing.parsedScriptLogPath, [], []);
+                    return null;
+                    // return parseScriptLogs(config.agent.loadScriptParsing.loadScriptLogPath, config.agent.loadScriptParsing.parsedScriptLogPath, [], []);
                 }
                 return;
             })
